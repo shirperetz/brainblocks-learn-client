@@ -40,10 +40,11 @@ export function submitSession(payload) {
 // ---- Help ("לא הבנתי"), review, challenges ---------------------------------
 
 /** A short explanation of one question (local AI, or the game's own hint). Never the answer. */
-export function getHelp({ questionText, correctAnswer, chosenAnswer, grade, again = false, fallbackHint }) {
+/** attempt: 0 = first press, 1 = "explain differently" (both from code, always correct), 2+ = the local AI. */
+export function getHelp({ questionText, correctAnswer, chosenAnswer, grade, attempt = 0, fallbackHint }) {
   return apiRequest("/api/learn/help", {
     method: "POST",
-    body: JSON.stringify({ questionText, correctAnswer, chosenAnswer, grade, again, fallbackHint }),
+    body: JSON.stringify({ questionText, correctAnswer, chosenAnswer, grade, attempt, fallbackHint }),
   });
 }
 

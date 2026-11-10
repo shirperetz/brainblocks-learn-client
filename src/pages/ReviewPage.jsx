@@ -4,6 +4,7 @@ import BigButton from "../components/BigButton";
 import Mascot from "../components/Mascot";
 import AnswerButton from "../components/AnswerButton";
 import HelpButton from "../components/HelpButton";
+import MathText from "../components/MathText";
 import { getMistakes, resolveMistake } from "../services/learnApi";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import { reviewOptions } from "../game/review";
@@ -77,7 +78,9 @@ export default function ReviewPage() {
               {index + 1} מתוך {items.length}
             </p>
             <div className="play__question card">
-              <p className="play__question-text">{m.questionText}</p>
+              <p className="play__question-text">
+                <MathText text={m.questionText} />
+              </p>
               {m.givenAnswer && <p className="review__was">בפעם הקודמת עניתם {m.givenAnswer}</p>}
             </div>
             {picked === null && (

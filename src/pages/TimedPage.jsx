@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
 import Mascot from "../components/Mascot";
 import AnswerButton from "../components/AnswerButton";
+import MathText from "../components/MathText";
 import { getQuestions, getStats, submitSession } from "../services/learnApi";
 import { useProfile } from "../context/profileStore";
 import { useRequireProfile } from "../hooks/useRequireProfile";
@@ -144,7 +145,9 @@ export default function TimedPage() {
             {q ? (
               <>
                 <div className={`play__question card ${flash ? `flash--${flash}` : ""}`}>
-                  <p className="play__question-text">{q.text}</p>
+                  <p className="play__question-text">
+                    <MathText text={q.text} />
+                  </p>
                 </div>
                 <div className="play__answers">
                   {q.options.map((opt, j) => (

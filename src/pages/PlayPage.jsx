@@ -4,6 +4,7 @@ import AnswerButton from "../components/AnswerButton";
 import ProgressBar from "../components/ProgressBar";
 import Mascot from "../components/Mascot";
 import HelpButton from "../components/HelpButton";
+import MathText from "../components/MathText";
 import { getTopic } from "../data/topics";
 import { getQuestions, submitSession } from "../services/learnApi";
 import { useProfile } from "../context/profileStore";
@@ -152,7 +153,9 @@ export default function PlayPage() {
         {current && !submitting && (
           <>
             <div className="play__question card" style={{ "--accent": topicInfo?.color }}>
-              <p className="play__question-text">{current.text}</p>
+              <p className="play__question-text">
+                <MathText text={current.text} />
+              </p>
             </div>
 
             {selected === null && (

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import AnswerButton from "./AnswerButton";
 import HelpButton from "./HelpButton";
+import MathText from "./MathText";
 import "../styles/pages/play.css";
 
 const FEEDBACK_MS = 900;
@@ -58,7 +59,9 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
   return (
     <>
       <div className="play__question card">
-        <p className="play__question-text">{q.text}</p>
+        <p className="play__question-text">
+          <MathText text={q.text} />
+        </p>
       </div>
       {help && selected === null && (
         <HelpButton

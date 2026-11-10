@@ -73,3 +73,9 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Math inside a Hebrew question stays left-to-right (MathText). */
+.math-inline {
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
