@@ -635,3 +635,14 @@
   border-radius: 999px;
   padding: 2px 14px;
 }
+
+/* "לא הבנתי" on the island: a small owl button under the top bar; the bubble opens in place. */
+.game-help {
+  display: flex;
+  justify-content: center;
+  margin: 0.2rem 0 0.4rem;
+}
+
+.game-help .help-bubble {
+  width: 100%;
+}

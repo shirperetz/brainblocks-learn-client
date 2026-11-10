@@ -1,7 +1,7 @@
 // Typed calls against the /api/learn endpoints. One function per backend operation
 // so screens never build URLs or JSON bodies by hand.
 
-import { apiRequest } from "./apiClient";
+import { API_BASE_URL, apiRequest } from "./apiClient";
 
 export function createProfile({ name, avatar }) {
   return apiRequest("/api/learn/profiles", {
@@ -35,4 +35,41 @@ export function submitSession(payload) {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+// ---- Help ("לא הבנתי"), review, challenges ---------------------------------
+
+/** A short explanation of one question (local AI, or the game's own hint). Never the answer. */
+export function getHelp({ questionText, correctAnswer, chosenAnswer, grade, again = false, fallbackHint }) {
+  return apiRequest("/api/learn/help", {
+    method: "POST",
+    body: JSON.stringify({ questionText, correctAnswer, chosenAnswer, grade, again, fallbackHint }),
+  });
+}
+
+/** The text read aloud as an object URL (WAV), or null when the computer has no voice for it. */
+export async function speakUrl(text) {
+  try {
+    const r = await fetch(`${API_BASE_URL}/api/learn/speak`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (r.status !== 200) return null;
+    return URL.createObjectURL(await r.blob());
+  } catch {
+    return null;
+  }
+}
+
+export function getMistakes(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/mistakes`);
+}
+
+export function resolveMistake(mistakeId, profileId) {
+  return apiRequest(`/api/learn/mistakes/${mistakeId}/resolve?profileId=${profileId}`, { method: "POST" });
+}
+
+export function getStats(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/stats`);
 }

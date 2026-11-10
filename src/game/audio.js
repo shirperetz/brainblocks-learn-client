@@ -79,6 +79,23 @@ export function say(...keys) {
   })();
 }
 
+/** Plays one recorded file (e.g. a help explanation made on the server); same rules as say(). */
+export function sayUrl(src) {
+  stopVoice();
+  if (muted || !src) return Promise.resolve();
+  const a = new Audio(src);
+  const run = { cancelled: false, audio: a };
+  current = run;
+  return new Promise((res) => {
+    a.onended = res;
+    a.onerror = res;
+    a.onpause = res;
+    a.play().catch(res);
+  }).then(() => {
+    if (current === run) current = null;
+  });
+}
+
 /** Spoken form of a whole number 0..20 ("n7"). */
 export const num = (n) => `n${n}`;
 

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AnswerButton from "../components/AnswerButton";
 import ProgressBar from "../components/ProgressBar";
 import Mascot from "../components/Mascot";
+import HelpButton from "../components/HelpButton";
 import { getTopic } from "../data/topics";
 import { getQuestions, submitSession } from "../services/learnApi";
 import { useProfile } from "../context/profileStore";
@@ -29,6 +30,7 @@ export default function PlayPage() {
 
   const answersRef = useRef([]);
   const streakRef = useRef(0);
+  const helpUsedRef = useRef(false); // "לא הבנתי" opened on the current question
   const startRef = useRef(0); // set to the real start time in the effect below
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function PlayPage() {
       chosenAnswer: current.options[optionIndex],
       correctAnswer: current.options[current.correctIndex],
       correct: isCorrect,
-      hintUsed: false,
+      hintUsed: helpUsedRef.current,
       topic: current.topic,
       explanation: current.explanation,
     });
@@ -80,6 +82,7 @@ export default function PlayPage() {
   }
 
   function advance() {
+    helpUsedRef.current = false;
     if (index + 1 < total) {
       setIndex((i) => i + 1);
       setSelected(null);
@@ -151,6 +154,15 @@ export default function PlayPage() {
             <div className="play__question card" style={{ "--accent": topicInfo?.color }}>
               <p className="play__question-text">{current.text}</p>
             </div>
+
+            {selected === null && (
+              <HelpButton
+                key={`${index}-${current.text}`}
+                question={{ text: current.text, correct: current.options[current.correctIndex], hint: current.hint }}
+                grade={profile.grade}
+                onUsed={() => (helpUsedRef.current = true)}
+              />
+            )}
 
             <div className="play__answers">
               {current.options.map((opt, j) => (

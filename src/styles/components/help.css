@@ -1,0 +1,97 @@
+/* "לא הבנתי" - the help button and the owl's explanation bubble. */
+
+.help-btn {
+  align-self: center;
+  border: 2px solid var(--purple, #7c5cff);
+  background: #fff;
+  color: var(--purple, #7c5cff);
+  font: inherit;
+  font-weight: 800;
+  font-size: 1.05rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(124, 92, 255, 0.25);
+}
+
+.help-btn:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.help-btn--compact {
+  padding: 0.35rem 0.7rem;
+  font-size: 1.3rem;
+}
+
+.help-bubble {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  background: #fffaf0;
+  border: 2px solid #ffd27a;
+  border-radius: 20px;
+  padding: 0.8rem 0.9rem;
+  margin: 0.4rem 0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  animation: help-pop 0.25s ease-out;
+}
+
+.help-bubble__owl {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.help-bubble__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.help-bubble__text {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: #3a2f1a;
+}
+
+.help-bubble__text--loading {
+  opacity: 0.7;
+  animation: help-blink 1s infinite alternate;
+}
+
+.help-bubble__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.help-chip {
+  border: none;
+  background: #ffe7b3;
+  color: #5a4210;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+@keyframes help-pop {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes help-blink {
+  to {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .help-bubble,
+  .help-bubble__text--loading {
+    animation: none;
+  }
+}

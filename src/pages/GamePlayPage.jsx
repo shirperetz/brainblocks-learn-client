@@ -12,6 +12,7 @@ import { preload, say, sfx, stopVoice } from "../game/audio";
 import DragonRound from "../game/DragonRound";
 import BalloonRound from "../game/BalloonRound";
 import { submitSession } from "../services/learnApi";
+import HelpButton from "../components/HelpButton";
 import { useProfile } from "../context/profileStore";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/island.css";
@@ -24,6 +25,11 @@ const KINDS = {
     text: (r) => (r.start ? `לדרקון יש ${r.start}, הוא רוצה ${r.want} תותים` : `הדרקון רוצה ${r.want} תותים`),
     answer: (r) => String(r.want),
     explain: (r) => (r.start ? `סופרים מ-${r.start} והלאה עד ${r.want}` : `סופרים תות-תות עד ${r.want}`),
+    // Read aloud when the AI is off - never says the number itself.
+    hint: (r) =>
+      r.start
+        ? "יש כבר תותים בצלחת. מתחילים לספור מהם, ומוסיפים תות אחד בכל פעם עד המספר של הדרקון."
+        : "לוחצים על תות אחד בכל פעם, וסופרים בקול: אחת, שתיים, שלוש, עד המספר של הדרקון.",
     Round: DragonRound,
   },
   balloons: {
@@ -32,6 +38,10 @@ const KINDS = {
     text: balloonText,
     answer: (r) => String(r.answer),
     explain: (r) => `${r.a} ${r.op} ${r.b} = ${r.answer}`,
+    hint: (r) =>
+      r.op === "+"
+        ? "סופרים את כל התפוחים בתמונה, האדומים והירוקים, אחד אחד."
+        : "סופרים רק את התפוחים שלא מחוקים, אחד אחד.",
     Round: BalloonRound,
   },
 };
@@ -154,6 +164,18 @@ function GamePlay() {
       </header>
 
       {error && <p className="form-error">{error}</p>}
+
+      {round && !result && (
+        <div className="game-help">
+          <HelpButton
+            key={`${runId}-${index}`}
+            compact
+            speak
+            grade={profile.grade}
+            question={{ text: kind.text(round), correct: kind.answer(round), hint: kind.hint(round) }}
+          />
+        </div>
+      )}
 
       {round && !result && <Round key={`${runId}-${index}`} round={round} onDone={onRoundDone} />}
 

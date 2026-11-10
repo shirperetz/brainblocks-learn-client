@@ -10,6 +10,9 @@ import Placeholder from "./pages/Placeholder";
 import IslandPage from "./pages/IslandPage";
 import GameLevelsPage from "./pages/GameLevelsPage";
 import GamePlayPage from "./pages/GamePlayPage";
+import DailyPage from "./pages/DailyPage";
+import TimedPage from "./pages/TimedPage";
+import ReviewPage from "./pages/ReviewPage";
 
 // All routes for עולם החשבון. Real pages replace the Placeholders milestone by milestone.
 export default function AppRouter() {
@@ -25,10 +28,10 @@ export default function AppRouter() {
       <Route path="/island" element={<IslandPage />} />
       <Route path="/island/:game" element={<GameLevelsPage />} />
       <Route path="/island/:game/:level" element={<GamePlayPage />} />
-      <Route path="/review" element={<Placeholder title="חזרה על טעויות" />} />
+      <Route path="/review" element={<ReviewPage />} />
       <Route path="/rewards" element={<Placeholder title="פרסים והישגים" />} />
-      <Route path="/daily" element={<Placeholder title="האתגר היומי" />} />
-      <Route path="/timed" element={<Placeholder title="אתגר 60 שניות" />} />
+      <Route path="/daily" element={<DailyPage />} />
+      <Route path="/timed" element={<TimedPage />} />
       <Route path="/parent" element={<Placeholder title="להורים ולמורים" />} />
       <Route path="/settings" element={<Placeholder title="הגדרות" />} />
       <Route path="*" element={<Navigate to="/" replace />} />
