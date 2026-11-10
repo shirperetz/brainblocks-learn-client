@@ -1,0 +1,92 @@
+.landing {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 70vh;
+}
+
+.landing__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+  padding: 20px;
+}
+
+.landing__title {
+  margin-top: 6px;
+  color: var(--ink);
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.6);
+}
+
+.landing__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+  width: min(360px, 90vw);
+}
+
+.landing__actions .big-button {
+  width: 100%;
+}
+
+.landing__parents {
+  margin-top: 4px;
+}
+
+/* Floating playful numbers + stars in the background */
+.landing__sky {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.landing__floaty {
+  position: absolute;
+  font-size: 2.4rem;
+  font-weight: 900;
+  opacity: 0.5;
+  animation: float-soft 5s ease-in-out infinite;
+}
+
+.landing__floaty--1 {
+  top: 14%;
+  inset-inline-start: 12%;
+  color: var(--purple);
+}
+.landing__floaty--2 {
+  top: 22%;
+  inset-inline-end: 14%;
+  animation-delay: 0.6s;
+}
+.landing__floaty--3 {
+  top: 64%;
+  inset-inline-start: 18%;
+  color: var(--blue);
+  animation-delay: 1.2s;
+}
+.landing__floaty--4 {
+  top: 70%;
+  inset-inline-end: 20%;
+  color: var(--green);
+  animation-delay: 0.3s;
+}
+.landing__floaty--5 {
+  top: 40%;
+  inset-inline-start: 6%;
+  animation-delay: 1.5s;
+}
+.landing__floaty--6 {
+  top: 48%;
+  inset-inline-end: 8%;
+  color: var(--orange);
+  animation-delay: 0.9s;
+}

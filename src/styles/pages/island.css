@@ -1,0 +1,637 @@
+/* =========================================================================
+   אי המספרים - island hub, level path and the mini-games (2026-11-10).
+   Big tap targets (>= 64px), few words, everything readable without reading.
+   ========================================================================= */
+
+.island-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(120% 60% at 50% 115%, #ffe7a8 0 38%, transparent 39%),
+    linear-gradient(180deg, #8fdcff 0%, #bdeeff 45%, #5fd0e6 46%, #3bb7d6 100%);
+  padding: 14px 16px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.game-shell {
+  background: linear-gradient(180deg, #bfe9ff 0%, #e9f8ff 55%, #fff4e2 100%);
+}
+
+.island__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.island__me {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  padding: 6px 14px 6px 6px;
+  box-shadow: var(--shadow-card);
+}
+
+.island__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+}
+
+.island__name {
+  font-weight: 800;
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.round-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  box-shadow: var(--shadow-press);
+  font-size: 26px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-family: var(--font);
+  color: var(--ink);
+  transition: transform 0.12s ease;
+}
+.round-btn:active {
+  transform: translateY(3px) scale(0.96);
+  box-shadow: 0 2px 0 rgba(53, 35, 120, 0.18);
+}
+.round-btn--ghost {
+  background: transparent;
+  box-shadow: none;
+}
+.round-btn--big {
+  width: 76px;
+  height: 76px;
+  font-size: 34px;
+}
+.round-btn--go {
+  background: var(--green);
+  color: #fff;
+}
+
+.island__title {
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 34px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 3px 0 rgba(30, 90, 140, 0.35);
+}
+
+.island__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.hut {
+  border: none;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 8px 0 color-mix(in srgb, var(--hut) 70%, #000 10%), var(--shadow-card);
+  padding: 18px 8px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: var(--font);
+  border-top: 8px solid var(--hut);
+  transition: transform 0.15s ease;
+  min-height: 170px;
+}
+.hut:active {
+  transform: translateY(5px);
+}
+.hut__emoji {
+  font-size: 68px;
+  line-height: 1;
+  animation: bob 2.6s ease-in-out infinite;
+}
+.hut:nth-child(2) .hut__emoji { animation-delay: 0.4s; }
+.hut:nth-child(3) .hut__emoji { animation-delay: 0.8s; }
+.hut:nth-child(4) .hut__emoji { animation-delay: 1.2s; }
+.hut__name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.hut__stars {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.hut__lock {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.hut.is-locked {
+  filter: grayscale(0.85);
+  opacity: 0.75;
+}
+.hut.is-locked .hut__emoji {
+  animation: none;
+}
+
+.island__grown {
+  margin-top: auto;
+  align-self: center;
+  color: #fff;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+/* ---- level path ------------------------------------------------------------------ */
+.levels__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  padding: 6px 18px;
+}
+
+.levels {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 6px 4px;
+}
+.stone {
+  align-self: flex-start;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  background: var(--hut);
+  color: #fff;
+  font-family: var(--font);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 7px 0 rgba(0, 0, 0, 0.18);
+  margin-inline-start: 18%;
+}
+.stone.is-left {
+  align-self: flex-end;
+  margin-inline-start: 0;
+  margin-inline-end: 18%;
+}
+.stone__num {
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1;
+}
+.stone__stars {
+  font-size: 17px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.45);
+}
+.stone__stars .is-on {
+  color: #ffe066;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+.stone--unlocked {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.stone--locked {
+  background: #d9d6ee;
+  cursor: default;
+}
+.stone--locked .stone__num {
+  font-size: 30px;
+}
+
+/* ---- round progress dots ------------------------------------------------------------ */
+.round-dots {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  justify-content: center;
+  direction: rtl;
+}
+.round-dots span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(43, 35, 80, 0.15);
+}
+.round-dots .is-done {
+  background: var(--green);
+}
+.round-dots .is-now {
+  background: var(--hut);
+  transform: scale(1.35);
+}
+
+/* ---- dots (number as dots) ----------------------------------------------------------- */
+.dots {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+.dots__row {
+  display: flex;
+  gap: 4px;
+}
+.dots__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--red-dark);
+}
+
+/* ---- הדרקון הרעב --------------------------------------------------------------------- */
+.dragon {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: stretch;
+}
+.dragon__creature {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.dragon__face {
+  font-size: 92px;
+  line-height: 1;
+  animation: bob 2.2s ease-in-out infinite;
+}
+.dragon__creature--more .dragon__face,
+.dragon__creature--less .dragon__face {
+  animation: shake 0.45s ease;
+}
+.dragon__creature--yum .dragon__face {
+  animation: chomp 0.5s ease 2;
+}
+.dragon__bubble {
+  position: relative;
+  background: #fff;
+  border-radius: 24px;
+  padding: 10px 16px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 92px;
+}
+.dragon__want {
+  font-size: 54px;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1;
+}
+.dragon__fruit {
+  font-size: 34px;
+}
+
+.dragon__tree {
+  background: radial-gradient(circle at 50% 40%, #6fd36f, #38a845);
+  border-radius: 40px 40px 28px 28px;
+  padding: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  min-height: 96px;
+  box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.12);
+}
+.berry {
+  width: 54px;
+  height: 54px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  font-size: 34px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.1s ease;
+}
+.berry:active {
+  transform: scale(0.85);
+}
+.dragon__empty {
+  font-size: 48px;
+}
+
+.plate {
+  border: none;
+  background: #fff;
+  border-radius: 999px / 70%;
+  padding: 16px 14px 12px;
+  box-shadow: 0 8px 0 #e0dbf5, var(--shadow-card);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font);
+  min-height: 120px;
+  border: 4px dashed #d8d2f5;
+}
+.plate.is-wrong {
+  animation: shake 0.45s ease;
+  border-color: var(--orange);
+}
+.plate.is-done {
+  border-color: var(--green);
+  border-style: solid;
+}
+.plate__items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  min-height: 46px;
+}
+.plate--frame .plate__items {
+  display: grid;
+  grid-template-columns: repeat(5, 46px);
+  gap: 4px;
+}
+.plate__berry,
+.plate__slot {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  font-size: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  animation: drop 0.25s ease;
+}
+.plate--frame .plate__berry,
+.plate__slot {
+  background: #fff5f6;
+  border: 2px solid #f3d4da;
+}
+.plate__slot {
+  animation: none;
+}
+.plate__berry.is-fixed {
+  background: #ffe2e7;
+  border-color: #ffb3c0;
+}
+.plate__num {
+  position: absolute;
+  bottom: -4px;
+  inset-inline-end: -2px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 999px;
+  min-width: 18px;
+  padding: 0 4px;
+  line-height: 18px;
+}
+.plate__label {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--ink);
+  background: #ffe066;
+  border-radius: 999px;
+  padding: 6px 22px;
+  box-shadow: 0 4px 0 #e0b800;
+}
+
+/* ---- בלונים -------------------------------------------------------------------------- */
+.balloons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.equation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-radius: 26px;
+  padding: 12px 10px;
+  box-shadow: var(--shadow-card);
+  font-size: 56px;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.equation__op {
+  color: var(--hut);
+}
+.equation__answer {
+  min-width: 64px;
+  text-align: center;
+  border-radius: 16px;
+  background: #f1eeff;
+  color: var(--purple);
+}
+.equation__answer.is-shown {
+  background: #dff8ec;
+  color: var(--green-dark);
+  animation: pop-in 0.35s ease;
+}
+.pictures {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  min-height: 48px;
+}
+.pictures__item {
+  position: relative;
+  font-size: 34px;
+  line-height: 1.1;
+}
+.pictures--small .pictures__item {
+  font-size: 24px;
+}
+.pictures__item.is-out .pictures__emoji {
+  opacity: 0.3;
+  filter: grayscale(0.6);
+}
+.pictures__item.is-out::after {
+  content: "✖";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--red-dark);
+  font-size: 0.9em;
+  font-weight: 900;
+}
+.pictures__plus {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--hut);
+  padding: 0 4px;
+}
+.pictures__num {
+  position: absolute;
+  top: -8px;
+  inset-inline-end: -4px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 999px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 18px;
+}
+
+.sky {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 10px;
+  padding: 10px 6px 4px;
+}
+.balloon {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font);
+  animation: float 3s ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+.balloon__body {
+  width: 112px;
+  height: 128px;
+  border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.65) 0 10%, transparent 11%), var(--c);
+  display: grid;
+  place-items: center;
+  font-size: 50px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+  box-shadow: inset -10px -12px 0 rgba(0, 0, 0, 0.1);
+}
+.balloon__string {
+  width: 2px;
+  height: 34px;
+  background: rgba(43, 35, 80, 0.35);
+}
+.balloon.is-gone {
+  animation: none;
+  opacity: 0.25;
+  transform: scale(0.7);
+  transition: all 0.35s ease;
+}
+.balloon.is-popped {
+  animation: popped 0.4s ease forwards;
+}
+
+/* ---- level result ------------------------------------------------------------------- */
+.result {
+  margin-top: 30px;
+  background: #fff;
+  border-radius: 32px;
+  padding: 26px 16px;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: pop-in 0.4s ease;
+}
+.result__stars {
+  display: flex;
+  gap: 8px;
+  font-size: 66px;
+  color: #e3e0f3;
+}
+.result__stars .is-on {
+  color: #ffc928;
+  text-shadow: 0 4px 0 #e0a800;
+  animation: pop-in 0.45s ease both;
+  animation-delay: calc(var(--i) * 0.25s);
+}
+.result__score {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.result__actions {
+  display: flex;
+  gap: 16px;
+}
+
+/* ---- motion -------------------------------------------------------------------------- */
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+@keyframes chomp {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+}
+@keyframes drop {
+  from { transform: translateY(-16px) scale(0.6); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes pop-in {
+  0% { transform: scale(0.4); opacity: 0; }
+  70% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes popped {
+  0% { transform: scale(1); opacity: 1; }
+  60% { transform: scale(1.35); opacity: 0.6; }
+  100% { transform: scale(0); opacity: 0; }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hut__emoji, .dragon__face, .balloon, .stone--unlocked { animation: none; }
+}
+
+/* count-on: how many the dragon already had before the child started */
+.plate__start {
+  font-size: 20px;
+  font-weight: 900;
+  color: #c2185b;
+  background: #ffe2e7;
+  border-radius: 999px;
+  padding: 2px 14px;
+}

@@ -1,0 +1,26 @@
+.star-rating {
+  display: inline-flex;
+  gap: 4px;
+  line-height: 1;
+}
+
+.star {
+  filter: grayscale(0.2);
+}
+.star:not(.is-earned) {
+  opacity: 0.45;
+}
+
+.star-rating--sm .star {
+  font-size: 1rem;
+}
+.star-rating--md .star {
+  font-size: 1.6rem;
+}
+.star-rating--lg .star {
+  font-size: 3rem;
+}
+
+.star.is-animated {
+  animation: pop-in 0.4s ease both;
+}

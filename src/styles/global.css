@@ -1,0 +1,225 @@
+/* =========================================================================
+   עולם החשבון — Global design system (kid-friendly, bright, RTL)
+   Tokens + reset + shared component classes used across all screens.
+   ========================================================================= */
+
+:root {
+  /* Fonts */
+  --font: "Rubik", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  /* Brand + topic colors */
+  --purple: #7c5cff;
+  --purple-dark: #5a3fd6;
+  --pink: #ff6fb5;
+  --green: #25c685;
+  --green-dark: #16a06a;
+  --orange: #ff9f43;
+  --blue: #4aa8ff;
+  --blue-dark: #2f7fe0;
+  --teal: #20c4c4;
+  --yellow: #ffce3a;
+  --red-soft: #ff7a8a;
+  --red-dark: #e84d63;
+
+  /* Neutrals / text */
+  --ink: #2b2350;
+  --ink-soft: #6f6a9c;
+  --white: #ffffff;
+  --card: #ffffff;
+  --card-2: #f6f4ff;
+  --line: #e7e3ff;
+
+  /* Background gradient (soft sky -> warm cream) */
+  --bg-top: #bfe9ff;
+  --bg-bottom: #fff4e2;
+
+  /* Shape + depth */
+  --radius-xl: 32px;
+  --radius-lg: 26px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --shadow-soft: 0 14px 34px rgba(86, 63, 170, 0.18);
+  --shadow-card: 0 10px 24px rgba(86, 63, 170, 0.14);
+  --shadow-press: 0 6px 0 rgba(53, 35, 120, 0.18);
+
+  /* Sizing */
+  --tap-min: 56px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: linear-gradient(160deg, var(--bg-top) 0%, var(--bg-bottom) 70%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* ----- App shell: centers each screen ----- */
+.app-shell {
+  flex: 1;
+  width: min(960px, 100% - 28px);
+  margin: 0 auto;
+  padding: 22px 0 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ----- Big primary action button ----- */
+.big-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: var(--tap-min);
+  padding: 16px 30px;
+  border-radius: var(--radius-lg);
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--white);
+  background: linear-gradient(180deg, var(--purple) 0%, var(--purple-dark) 100%);
+  box-shadow: var(--shadow-press);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.12s ease;
+}
+
+.big-button:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.big-button:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 rgba(53, 35, 120, 0.18);
+}
+
+.big-button--green {
+  background: linear-gradient(180deg, var(--green) 0%, var(--green-dark) 100%);
+}
+.big-button--blue {
+  background: linear-gradient(180deg, var(--blue) 0%, var(--blue-dark) 100%);
+}
+.big-button--ghost {
+  background: var(--white);
+  color: var(--purple-dark);
+  box-shadow: var(--shadow-card);
+}
+
+/* ----- Card ----- */
+.card {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 22px;
+}
+
+/* ----- Titles ----- */
+.screen-title {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.screen-subtitle {
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  font-weight: 500;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* ----- Small text link (e.g. parent area) ----- */
+.text-link {
+  background: transparent;
+  color: var(--purple-dark);
+  font-weight: 700;
+  text-decoration: underline;
+  padding: 8px;
+}
+
+/* ----- Reusable animations ----- */
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-6deg);
+  }
+  75% {
+    transform: rotate(6deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
