@@ -1,7 +1,8 @@
 // Thin fetch wrapper for the Spring Boot API. Errors come back as Error objects
 // with a short, child-friendly Hebrew message that screens can show directly.
 
-const API_BASE_URL = "http://localhost:8080";
+// Same address as the page (Vite proxies /api to :8080) - works on the PC and over Tailscale.
+const API_BASE_URL = "";
 
 export async function apiRequest(path, options = {}) {
   let response;
