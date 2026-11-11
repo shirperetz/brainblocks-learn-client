@@ -40,6 +40,11 @@ export default function LandingPage() {
               <BigButton variant="green" onClick={handleStart} disabled={loading}>
                 {`להמשיך לשחק, ${profile.name}`}
               </BigButton>
+              {profile.admin && (
+                <BigButton variant="ghost" onClick={() => navigate("/admin")}>
+                  ⚙️ ניהול
+                </BigButton>
+              )}
               <BigButton variant="ghost" onClick={() => { resetProfile(); navigate("/login"); }}>
                 זה לא אני - החלפת משתמש
               </BigButton>

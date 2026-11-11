@@ -83,3 +83,31 @@ export function resolveMistake(mistakeId, profileId) {
 export function getStats(profileId) {
   return apiRequest(`/api/learn/profiles/${profileId}/stats`);
 }
+
+// ---- Admin (2026-11-11) - only Shir's admin account gets past the server's check ----------
+
+export function adminChildren() {
+  return apiRequest("/api/learn/admin/children");
+}
+
+export function adminSetPassword(id, { username, password }) {
+  return apiRequest(`/api/learn/admin/children/${id}/password`, {
+    method: "POST",
+    body: JSON.stringify({ username, password }),
+  });
+}
+
+export function adminSetDisabled(id, disabled) {
+  return apiRequest(`/api/learn/admin/children/${id}/disabled`, {
+    method: "POST",
+    body: JSON.stringify({ disabled }),
+  });
+}
+
+export function adminJoinCode() {
+  return apiRequest("/api/learn/admin/join-code");
+}
+
+export function adminChangeJoinCode(code) {
+  return apiRequest("/api/learn/admin/join-code", { method: "PUT", body: JSON.stringify({ code }) });
+}

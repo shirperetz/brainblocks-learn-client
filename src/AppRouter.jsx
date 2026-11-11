@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import AdminPage from "./pages/AdminPage";
 import CharacterPage from "./pages/CharacterPage";
 import GradePage from "./pages/GradePage";
 import TopicsPage from "./pages/TopicsPage";
@@ -21,6 +22,7 @@ export default function AppRouter() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/admin" element={<AdminPage />} />
       <Route path="/character" element={<CharacterPage />} />
       <Route path="/grade" element={<GradePage />} />
       <Route path="/topics" element={<TopicsPage />} />
