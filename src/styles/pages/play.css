@@ -43,9 +43,11 @@
 }
 
 .play__question-text {
-  font-size: clamp(2rem, 7vw, 3rem);
+  font-size: clamp(1.5rem, 7vw, 3rem);
   font-weight: 900;
   color: var(--ink);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .play__answers {
@@ -77,5 +79,8 @@
 /* Math inside a Hebrew question stays left-to-right (MathText). */
 .math-inline {
   unicode-bidi: isolate;
-  white-space: nowrap;
+  /* 2026-11-11: a long sequence ("566, 570, 574, 578, ?") ran out of the card on a phone. It may now
+     wrap after a comma; a formula stays whole (MathText joins "363 + 852" with no-break spaces). */
+  white-space: normal;
+  overflow-wrap: anywhere;
 }

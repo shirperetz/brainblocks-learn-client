@@ -128,7 +128,7 @@ p {
   flex: 1;
   width: min(60rem, 100% - 28px);
   margin: 0 auto;
-  padding: 22px 0 40px;
+  padding: 22px 0 96px; /* room under the content for the fixed sound button */
   display: flex;
   flex-direction: column;
 }

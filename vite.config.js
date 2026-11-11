@@ -8,6 +8,14 @@ export default defineConfig({
   server: {
     port: 5174,
     strictPort: true,
-    proxy: { "/api": "http://127.0.0.1:8080" },
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:8080",
+        changeOrigin: true,
+        // Same-site through the proxy: the browser's Origin (e.g. the Tailscale address) made the
+        // server's CORS check answer 403 on every POST/PATCH ("נסה שוב" after choosing a grade).
+        configure: (proxy) => proxy.on("proxyReq", (req) => req.removeHeader("origin")),
+      },
+    },
   },
 });
