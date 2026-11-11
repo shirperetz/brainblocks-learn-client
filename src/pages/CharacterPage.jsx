@@ -17,10 +17,14 @@ export default function CharacterPage() {
   const young = chosen?.grade === "G1" || chosen?.grade === "G2" || chosen?.grade === "G3";
   const [selected, setSelected] = useState(null);
   const [name, setName] = useState("");
+  // 2026-11-11: children's accounts - the username + password this child will log in with.
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const canConfirm = selected && name.trim().length > 0 && !submitting;
+  const canConfirm = selected && name.trim().length > 0 && username.trim().length >= 3 && password.length >= 4 && !submitting;
 
   useEffect(() => {
     if (!young) return;
@@ -35,7 +39,8 @@ export default function CharacterPage() {
     setSubmitting(true);
     setError("");
     try {
-      await createProfile({ name: name.trim(), avatar: selected, grade: chosen.grade, difficulty: chosen.difficulty });
+      await createProfile({ name: name.trim(), avatar: selected, grade: chosen.grade, difficulty: chosen.difficulty,
+        username: username.trim(), password });
       navigate(startsOnIsland(chosen.grade) ? "/island" : "/topics");
     } catch (err) {
       setError(err.message);
@@ -82,6 +87,43 @@ export default function CharacterPage() {
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleConfirm()}
           />
+        </div>
+
+        <div className="account-box">
+          <p className="account-box__title">שם משתמש וסיסמה - כדי להיכנס שוב מכל מכשיר</p>
+          <div className="name-field">
+            <label htmlFor="child-username">שם משתמש</label>
+            <input
+              id="child-username"
+              type="text"
+              value={username}
+              maxLength={20}
+              autoCapitalize="none"
+              autoComplete="username"
+              placeholder="לפחות 3 אותיות או ספרות, בלי רווח"
+              onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
+            />
+          </div>
+          <div className="name-field">
+            <label htmlFor="child-password">סיסמה</label>
+            <div className="password-row">
+              <input
+                id="child-password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                maxLength={40}
+                autoComplete="new-password"
+                placeholder="לפחות 4 תווים"
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleConfirm()}
+              />
+              <button type="button" className="password-row__eye" onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "להסתיר סיסמה" : "להראות סיסמה"}>
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
+          </div>
+          <p className="account-box__hint">כדאי שמבוגר ירשום את הסיסמה במקום בטוח</p>
         </div>
 
         {error && <p className="form-error">{error}</p>}

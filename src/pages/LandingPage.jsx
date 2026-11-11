@@ -8,7 +8,7 @@ import "../styles/pages/landing.css";
 // Screen 1 — the warm welcome. One clear action: start playing.
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { hasProfile, profile, loading } = useProfile();
+  const { hasProfile, profile, loading, resetProfile } = useProfile();
 
   function handleStart() {
     // Returning child jumps straight in; a new child starts with the grade (then the character).
@@ -32,14 +32,27 @@ export default function LandingPage() {
         <h1 className="screen-title landing__title">ברוכים הבאים לעולם החשבון</h1>
         <p className="screen-subtitle">לומדים חשבון בכיף, במשחקים ובשלבים</p>
 
+        {/* 2026-11-11 children's accounts: a new child signs up, a returning one logs in;
+            on a device where a child is already logged in - continue, or switch child. */}
         <div className="landing__actions">
-          <BigButton variant="green" onClick={handleStart} disabled={loading}>
-            בואו נתחיל לשחק
-          </BigButton>
-          {hasProfile && (
-            <BigButton variant="ghost" onClick={() => navigate(startsOnIsland(profile?.grade) ? "/island" : "/topics")}>
-              להמשיך מאיפה שהפסקתי
-            </BigButton>
+          {hasProfile ? (
+            <>
+              <BigButton variant="green" onClick={handleStart} disabled={loading}>
+                {`להמשיך לשחק, ${profile.name}`}
+              </BigButton>
+              <BigButton variant="ghost" onClick={() => { resetProfile(); navigate("/login"); }}>
+                זה לא אני - החלפת משתמש
+              </BigButton>
+            </>
+          ) : (
+            <>
+              <BigButton variant="green" onClick={handleStart} disabled={loading}>
+                אני חדש/ה - בואו נתחיל
+              </BigButton>
+              <BigButton variant="ghost" onClick={() => navigate("/login")} disabled={loading}>
+                כבר יש לי משתמש - כניסה
+              </BigButton>
+            </>
           )}
         </div>
 
