@@ -4,18 +4,28 @@
    ========================================================================= */
 
 .island-shell {
+  position: relative;
   min-height: 100vh;
   min-height: 100dvh;
-  background:
-    radial-gradient(120% 60% at 50% 115%, #ffe7a8 0 38%, transparent 39%),
-    linear-gradient(180deg, #8fdcff 0%, #bdeeff 45%, #5fd0e6 46%, #3bb7d6 100%);
-  padding: 14px 16px 28px;
+  padding: 14px 16px 96px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.game-shell {
+/* The sea and sand fill the whole screen, edge to edge (2026-11-11: on a phone the shell's
+   centred width left the page background showing at both sides - "it looks cut"). */
+.island-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(120% 60% at 50% 115%, #ffe7a8 0 38%, transparent 39%),
+    linear-gradient(180deg, #8fdcff 0%, #bdeeff 45%, #5fd0e6 46%, #3bb7d6 100%);
+}
+
+.game-shell::before {
   background: linear-gradient(180deg, #bfe9ff 0%, #e9f8ff 55%, #fff4e2 100%);
 }
 
