@@ -11,6 +11,7 @@ import "../styles/pages/play.css";
 import "../styles/pages/challenges.css";
 
 const SECONDS = 60;
+const WRONG_PAUSE_MS = 2500; // a mistake shows the right answer - and makes random tapping not pay
 
 // ⏱️ 60 seconds: as many questions as you can. Beat your own best - no one else's.
 export default function TimedPage() {
@@ -23,6 +24,7 @@ export default function TimedPage() {
   const [index, setIndex] = useState(0);
   const [left, setLeft] = useState(SECONDS);
   const [flash, setFlash] = useState(null); // "correct" | "wrong"
+  const [picked, setPicked] = useState(null);
   const [score, setScore] = useState(0);
   const [newBest, setNewBest] = useState(false);
   const [error, setError] = useState("");
@@ -85,11 +87,16 @@ export default function TimedPage() {
     });
     if (correct) setScore((s) => s + 1);
     setFlash(correct ? "correct" : "wrong");
+    setPicked(j);
+    // 2026-11-11 (the "sneaky child" check): a wrong answer cost 0.35 s, so tapping at random beat
+    // calculating (~20 vs ~12 a minute). Now a mistake shows the right answer for 2.5 s - guessing
+    // doesn't pay, and the child sees what it should have been.
     setTimeout(() => {
       setFlash(null);
+      setPicked(null);
       setIndex((i) => i + 1);
       if (questions.length - index < 6) more();
-    }, 350);
+    }, correct ? 350 : WRONG_PAUSE_MS);
   }
 
   function end() {
@@ -151,7 +158,13 @@ export default function TimedPage() {
                 </div>
                 <div className="play__answers">
                   {q.options.map((opt, j) => (
-                    <AnswerButton key={`${index}-${j}`} label={opt} state="idle" disabled={!!flash} onClick={() => pick(j)} />
+                    <AnswerButton
+                      key={`${index}-${j}`}
+                      label={opt}
+                      state={flash === "wrong" ? (j === q.correctIndex ? "correct" : j === picked ? "wrong" : "idle") : "idle"}
+                      disabled={!!flash}
+                      onClick={() => pick(j)}
+                    />
                   ))}
                 </div>
               </>
