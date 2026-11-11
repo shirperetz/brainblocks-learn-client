@@ -57,8 +57,8 @@ export function ProfileProvider({ children }) {
   }
 
   /** A new child: grade (chosen first), character, name, username and password. */
-  async function createProfile({ name, avatar, grade, difficulty, username, password }) {
-    return signedIn(await learnApi.register({ username, password, name, avatar, grade, difficulty: difficulty ?? "MEDIUM" }));
+  async function createProfile({ name, avatar, grade, difficulty, username, password, joinCode }) {
+    return signedIn(await learnApi.register({ joinCode, username, password, name, avatar, grade, difficulty: difficulty ?? "MEDIUM" }));
   }
 
   /** A child who already has a username - on any device. */

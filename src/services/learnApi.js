@@ -5,10 +5,10 @@ import { API_BASE_URL, apiRequest } from "./apiClient";
 
 // 2026-11-11: children's accounts - a profile is made with a username + password, and every
 // device logs in with them. Both return { token, profile }.
-export function register({ username, password, name, avatar, grade, difficulty }) {
+export function register({ joinCode, username, password, name, avatar, grade, difficulty }) {
   return apiRequest("/api/learn/auth/register", {
     method: "POST",
-    body: JSON.stringify({ username, password, name, avatar, grade, difficulty }),
+    body: JSON.stringify({ joinCode, username, password, name, avatar, grade, difficulty }),
   });
 }
 

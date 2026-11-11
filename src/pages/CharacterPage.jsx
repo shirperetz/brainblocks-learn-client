@@ -21,10 +21,18 @@ export default function CharacterPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  // 2026-11-11: the join code from the parents / teacher (filled in when the link carried it).
+  const [joinCode, setJoinCode] = useState(() => {
+    try {
+      return sessionStorage.getItem("lc_join_code") ?? "";
+    } catch {
+      return "";
+    }
+  });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const canConfirm = selected && name.trim().length > 0 && username.trim().length >= 3 && password.length >= 4 && !submitting;
+  const canConfirm = selected && name.trim().length > 0 && username.trim().length >= 3 && password.length >= 4 && joinCode.trim().length > 0 && !submitting;
 
   useEffect(() => {
     if (!young) return;
@@ -40,7 +48,7 @@ export default function CharacterPage() {
     setError("");
     try {
       await createProfile({ name: name.trim(), avatar: selected, grade: chosen.grade, difficulty: chosen.difficulty,
-        username: username.trim(), password });
+        username: username.trim(), password, joinCode: joinCode.trim() });
       navigate(startsOnIsland(chosen.grade) ? "/island" : "/topics");
     } catch (err) {
       setError(err.message);
@@ -122,6 +130,18 @@ export default function CharacterPage() {
                 {showPassword ? "🙈" : "👁️"}
               </button>
             </div>
+          </div>
+          <div className="name-field">
+            <label htmlFor="join-code">קוד הצטרפות (מההורים או מהמורה)</label>
+            <input
+              id="join-code"
+              type="text"
+              inputMode="numeric"
+              value={joinCode}
+              maxLength={20}
+              autoComplete="off"
+              onChange={(e) => setJoinCode(e.target.value)}
+            />
           </div>
           <p className="account-box__hint">כדאי שמבוגר ירשום את הסיסמה במקום בטוח</p>
         </div>

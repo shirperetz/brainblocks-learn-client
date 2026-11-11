@@ -50,7 +50,7 @@ function friendlyError(status, data) {
   const serverMessage = data?.message || data?.error;
   if (status === 404) return "לא מצאנו את מה שחיפשנו. נסו שוב.";
   if (status === 401) return serverMessage || "צריך להיכנס שוב עם שם משתמש וסיסמה.";
-  if (status === 409 || status === 429) return serverMessage || "נסו שוב.";
+  if (status === 403 || status === 409 || status === 429) return serverMessage || "נסו שוב.";
   if (status === 400) return serverMessage || "משהו בטופס לא תקין, נסו שוב.";
   return "אופס! משהו השתבש. ננסה שוב עוד רגע.";
 }
