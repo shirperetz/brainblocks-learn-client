@@ -78,6 +78,7 @@ export default function PlayPage() {
       hintUsed: helpUsedRef.current,
       topic: current.topic,
       explanation: current.explanation,
+      skill: current.skill,
     });
 
     setTimeout(advance, FEEDBACK_MS);

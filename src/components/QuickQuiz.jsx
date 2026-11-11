@@ -38,6 +38,7 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
         hintUsed: helpUsed.current,
         topic: q.topic,
         explanation: q.explanation,
+      skill: q.skill,
       },
       q,
     );

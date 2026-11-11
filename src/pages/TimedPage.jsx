@@ -84,6 +84,7 @@ export default function TimedPage() {
       hintUsed: false,
       topic: q.topic,
       explanation: q.explanation,
+      skill: q.skill,
     });
     if (correct) setScore((s) => s + 1);
     setFlash(correct ? "correct" : "wrong");

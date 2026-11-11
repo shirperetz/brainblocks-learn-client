@@ -37,16 +37,29 @@ export default function LandingPage() {
         <div className="landing__actions">
           {hasProfile ? (
             <>
-              <BigButton variant="green" onClick={handleStart} disabled={loading}>
-                {`להמשיך לשחק, ${profile.name}`}
-              </BigButton>
-              <BigButton variant="ghost" onClick={() => navigate("/grade")}>
-                🎓 החלפת כיתה
-              </BigButton>
-              {profile.admin && (
-                <BigButton variant="ghost" onClick={() => navigate("/admin")}>
-                  ⚙️ ניהול
+              {profile.teacher ? (
+                <BigButton variant="green" onClick={() => navigate("/staff")}>
+                  {`📊 הכיתות שלי, ${profile.name}`}
                 </BigButton>
+              ) : (
+                <>
+                  <BigButton variant="green" onClick={handleStart} disabled={loading}>
+                    {`להמשיך לשחק, ${profile.name}`}
+                  </BigButton>
+                  <BigButton variant="ghost" onClick={() => navigate("/grade")}>
+                    🎓 החלפת כיתה
+                  </BigButton>
+                </>
+              )}
+              {profile.admin && (
+                <>
+                  <BigButton variant="blue" onClick={() => navigate("/staff")}>
+                    📊 התקדמות הילדים
+                  </BigButton>
+                  <BigButton variant="ghost" onClick={() => navigate("/admin")}>
+                    ⚙️ ניהול
+                  </BigButton>
+                </>
               )}
               <BigButton variant="ghost" onClick={() => { resetProfile(); navigate("/login"); }}>
                 זה לא אני - החלפת משתמש

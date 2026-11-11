@@ -26,7 +26,16 @@ export default function LoginPage() {
     setError("");
     try {
       const p = await loginProfile({ username: username.trim(), password });
-      navigate(next === "/admin" && p.admin ? "/admin" : startsOnIsland(p.grade) ? "/island" : "/topics");
+      const staff = p.admin || p.teacher;
+      navigate(
+        next && staff && (next === "/admin" ? p.admin : next.startsWith("/staff"))
+          ? next
+          : p.teacher
+            ? "/staff"
+            : startsOnIsland(p.grade)
+              ? "/island"
+              : "/topics",
+      );
     } catch (err) {
       setError(err.message);
       setSubmitting(false);

@@ -115,3 +115,80 @@ export function adminJoinCode() {
 export function adminChangeJoinCode(code) {
   return apiRequest("/api/learn/admin/join-code", { method: "PUT", body: JSON.stringify({ code }) });
 }
+
+// ---- Teachers and the admin (2026-11-11) - the server decides who sees which child ----------
+
+export function staffMe() {
+  return apiRequest("/api/learn/staff/me");
+}
+
+export function staffOverview(classId) {
+  return apiRequest(`/api/learn/staff/overview${classId != null ? `?classId=${classId}` : ""}`);
+}
+
+export function staffChildren(classId) {
+  return apiRequest(`/api/learn/staff/children${classId != null ? `?classId=${classId}` : ""}`);
+}
+
+export function staffReport(childId) {
+  return apiRequest(`/api/learn/staff/children/${childId}/report`);
+}
+
+export function staffApprove(childId) {
+  return apiRequest(`/api/learn/staff/children/${childId}/approve`, { method: "POST" });
+}
+
+export function staffSetDisabled(childId, disabled) {
+  return apiRequest(`/api/learn/staff/children/${childId}/disabled`, {
+    method: "POST",
+    body: JSON.stringify({ disabled }),
+  });
+}
+
+export function staffSetPassword(childId, { username, password }) {
+  return apiRequest(`/api/learn/staff/children/${childId}/password`, {
+    method: "POST",
+    body: JSON.stringify({ username, password }),
+  });
+}
+
+export function staffMoveChild(childId, classId) {
+  return apiRequest(`/api/learn/staff/children/${childId}/class`, {
+    method: "POST",
+    body: JSON.stringify({ classId: classId ?? 0 }),
+  });
+}
+
+export function staffCreateClass(name, teacherId) {
+  return apiRequest("/api/learn/staff/classes", {
+    method: "POST",
+    body: JSON.stringify(teacherId ? { name, teacherId } : { name }),
+  });
+}
+
+export function staffUpdateClass(id, changes) {
+  return apiRequest(`/api/learn/staff/classes/${id}`, { method: "PATCH", body: JSON.stringify(changes) });
+}
+
+export function staffTeachers() {
+  return apiRequest("/api/learn/staff/teachers");
+}
+
+export function staffApproveTeacher(id) {
+  return apiRequest(`/api/learn/staff/teachers/${id}/approve`, { method: "POST" });
+}
+
+export function staffSetTeacherDisabled(id, disabled) {
+  return apiRequest(`/api/learn/staff/teachers/${id}/disabled`, {
+    method: "POST",
+    body: JSON.stringify({ disabled }),
+  });
+}
+
+export function staffTeacherCode() {
+  return apiRequest("/api/learn/staff/teacher-code");
+}
+
+export function staffChangeTeacherCode(code) {
+  return apiRequest("/api/learn/staff/teacher-code", { method: "PUT", body: JSON.stringify({ code }) });
+}

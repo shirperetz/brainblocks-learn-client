@@ -89,6 +89,9 @@ body {
   color: var(--ink);
   background: linear-gradient(160deg, var(--bg-top) 0%, var(--bg-bottom) 70%);
   background-attachment: fixed;
+  /* Where "fixed" is ignored (iPhone) the gradient covers one screen; below it, its own end color. */
+  background-color: var(--bg-bottom);
+  background-repeat: no-repeat;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
