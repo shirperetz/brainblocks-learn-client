@@ -31,6 +31,7 @@ export default function CharacterPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [pending, setPending] = useState(false); // signed up, waiting for the admin's approval
 
   const canConfirm = selected && name.trim().length > 0 && username.trim().length >= 3 && password.length >= 4 && joinCode.trim().length > 0 && !submitting;
 
@@ -40,6 +41,27 @@ export default function CharacterPage() {
     say("pick_friend");
   }, [young]);
 
+  if (pending) {
+    return (
+      <div className="app-shell">
+        <div className="onboarding">
+          <div className="onboarding__header">
+            <div className="pending-badge" aria-hidden="true">⏳</div>
+            <h1 className="screen-title">ההרשמה התקבלה!</h1>
+            <p className="screen-subtitle">
+              עכשיו מחכים שההורים או המורה יאשרו. אחרי האישור נכנסים עם שם המשתמש <strong>{username.trim().toLowerCase()}</strong> והסיסמה שבחרתם.
+            </p>
+          </div>
+          <div className="onboarding__actions">
+            <BigButton variant="green" onClick={() => navigate("/login")}>
+              למסך הכניסה
+            </BigButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!chosen?.grade) return <Navigate to="/grade" replace />;
 
   async function handleConfirm() {
@@ -47,8 +69,13 @@ export default function CharacterPage() {
     setSubmitting(true);
     setError("");
     try {
-      await createProfile({ name: name.trim(), avatar: selected, grade: chosen.grade, difficulty: chosen.difficulty,
+      const made = await createProfile({ name: name.trim(), avatar: selected, grade: chosen.grade, difficulty: chosen.difficulty,
         username: username.trim(), password, joinCode: joinCode.trim() });
+      if (made?.pending) {
+        setPending(true);
+        setSubmitting(false);
+        return;
+      }
       navigate(startsOnIsland(chosen.grade) ? "/island" : "/topics");
     } catch (err) {
       setError(err.message);

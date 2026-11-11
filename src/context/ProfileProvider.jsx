@@ -57,8 +57,12 @@ export function ProfileProvider({ children }) {
   }
 
   /** A new child: grade (chosen first), character, name, username and password. */
+  // 2026-11-11: a new sign-up waits for the admin's approval - no token yet, so nothing is stored
+  // and the child is not logged in; returns { pending: true }.
   async function createProfile({ name, avatar, grade, difficulty, username, password, joinCode }) {
-    return signedIn(await learnApi.register({ joinCode, username, password, name, avatar, grade, difficulty: difficulty ?? "MEDIUM" }));
+    const r = await learnApi.register({ joinCode, username, password, name, avatar, grade, difficulty: difficulty ?? "MEDIUM" });
+    if (!r.token) return { pending: true, profile: r.profile };
+    return signedIn(r);
   }
 
   /** A child who already has a username - on any device. */

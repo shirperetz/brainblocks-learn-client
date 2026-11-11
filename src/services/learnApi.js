@@ -104,6 +104,10 @@ export function adminSetDisabled(id, disabled) {
   });
 }
 
+export function adminApprove(id) {
+  return apiRequest(`/api/learn/admin/children/${id}/approve`, { method: "POST" });
+}
+
 export function adminJoinCode() {
   return apiRequest("/api/learn/admin/join-code");
 }

@@ -77,6 +77,15 @@ export default function AdminPage() {
     }
   }
 
+  async function approve(c) {
+    try {
+      await learnApi.adminApprove(c.id);
+      done(`${c.name} אושר/ה ויכול/ה להיכנס`);
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   async function toggleBlock(c) {
     const verb = c.disabled ? "לבטל את החסימה של" : "לחסום את";
     if (!window.confirm(`${verb} ${c.name}${c.username ? ` (${c.username})` : ""}?`)) return;
@@ -88,6 +97,7 @@ export default function AdminPage() {
     }
   }
 
+  const waiting = children.filter((c) => !c.approved && !c.disabled);
   const shown = children.filter((c) =>
     !filter || `${c.name} ${c.username ?? ""}`.toLowerCase().includes(filter.trim().toLowerCase()));
   const withUser = children.filter((c) => c.username).length;
@@ -104,6 +114,33 @@ export default function AdminPage() {
 
       {message && <p className="admin__message" role="status">{message}</p>}
       {error && <p className="form-error">{error}</p>}
+
+      {waiting.length > 0 && (
+        <section className="admin__card admin__card--waiting">
+          <h2>ממתינים לאישור ({waiting.length})</h2>
+          <p className="admin__hint">נרשמו עם קוד ההצטרפות. רק אחרי אישור שלך הם יכולים להיכנס.</p>
+          <ul className="admin__list">
+            {waiting.map((c) => (
+              <li key={c.id} className="admin__child">
+                <div className="admin__who">
+                  <span className="admin__emoji" aria-hidden="true">{getCharacter(c.avatar).emoji}</span>
+                  <div>
+                    <strong>{c.name}</strong>
+                    <div className="admin__meta">
+                      @{c.username} · {getGrade(c.grade)?.label ?? "בלי כיתה"} · נרשם/ה{" "}
+                      {c.createdAt ? new Date(c.createdAt).toLocaleString("he-IL") : ""}
+                    </div>
+                  </div>
+                </div>
+                <div className="admin__actions">
+                  <button className="admin__btn" onClick={() => approve(c)}>✓ אישור</button>
+                  <button className="admin__btn admin__btn--ghost" onClick={() => toggleBlock(c)}>✗ לא מכירה - חסימה</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="admin__card">
         <h2>קוד הצטרפות</h2>
@@ -143,6 +180,7 @@ export default function AdminPage() {
                   <strong>{c.name}</strong>
                   {c.admin && <span className="admin__tag">מנהלת</span>}
                   {c.disabled && <span className="admin__tag admin__tag--off">חסום</span>}
+                  {!c.approved && !c.disabled && <span className="admin__tag admin__tag--wait">ממתין</span>}
                   <div className="admin__meta">
                     {c.username ? `@${c.username}` : "בלי שם משתמש"} · {getGrade(c.grade)?.label ?? "בלי כיתה"} ·{" "}
                     {c.totalPoints} נק׳ · {c.sessions} משחקים · {c.openMistakes} טעויות פתוחות

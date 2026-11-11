@@ -119,3 +119,9 @@
   color: #146c43;
   font-weight: 700;
 }
+.admin__card--waiting {
+  border: 3px solid var(--orange);
+}
+.admin__tag--wait {
+  background: var(--orange);
+}

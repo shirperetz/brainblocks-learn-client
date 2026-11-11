@@ -172,3 +172,7 @@
 .login-switch {
   margin-top: 0.5rem;
 }
+.pending-badge {
+  font-size: 4rem;
+  line-height: 1;
+}
