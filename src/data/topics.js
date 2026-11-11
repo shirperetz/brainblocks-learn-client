@@ -11,7 +11,10 @@ export const TOPICS = [
   { key: "WORD_PROBLEMS", emoji: "📖", name: "בעיות מילוליות", blurb: "סיפור שצריך לפתור", color: "var(--red-soft)" },
   // 2026-11-11: שברים (ה׳-ו׳) וגיאומטריה (ו׳) - with pictures (QuestionPicture).
   { key: "FRACTIONS", emoji: "🍕", name: "שברים", blurb: "חלקים של שלם - חצי, רבע ועוד", color: "var(--orange)" },
-  { key: "GEOMETRY", emoji: "📐", name: "גיאומטריה", blurb: "היקף, שטח, זוויות וצורות", color: "var(--teal)" },
+  // 2026-11-11 (Shir): geometry as three separate tracks, six levels each.
+  { key: "ANGLES", emoji: "📐", name: "זוויות", blurb: "חדה, ישרה, קהה - וכמה מעלות חסרות", color: "var(--teal)" },
+  { key: "PERIMETER", emoji: "📏", name: "צלעות והיקף", blurb: "צלעות, צורות והיקף", color: "var(--blue)" },
+  { key: "AREA", emoji: "⬛", name: "שטח", blurb: "כמה מקום יש בתוך הצורה", color: "var(--purple)" },
   { key: "MIXED", emoji: "🎲", name: "תרגול מעורב", blurb: "קצת מהכל", color: "var(--yellow)" },
 ];
 

@@ -84,3 +84,9 @@
   white-space: normal;
   overflow-wrap: anywhere;
 }
+
+/* 2026-11-11: three answers ("קטנה / שווה / גדולה מ-1", "חדה / ישרה / ...") stack in one column
+   instead of leaving the third alone in a two-column grid. */
+.play__answers:has(> :nth-child(3):last-child) {
+  grid-template-columns: 1fr;
+}

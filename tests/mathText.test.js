@@ -21,3 +21,11 @@ test("fractions are math too (2026-11-11)", () => {
   assert.deepEqual(math("איזה שבר שווה ל-1/2?"), ["1/2"]);
   assert.deepEqual(math("כמה זה 3/4 מ-20?"), ["3/4"]);
 });
+
+test("division with ':' and degrees stay left-to-right (2026-11-11)", () => {
+  assert.deepEqual(math("כתבו את התרגיל 7 : 8 כשבר"), ["7 : 8"]);
+  assert.deepEqual(math("התוצאה של 20 : 4 היא..."), ["20 : 4"]);
+  assert.deepEqual(math("5 : 7"), ["5 : 7"]);
+  assert.deepEqual(math("זווית של 140° היא זווית..."), ["140°"]);
+  assert.deepEqual(math("סביב נקודה יש שלוש זוויות. שתיים מהן 120° ו-90°."), ["120°", "90°"]);
+});

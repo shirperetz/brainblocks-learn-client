@@ -2,7 +2,8 @@
 // Math = numbers joined by + - × ÷ = (e.g. "363 + 852"), or a number series ("3, 7, 11, 15, ?").
 
 // 2026-11-11: a number may be a fraction ("2/7 + 3/7 = ?", "ל-1/2"), drawn stacked by MathText.
-const MATH = /(\d+(?:\s*,\s*\d+){2,}(?:\s*,\s*\?)?|\d+(?:\/\d+)?(?:\s*[+\-−×÷=]\s*(?:\d+(?:\/\d+)?|\?))+|\d+\/\d+)/g;
+// 2026-11-11: ":" (division - "7 : 8" came out as "8 : 7" inside Hebrew) and degrees ("140°" showed "°140").
+const MATH = /(\d+(?:\s*,\s*\d+){2,}(?:\s*,\s*\?)?|\d+(?:\/\d+)?(?:\s*[+\-−×÷=:]\s*(?:\d+(?:\/\d+)?|\?))+|\d+\/\d+|\d+°)/g;
 
 export function mathParts(text) {
   const s = String(text ?? "");
