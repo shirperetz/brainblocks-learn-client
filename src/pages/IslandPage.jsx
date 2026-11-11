@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GAMES } from "../game/games";
 import { LEVELS_PER_GAME } from "../game/levels";
-import { isMuted, preload, say, setMuted, sfx } from "../game/audio";
+import { preload, say, sfx } from "../game/audio";
 import { getCharacter } from "../data/characters";
 import { getStageMap } from "../services/learnApi";
 import { useRequireProfile } from "../hooks/useRequireProfile";
@@ -13,7 +13,6 @@ export default function IslandPage() {
   const navigate = useNavigate();
   const { profile, ready } = useRequireProfile();
   const [stars, setStars] = useState({});
-  const [muted, setMutedState] = useState(isMuted());
 
   useEffect(() => {
     if (!ready) return;
@@ -42,11 +41,6 @@ export default function IslandPage() {
     navigate(`/island/${g.key}`);
   }
 
-  function toggleSound() {
-    setMuted(!muted);
-    setMutedState(!muted);
-  }
-
   return (
     <div className="app-shell island-shell">
       <header className="island__top">
@@ -56,9 +50,6 @@ export default function IslandPage() {
           </span>
           <span className="island__name">{profile.name}</span>
         </div>
-        <button className="round-btn" onClick={toggleSound} aria-label={muted ? "להפעיל קול" : "להשתיק"}>
-          {muted ? "🔇" : "🔊"}
-        </button>
       </header>
 
       <h1 className="island__title">🏝️ אי המספרים</h1>

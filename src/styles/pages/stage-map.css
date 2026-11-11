@@ -50,8 +50,8 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  width: 110px;
-  height: 110px;
+  width: 6.875rem;
+  height: 6.875rem;
   border-radius: 50%;
   background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 70%, black));
   color: var(--white);

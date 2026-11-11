@@ -23,8 +23,8 @@
   margin-bottom: 4px;
 }
 .steps__dot {
-  width: 12px;
-  height: 12px;
+  width: 0.75rem;
+  height: 0.75rem;
   border-radius: 50%;
   background: rgba(124, 92, 255, 0.28);
 }
@@ -38,7 +38,15 @@
   display: grid;
   gap: 14px;
   width: 100%;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  /* Phone: 2 per row. Tablet/computer: 3 per row (6 grades = 3x2, no lonely card). */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 600px) {
+  .option-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
 }
 
 .option-grid--wide {
@@ -78,7 +86,7 @@
   justify-content: center;
 }
 .pill {
-  min-height: 48px;
+  min-height: 3rem;
   padding: 10px 22px;
   border-radius: 999px;
   background: var(--white);

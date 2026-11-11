@@ -12,8 +12,8 @@
 }
 
 .play__exit {
-  width: 44px;
-  height: 44px;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 50%;
   background: var(--white);
   color: var(--ink-soft);
@@ -57,7 +57,7 @@
 .play__mascot {
   display: flex;
   justify-content: center;
-  min-height: 120px;
+  min-height: 7.5rem;
 }
 
 .play__loading {

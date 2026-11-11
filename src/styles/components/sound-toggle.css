@@ -1,0 +1,42 @@
+/* The sound button - bottom corner of every screen, big enough for small fingers. */
+.sound-toggle {
+  position: fixed;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  left: 14px; /* RTL: the "start" side stays free for back buttons */
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: var(--tap-min);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 1rem;
+  box-shadow: var(--shadow-card);
+  border: 3px solid var(--purple);
+}
+
+.sound-toggle span[aria-hidden] {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.sound-toggle.is-muted {
+  border-color: var(--line);
+  color: var(--ink-soft);
+}
+
+.sound-toggle:active {
+  transform: translateY(2px);
+}
+
+/* Phone: icon only, so it never covers answers. */
+@media (max-width: 480px) {
+  .sound-toggle__label {
+    display: none;
+  }
+  .sound-toggle {
+    padding: 0.5rem 0.8rem;
+  }
+}

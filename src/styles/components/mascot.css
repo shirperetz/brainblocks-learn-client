@@ -17,16 +17,16 @@
 }
 
 .mascot--sm .mascot__face {
-  width: 56px;
-  height: 56px;
+  width: 3.5rem;
+  height: 3.5rem;
 }
 .mascot--md .mascot__face {
-  width: 92px;
-  height: 92px;
+  width: 5.75rem;
+  height: 5.75rem;
 }
 .mascot--lg .mascot__face {
-  width: 140px;
-  height: 140px;
+  width: 8.75rem;
+  height: 8.75rem;
 }
 
 .mascot__emoji {
@@ -47,7 +47,7 @@
   padding: 12px 18px;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
-  max-width: 280px;
+  max-width: 17.5rem;
   text-align: center;
   position: relative;
   animation: pop-in 0.25s ease;

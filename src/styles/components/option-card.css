@@ -6,7 +6,7 @@
   justify-content: center;
   gap: 6px;
   text-align: center;
-  min-height: 130px;
+  min-height: 8.125rem;
   padding: 18px 14px;
   border-radius: var(--radius-lg);
   background: var(--white);
@@ -53,8 +53,8 @@
   position: absolute;
   top: 10px;
   inset-inline-end: 10px;
-  width: 30px;
-  height: 30px;
+  width: 1.875rem;
+  height: 1.875rem;
   display: grid;
   place-items: center;
   border-radius: 50%;

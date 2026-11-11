@@ -1,6 +1,6 @@
 .answer-button {
   position: relative;
-  min-height: 76px;
+  min-height: 4.75rem;
   padding: 16px 18px;
   border-radius: var(--radius-lg);
   background: var(--white);
