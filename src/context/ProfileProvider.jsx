@@ -77,6 +77,11 @@ export function ProfileProvider({ children }) {
     return updated;
   }
 
+  /** 2026-11-11 (settings): new password with the current one; this device keeps working (new token). */
+  async function changePassword(current, password) {
+    return signedIn(await learnApi.changeOwnPassword(profile.id, current, password));
+  }
+
   async function refreshProfile() {
     if (!profile) return null;
     const fresh = await learnApi.getProfile(profile.id);
@@ -98,6 +103,7 @@ export function ProfileProvider({ children }) {
     loginProfile,
     patchProfile,
     refreshProfile,
+    changePassword,
     resetProfile,
   };
 

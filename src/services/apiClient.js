@@ -19,6 +19,11 @@ export async function apiRequest(path, options = {}) {
   const data = await readResponseBody(response);
 
   if (!response.ok) {
+    // 2026-11-11 (Shir: "after half an hour without use - log in again"): the server cancelled this
+    // device's login. Forget it and go to the log-in screen, saying why (not a vague error).
+    if (response.status === 401 && hadToken() && !path.startsWith("/api/learn/auth/")) {
+      loggedOut();
+    }
     throw new Error(friendlyError(response.status, data));
   }
 
@@ -26,6 +31,28 @@ export async function apiRequest(path, options = {}) {
 }
 
 export const TOKEN_STORAGE_KEY = "lc_token";
+
+function hadToken() {
+  try {
+    return Boolean(localStorage.getItem(TOKEN_STORAGE_KEY));
+  } catch {
+    return false;
+  }
+}
+
+let leaving = false;
+function loggedOut() {
+  if (leaving) return;
+  leaving = true;
+  try {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem("lc_profile_id");
+  } catch {
+    /* ignore */
+  }
+  const here = window.location.pathname;
+  window.location.assign(`/login?expired=1${here.startsWith("/staff") || here === "/admin" ? `&next=${encodeURIComponent(here)}` : ""}`);
+}
 
 function tokenHeader() {
   try {

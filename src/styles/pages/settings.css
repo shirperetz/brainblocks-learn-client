@@ -1,0 +1,71 @@
+/* 2026-11-11: the child's settings screen */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: none;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0.3rem 0;
+  min-height: var(--tap-min);
+}
+.switch__knob {
+  position: relative;
+  width: 3.4rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  background: #d9d5ef;
+  transition: background 0.2s ease;
+  flex: none;
+}
+.switch__knob::after {
+  content: "";
+  position: absolute;
+  top: 0.2rem;
+  inset-inline-start: 0.2rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+  transition: inset-inline-start 0.2s ease;
+}
+.switch.is-on .switch__knob {
+  background: var(--green);
+}
+.switch.is-on .switch__knob::after {
+  inset-inline-start: 1.7rem;
+}
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.6rem;
+}
+.char-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.7rem 0.3rem;
+  border-radius: var(--radius-md);
+  border: 3px solid transparent;
+  background: var(--card-2);
+  font-weight: 800;
+  color: var(--ink);
+  cursor: pointer;
+}
+.char-pick.is-on {
+  border-color: var(--c);
+  background: #fff;
+  box-shadow: var(--shadow-card);
+}
+.char-pick__emoji {
+  font-size: 2.3rem;
+}
+.settings__grade {
+  flex: 1;
+  font-size: 1.2rem;
+}

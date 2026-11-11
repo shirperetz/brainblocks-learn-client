@@ -6,11 +6,19 @@ import {
   balloonRounds,
   balloonSpeech,
   balloonText,
+  bridgeRounds,
+  bridgeSpeech,
+  bridgeText,
   dragonRounds,
+  trainRounds,
+  trainSpeech,
+  trainText,
 } from "../game/levels";
 import { preload, say, sfx, stopVoice } from "../game/audio";
 import DragonRound from "../game/DragonRound";
 import BalloonRound from "../game/BalloonRound";
+import BridgeRound from "../game/BridgeRound";
+import TrainRound from "../game/TrainRound";
 import { submitSession } from "../services/learnApi";
 import HelpButton from "../components/HelpButton";
 import { useProfile } from "../context/profileStore";
@@ -43,6 +51,27 @@ const KINDS = {
         ? "סופרים את כל התפוחים בתמונה, האדומים והירוקים, אחד אחד."
         : "סופרים רק את התפוחים שלא מחוקים, אחד אחד.",
     Round: BalloonRound,
+  },
+  // 2026-11-11
+  bridge: {
+    rounds: bridgeRounds,
+    speech: bridgeSpeech,
+    text: bridgeText,
+    answer: (r) => String(r.answer),
+    explain: (r) => `${r.have} + ${r.answer} = ${r.target}`,
+    hint: (r) =>
+      `סופרים את המקומות הריקים בגשר, אחד אחד. אפשר גם לספור קדימה מ-${r.have} עד ${r.target}, ולספור כמה צעדים עשינו.`,
+    Round: BridgeRound,
+  },
+  train: {
+    rounds: trainRounds,
+    speech: trainSpeech,
+    text: trainText,
+    answer: (r) => String(r.answer),
+    explain: (r) => `${r.step > 0 ? "מוסיפים" : "מורידים"} ${Math.abs(r.step)} בכל קרון: ${r.wagons.join(", ")}`,
+    hint: (r) =>
+      `בודקים כמה ${r.step > 0 ? "גדל" : "קטן"} המספר מקרון לקרון, וממשיכים באותה צורה עד הקרון עם סימן השאלה.`,
+    Round: TrainRound,
   },
 };
 
@@ -77,6 +106,8 @@ function GamePlay() {
     const keys = new Set(["good1", "good2", "good3", "try", "hint", "level_done", "level_retry", game.intro]);
     rounds.forEach((r) => kind.speech(r).forEach((k) => keys.add(k)));
     if (gameKey === "dragon") ["dragon_more", "dragon_less", "dragon_yum"].forEach((k) => keys.add(k));
+    if (gameKey === "bridge") keys.add("bridge_done");
+    if (gameKey === "train") keys.add("train_go");
     preload([...keys]);
   }, [kind, rounds, game, gameKey]);
 
@@ -191,6 +222,11 @@ function GamePlay() {
           <p className="result__score" dir="ltr">
             {result.correct} / {result.total}
           </p>
+          {result.passed && (
+            <button className="result__gift" onClick={() => navigate("/my-island")}>
+              🎁 חלק חדש לאי שלי!
+            </button>
+          )}
           <div className="result__actions">
             <button className="round-btn round-btn--big" onClick={again} aria-label="לשחק שוב">
               🔁

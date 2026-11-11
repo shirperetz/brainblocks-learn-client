@@ -22,8 +22,27 @@ export const GAMES = [
     intro: "balloon_intro",
     ready: true,
   },
-  { key: "bridge", topic: "BRIDGE", emoji: "🌉", name: "הגשר", skill: "משלימים לעשר", color: "#4aa8ff", ready: false },
-  { key: "train", topic: "TRAIN", emoji: "🚂", name: "הרכבת", skill: "סדר המספרים", color: "#ff9f43", ready: false },
+  // 2026-11-11: opened (Shir: "open the locked things").
+  {
+    key: "bridge",
+    topic: "BRIDGE",
+    emoji: "🌉",
+    name: "הגשר",
+    skill: "משלימים לעשר",
+    color: "#4aa8ff",
+    intro: "bridge_intro",
+    ready: true,
+  },
+  {
+    key: "train",
+    topic: "TRAIN",
+    emoji: "🚂",
+    name: "הרכבת",
+    skill: "סדר המספרים",
+    color: "#ff9f43",
+    intro: "train_intro",
+    ready: true,
+  },
 ];
 
 export function getGame(key) {

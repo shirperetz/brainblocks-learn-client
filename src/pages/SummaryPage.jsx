@@ -40,6 +40,11 @@ export default function SummaryPage() {
         </div>
 
         <div className="summary__actions">
+          {summary.passed && (
+            <BigButton variant="ghost" onClick={() => navigate("/my-island")}>
+              🎁 קיבלת חלק חדש לאי שלך!
+            </BigButton>
+          )}
           {summary.nextStageUnlocked && (
             <BigButton variant="green" onClick={() => navigate(`/play/${topic}/${summary.nextStage}`)}>
               עבור לשלב הבא ←

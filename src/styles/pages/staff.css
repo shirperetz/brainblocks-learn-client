@@ -619,3 +619,18 @@
   gap: 0.4rem;
   line-height: 1.5;
 }
+.report-hero__island {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 1.3rem;
+  background: rgb(255 255 255 / 0.18);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+}
+.report-hero__island small {
+  font-size: 0.85rem;
+}

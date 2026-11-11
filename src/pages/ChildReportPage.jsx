@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import MathText from "../components/MathText";
 import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
@@ -66,6 +66,9 @@ function Report({ report, openTopic, setOpenTopic }) {
             {getGrade(c.grade)?.label ?? "בלי כיתה"} · @{c.username ?? "—"} · שיחק/ה {timeAgo(c.lastActiveAt)}
           </p>
         </div>
+        <Link className="report-hero__island" to={`/staff/child/${c.id}/island`} title="האי שבנה/תה">
+          🏝️ <small>האי</small>
+        </Link>
         <div className="report-hero__streak" title="ימים ברצף באתגר היומי">
           🔥 {c.dailyStreak}
         </div>

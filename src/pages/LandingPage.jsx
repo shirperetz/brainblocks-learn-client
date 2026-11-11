@@ -46,8 +46,11 @@ export default function LandingPage() {
                   <BigButton variant="green" onClick={handleStart} disabled={loading}>
                     {`להמשיך לשחק, ${profile.name}`}
                   </BigButton>
-                  <BigButton variant="ghost" onClick={() => navigate("/grade")}>
-                    🎓 החלפת כיתה
+                  <BigButton variant="blue" onClick={() => navigate("/my-island")}>
+                    🏝️ האי שלי
+                  </BigButton>
+                  <BigButton variant="ghost" onClick={() => navigate("/settings")}>
+                    ⚙️ הגדרות
                   </BigButton>
                 </>
               )}

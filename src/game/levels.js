@@ -127,3 +127,99 @@ export function balloonSpeech(round) {
 export function balloonText(round) {
   return `${round.a} ${round.op} ${round.b} = ?`;
 }
+
+// ---- הגשר: completing to 10 (2026-11-11) -------------------------------------------------
+// A bridge of `target` planks with `have` already in place; the child picks how many are missing.
+// eq = also show it as "7 + ? = 10" (level 6). Level 1 builds to 5, 2-4 to 10, 5 to 20.
+const BRIDGE = {
+  1: { target: [5], have: [1, 4] },
+  2: { target: [10], have: [5, 9] },
+  3: { target: [10], have: [1, 9] },
+  4: { target: [10], have: [1, 9], eq: true },
+  5: { target: [20], have: [10, 19] },
+  6: { target: [10, 20], have: null, eq: true },
+};
+
+export const BRIDGE_ROUNDS = 8;
+
+export function bridgeRound(level, rand = Math.random) {
+  const cfg = BRIDGE[level] ?? BRIDGE[1];
+  const target = cfg.target[Math.floor(rand() * cfg.target.length)];
+  const [lo, hi] = cfg.have ?? (target === 20 ? [10, 19] : [1, 9]);
+  const have = between(rand, lo, hi);
+  const answer = target - have;
+  return { target, have, answer, eq: Boolean(cfg.eq), options: options(answer, rand) };
+}
+
+export function bridgeRounds(level, rand = Math.random) {
+  return series(BRIDGE_ROUNDS, (r) => bridgeRound(level, r), (x) => `${x.have}/${x.target}`, rand);
+}
+
+/** "על הגשר יש שבעה קרשים. כמה חסרים עד עשר?" */
+export function bridgeSpeech(round) {
+  return ["bridge_has", `n${round.have}`, "bridge_missing_to", `n${round.target}`];
+}
+
+export function bridgeText(round) {
+  return `${round.have} + ? = ${round.target}`;
+}
+
+// ---- הרכבת: the order of numbers (2026-11-11) ---------------------------------------------
+// Wagons with a sequence, one wagon is "?". step<0 = counting down.
+const TRAIN = {
+  1: { from: [1, 5], step: 1, len: 5, gap: "end", max: 10 },
+  2: { from: [1, 6], step: 1, len: 5, gap: "middle", max: 10 },
+  3: { from: [5, 15], step: 1, len: 5, gap: "any", max: 20 },
+  4: { from: [6, 20], step: -1, len: 5, gap: "any", max: 20 },
+  5: { from: [0, 6], step: 2, len: 5, gap: "any", max: 20, even: true },
+  6: { from: [1, 5], step: 10, len: 5, gap: "any", max: 100, tens: true },
+};
+
+export const TRAIN_ROUNDS = 8;
+
+export function trainRound(level, rand = Math.random) {
+  const cfg = TRAIN[level] ?? TRAIN[1];
+  let start = between(rand, cfg.from[0], cfg.from[1]);
+  if (cfg.even) start -= start % 2;
+  if (cfg.tens) start *= 10;
+  const wagons = Array.from({ length: cfg.len }, (_, i) => start + i * cfg.step);
+  const gap =
+    cfg.gap === "end" ? cfg.len - 1 : cfg.gap === "middle" ? between(rand, 1, cfg.len - 2) : between(rand, 0, cfg.len - 1);
+  const answer = wagons[gap];
+  return { wagons, gap, answer, step: cfg.step, options: cfg.tens ? tensOptions(answer, rand) : trainOptions(answer, cfg, rand) };
+}
+
+/** Wrong answers children really pick: one off (forgot the order), a step off (skipped a wagon). */
+function trainOptions(answer, cfg, rand) {
+  const s = Math.abs(cfg.step);
+  const set = new Set([answer]);
+  for (const d of shuffle([s, -s, 1, -1, 2 * s, -2 * s, 2, -2, 3, -3], rand)) {
+    const v = answer + d;
+    if (v >= 0 && v <= cfg.max) set.add(v);
+    if (set.size === 4) break;
+  }
+  return shuffle([...set], rand);
+}
+
+function tensOptions(answer, rand) {
+  const set = new Set([answer]);
+  for (const d of shuffle([10, -10, 1, -1, 20, -20, 5], rand)) {
+    const v = answer + d;
+    if (v > 0 && v <= 100) set.add(v);
+    if (set.size === 4) break;
+  }
+  return shuffle([...set], rand);
+}
+
+export function trainRounds(level, rand = Math.random) {
+  return series(TRAIN_ROUNDS, (r) => trainRound(level, r), (x) => x.wagons.join(","), rand);
+}
+
+/** "איזה מספר חסר ברכבת?" - then the wagons are read, the missing one as "מה?". */
+export function trainSpeech(round) {
+  return ["train_q", ...round.wagons.map((n, i) => (i === round.gap ? "train_blank" : `n${n}`))];
+}
+
+export function trainText(round) {
+  return round.wagons.map((n, i) => (i === round.gap ? "?" : n)).join(", ");
+}

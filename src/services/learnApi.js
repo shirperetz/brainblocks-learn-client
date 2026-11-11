@@ -192,3 +192,28 @@ export function staffTeacherCode() {
 export function staffChangeTeacherCode(code) {
   return apiRequest("/api/learn/staff/teacher-code", { method: "PUT", body: JSON.stringify({ code }) });
 }
+
+/** 2026-11-11 (settings): the child's own new password - needs the current one. Returns { token, profile }. */
+export function changeOwnPassword(id, current, password) {
+  return apiRequest(`/api/learn/profiles/${id}/password`, {
+    method: "POST",
+    body: JSON.stringify({ current, password }),
+  });
+}
+
+// ---- "האי שלי" (2026-11-11) ----
+
+export function getIsland(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/island`);
+}
+
+export function chooseIslandItem(profileId, spot, item) {
+  return apiRequest(`/api/learn/profiles/${profileId}/island`, {
+    method: "PUT",
+    body: JSON.stringify({ spot, item }),
+  });
+}
+
+export function staffChildIsland(childId) {
+  return apiRequest(`/api/learn/staff/children/${childId}/island`);
+}

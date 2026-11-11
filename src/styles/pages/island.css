@@ -656,3 +656,257 @@
 .game-help .help-bubble {
   width: 100%;
 }
+
+/* ---- 🌉 הגשר (2026-11-11) ---- */
+.bridge-game,
+.train-game {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.bridge-q {
+  display: flex;
+  justify-content: center;
+}
+.bridge-q__goal {
+  background: #fff;
+  border-radius: 999px;
+  padding: 0.5rem 1.4rem;
+  box-shadow: var(--shadow-card);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.bridge-q__goal b {
+  color: var(--hut);
+  font-size: 2rem;
+}
+.equation--small {
+  font-size: 2.6rem;
+  padding: 8px 18px;
+}
+.river {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: linear-gradient(180deg, #8fd3ff 0%, #4aa8ff 100%);
+  border-radius: 1.4rem;
+  padding: 1.6rem 0.4rem 1.2rem;
+  box-shadow: inset 0 -6px 0 rgb(0 0 0 / 0.08);
+  overflow: hidden;
+}
+.river::before {
+  content: "〰️ 〰️ 〰️ 〰️ 〰️";
+  position: absolute;
+  inset: auto 0 0.2rem;
+  text-align: center;
+  opacity: 0.35;
+  letter-spacing: 0.4rem;
+  pointer-events: none;
+}
+.river__bank {
+  font-size: 2.2rem;
+  flex: none;
+  z-index: 1;
+}
+.bridge {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.bridge__row {
+  display: flex;
+  gap: 2px;
+}
+.plank {
+  flex: 1;
+  min-width: 0;
+  height: 2.4rem;
+  border-radius: 0.35rem;
+  background: linear-gradient(180deg, #c58b55 0%, #a0673a 100%);
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.18);
+  display: grid;
+  place-items: center;
+}
+.plank--fifth {
+  margin-inline-end: 0.35rem;
+}
+.plank--missing {
+  background: rgb(255 255 255 / 0.18);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.75);
+  border-style: dashed;
+}
+.plank--missing small {
+  font-weight: 900;
+  color: #fff;
+  font-size: 0.95rem;
+}
+.river.is-solved .plank--missing {
+  background: linear-gradient(180deg, #ffd27a 0%, #e0a94a 100%);
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.15);
+  animation: drop 0.35s ease both;
+  animation-delay: calc(var(--i) * 0.08s);
+}
+.bridge__walker {
+  position: absolute;
+  top: -1.6rem;
+  inset-inline-start: 0;
+  font-size: 1.6rem;
+  opacity: 0;
+}
+.river.is-solved .bridge__walker {
+  animation: walk-across 1.6s ease-in-out 0.5s both;
+}
+@keyframes walk-across {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 1; transform: translateX(calc(100cqw - 1.6rem)); }
+}
+.bridge {
+  container-type: inline-size;
+}
+.stones,
+.tickets {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.stone-pick {
+  width: 4.6rem;
+  height: 4.2rem;
+  border-radius: 46% 54% 50% 50% / 58% 52% 48% 42%;
+  background: var(--c);
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 900;
+  border: none;
+  box-shadow: 0 6px 0 rgb(0 0 0 / 0.2);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.stone-pick:active:not(:disabled) {
+  transform: translateY(4px);
+}
+.stone-pick.is-gone,
+.ticket.is-gone {
+  opacity: 0.25;
+  transform: scale(0.85);
+}
+.stone-pick.is-right,
+.ticket.is-right {
+  background: var(--green);
+  animation: pop-in 0.35s ease;
+}
+
+/* ---- 🚂 הרכבת (2026-11-11) ---- */
+.track {
+  position: relative;
+  background: #fff;
+  border-radius: 1.4rem;
+  box-shadow: var(--shadow-card);
+  padding: 1.4rem 0.4rem 0.8rem;
+  overflow: hidden;
+}
+.train {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.3rem;
+  transition: transform 1.4s ease-in 0.6s;
+}
+.track.is-leaving .train {
+  transform: translateX(-120%);
+}
+.train__engine {
+  font-size: 2.6rem;
+  line-height: 1;
+  transform: scaleX(-1); /* faces left - the way it leaves */
+}
+.wagon {
+  position: relative;
+  flex: 0 1 4rem;
+  min-width: 0;
+  height: 3.4rem;
+  border-radius: 0.6rem 0.6rem 0.3rem 0.3rem;
+  background: var(--c);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 -5px 0 rgb(0 0 0 / 0.15);
+}
+.wagon__num {
+  background: #fff;
+  border-radius: 0.5rem;
+  min-width: 2.3rem;
+  padding: 0.05rem 0.25rem;
+  text-align: center;
+  font-weight: 900;
+  font-size: 1.35rem;
+  color: var(--ink);
+}
+.wagon--gap .wagon__num {
+  color: var(--purple);
+  outline: 3px dashed var(--purple);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+.wagon.is-filled .wagon__num {
+  color: var(--green-dark);
+  outline-color: var(--green);
+  animation: pop-in 0.35s ease;
+}
+.wagon__wheels {
+  position: absolute;
+  bottom: -0.45rem;
+  inset-inline: 0.4rem;
+  height: 0.8rem;
+  background: radial-gradient(circle at 0.4rem 50%, #333 0.35rem, transparent 0.37rem),
+    radial-gradient(circle at calc(100% - 0.4rem) 50%, #333 0.35rem, transparent 0.37rem);
+}
+.wagon__step {
+  position: absolute;
+  top: -1.3rem;
+  inset-inline-start: -0.8rem;
+  font-weight: 900;
+  color: var(--hut);
+  font-size: 0.9rem;
+}
+.rails {
+  height: 0.35rem;
+  margin-top: 0.55rem;
+  background: repeating-linear-gradient(90deg, #8d6e63 0 0.5rem, transparent 0.5rem 1rem), #bcaaa4;
+  border-radius: 999px;
+}
+.ticket {
+  min-width: 4.6rem;
+  height: 3.6rem;
+  border-radius: 0.8rem;
+  background: #fff;
+  color: var(--ink);
+  font-size: 1.8rem;
+  font-weight: 900;
+  border: 3px dashed var(--hut);
+  box-shadow: 0 6px 0 rgb(0 0 0 / 0.12);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.ticket:active:not(:disabled) {
+  transform: translateY(4px);
+}
+.ticket.is-right {
+  color: #fff;
+  border-color: var(--green-dark);
+}
+/* 2026-11-11: "a new piece for my island" after a passed level */
+.result__gift {
+  border: none;
+  background: #fff4d6;
+  border: 2px solid #ffd36b;
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 900;
+  font-size: 1.1rem;
+  cursor: pointer;
+  animation: pulse 1.6s ease-in-out infinite;
+}

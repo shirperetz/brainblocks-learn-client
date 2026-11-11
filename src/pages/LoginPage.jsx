@@ -5,13 +5,18 @@ import Mascot from "../components/Mascot";
 import { useProfile } from "../context/profileStore";
 import { startsOnIsland } from "../game/games";
 import "../styles/pages/onboarding.css";
+import "../styles/pages/admin.css";
 
 // 2026-11-11 children's accounts: a child who already has a username logs in - on any device -
 // and continues exactly where they stopped (the progress is on the server).
 export default function LoginPage() {
   const navigate = useNavigate();
   const { loginProfile } = useProfile();
-  const next = useLocation().state?.next; // e.g. "/admin" from the admin link
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  // e.g. "/admin" from the admin link; after an automatic log-out, the staff page she was on
+  const next = location.state?.next ?? query.get("next") ?? undefined;
+  const expired = query.get("expired") === "1";
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -87,6 +92,11 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {expired && !error && (
+          <p className="admin__message" role="status">
+            🔒 לא היה שימוש חצי שעה, אז יצאנו בשביל השמירה עליך. צריך להיכנס שוב.
+          </p>
+        )}
         {error && <p className="form-error">{error}</p>}
 
         <div className="onboarding__actions">

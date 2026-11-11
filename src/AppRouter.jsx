@@ -8,7 +8,6 @@ import TopicsPage from "./pages/TopicsPage";
 import StageMapPage from "./pages/StageMapPage";
 import PlayPage from "./pages/PlayPage";
 import SummaryPage from "./pages/SummaryPage";
-import Placeholder from "./pages/Placeholder";
 import IslandPage from "./pages/IslandPage";
 import GameLevelsPage from "./pages/GameLevelsPage";
 import GamePlayPage from "./pages/GamePlayPage";
@@ -16,6 +15,8 @@ import DailyPage from "./pages/DailyPage";
 import TimedPage from "./pages/TimedPage";
 import ReviewPage from "./pages/ReviewPage";
 import StaffPage from "./pages/StaffPage";
+import SettingsPage from "./pages/SettingsPage";
+import MyIslandPage from "./pages/MyIslandPage";
 import ChildReportPage from "./pages/ChildReportPage";
 import ParentsPage from "./pages/ParentsPage";
 
@@ -36,13 +37,15 @@ export default function AppRouter() {
       <Route path="/island/:game" element={<GameLevelsPage />} />
       <Route path="/island/:game/:level" element={<GamePlayPage />} />
       <Route path="/review" element={<ReviewPage />} />
-      <Route path="/rewards" element={<Placeholder title="פרסים והישגים" />} />
+      <Route path="/rewards" element={<Navigate to="/my-island" replace />} />
+      <Route path="/my-island" element={<MyIslandPage />} />
+      <Route path="/staff/child/:id/island" element={<MyIslandPage />} />
       <Route path="/daily" element={<DailyPage />} />
       <Route path="/timed" element={<TimedPage />} />
       <Route path="/parent" element={<ParentsPage />} />
       <Route path="/staff" element={<StaffPage />} />
       <Route path="/staff/child/:id" element={<ChildReportPage />} />
-      <Route path="/settings" element={<Placeholder title="הגדרות" />} />
+      <Route path="/settings" element={<SettingsPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
