@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
 import Mascot from "../components/Mascot";
 import { useProfile } from "../context/profileStore";
@@ -11,6 +11,7 @@ import "../styles/pages/onboarding.css";
 export default function LoginPage() {
   const navigate = useNavigate();
   const { loginProfile } = useProfile();
+  const next = useLocation().state?.next; // e.g. "/admin" from the admin link
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +26,7 @@ export default function LoginPage() {
     setError("");
     try {
       const p = await loginProfile({ username: username.trim(), password });
-      navigate(startsOnIsland(p.grade) ? "/island" : "/topics");
+      navigate(next === "/admin" && p.admin ? "/admin" : startsOnIsland(p.grade) ? "/island" : "/topics");
     } catch (err) {
       setError(err.message);
       setSubmitting(false);

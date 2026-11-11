@@ -50,7 +50,9 @@ export default function AdminPage() {
   }, [profile]);
 
   if (loading) return null;
-  if (!profile?.admin) return <Navigate to="/" replace />;
+  // 2026-11-11: the admin link (/admin) - not logged in yet: log in first, then come back here.
+  if (!profile) return <Navigate to="/login" replace state={{ next: "/admin" }} />;
+  if (!profile.admin) return <Navigate to="/" replace />;
 
   function done(text) {
     setMessage(text);
