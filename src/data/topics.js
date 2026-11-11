@@ -26,7 +26,7 @@ const TOPICS_BY_GRADE = {
   G2: ["ADDITION", "SUBTRACTION", "COMPARISON", "SEQUENCES", "MIXED"],
   G3: ["ADDITION", "SUBTRACTION", "MULTIPLICATION", "DIVISION", "COMPARISON", "SEQUENCES", "MIXED"],
   G4: ["ADDITION", "SUBTRACTION", "MULTIPLICATION", "DIVISION", "COMPARISON", "SEQUENCES", "WORD_PROBLEMS", "MIXED"],
-  G5: TOPICS.map((t) => t.key).filter((k) => k !== "GEOMETRY"), // גיאומטריה מכיתה ו׳
+  G5: TOPICS.map((t) => t.key), // 2026-11-11: גיאומטריה גם לכיתה ה׳
   G6: TOPICS.map((t) => t.key),
 };
 

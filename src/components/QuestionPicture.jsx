@@ -8,13 +8,13 @@ import "../styles/components/question-picture.css";
  */
 export default function QuestionPicture({ visual }) {
   if (!visual?.type) return null;
-  const { type, a, b } = visual;
+  const { type, a, b, result } = visual;
   const shape = SHAPES[type];
   if (!shape) return null;
   return (
-    <figure className="q-picture" aria-label={LABELS[type]?.(a, b) ?? "ציור"}>
+    <figure className="q-picture" aria-label={LABELS[type]?.(a, b, result) ?? "ציור"}>
       <svg viewBox="0 0 220 180" role="img" aria-hidden="true">
-        {shape(a, b)}
+        {shape(a, b, result)}
       </svg>
     </figure>
   );
@@ -28,6 +28,8 @@ const LABELS = {
   TRIANGLE: (a, b) => `משולש עם זוויות ${a} ו-${b} מעלות`,
   RIGHT_TRIANGLE: (a, b) => `משולש ישר-זווית, בסיס ${a} גובה ${b}`,
   POLYGON: () => "צורה",
+  TRIANGLE_SIDES: (a, b, c) => `משולש עם צלעות ${a}, ${b}, ${c}`,
+  LINE_ANGLE: (a) => `זווית של ${a} מעלות על קו ישר`,
 };
 
 const FILL = "var(--orange)";
@@ -100,7 +102,37 @@ function polygon(n) {
   return <polygon points={pts} fill="var(--card-2)" stroke={LINE} strokeWidth="3.5" strokeLinejoin="round" />;
 }
 
+/** A triangle with its three side lengths written next to the sides (2026-11-11). */
+function triangleSides(a, b, c) {
+  const A = [30, 150], B = [190, 150], C = [95, 30];
+  return (
+    <>
+      <polygon points={`${A} ${B} ${C}`} fill="var(--card-2)" stroke={LINE} strokeWidth="3" />
+      <text x={110} y={172} className="q-picture__label">{a} ס״מ</text>
+      <text x={52} y={88} className="q-picture__label" textAnchor="end">{b}</text>
+      <text x={158} y={88} className="q-picture__label" textAnchor="start">{c}</text>
+    </>
+  );
+}
+
+/** A straight line with a ray: one angle given, the other one asked. */
+function lineAngle(a) {
+  const r = 70, cx = 110, cy = 140;
+  const t = Math.PI - (a * Math.PI) / 180;
+  const end = [cx + r * Math.cos(t), cy - r * Math.sin(t)];
+  return (
+    <>
+      <line x1={15} y1={cy} x2={205} y2={cy} stroke={LINE} strokeWidth="3" />
+      <line x1={cx} y1={cy} x2={end[0]} y2={end[1]} stroke={LINE} strokeWidth="3" />
+      <text x={cx - 45} y={cy - 12} className="q-picture__label">{a}°</text>
+      <text x={cx + 45} y={cy - 12} className="q-picture__label q-picture__label--ask">?</text>
+    </>
+  );
+}
+
 const SHAPES = {
+  TRIANGLE_SIDES: triangleSides,
+  LINE_ANGLE: (a) => lineAngle(a),
   FRACTION_PIE: pie,
   FRACTION_BAR: bar,
   RECT: rect,
