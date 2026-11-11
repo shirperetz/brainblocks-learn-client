@@ -43,6 +43,9 @@ export default function IslandPage() {
 
   return (
     <div className="app-shell island-shell">
+      <button className="back-button" onClick={() => navigate("/")}>
+        ← בית
+      </button>
       <header className="island__top">
         <div className="island__me">
           <span className="island__avatar" style={{ background: me.color }}>

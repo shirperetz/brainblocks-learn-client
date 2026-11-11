@@ -40,6 +40,9 @@ export default function LandingPage() {
               <BigButton variant="green" onClick={handleStart} disabled={loading}>
                 {`להמשיך לשחק, ${profile.name}`}
               </BigButton>
+              <BigButton variant="ghost" onClick={() => navigate("/grade")}>
+                🎓 החלפת כיתה
+              </BigButton>
               {profile.admin && (
                 <BigButton variant="ghost" onClick={() => navigate("/admin")}>
                   ⚙️ ניהול

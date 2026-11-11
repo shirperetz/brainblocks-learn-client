@@ -23,8 +23,10 @@ export default function TopicsPage() {
 
   return (
     <div className="app-shell">
-      <button className="back-button" onClick={() => navigate("/grade")}>
-        ← חזרה
+      {/* 2026-11-11: back goes home (settings, admin, switch user) - it used to go to the grade
+          screen, whose back came here again, so there was no way home. The grade has its own link. */}
+      <button className="back-button" onClick={() => navigate("/")}>
+        ← בית
       </button>
       <div className="onboarding">
         <div className="onboarding__header">
