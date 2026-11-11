@@ -1,4 +1,5 @@
 import "../styles/components/answer-button.css";
+import MathText from "./MathText";
 
 /**
  * A big answer choice. `state` controls the look:
@@ -16,7 +17,9 @@ export default function AnswerButton({ label, state = "idle", onClick, disabled 
       onClick={onClick}
       disabled={disabled}
     >
-      <span className="answer-button__label">{label}</span>
+      <span className="answer-button__label">
+        <MathText text={String(label)} />
+      </span>
       {state === "correct" && <span className="answer-button__mark" aria-hidden="true">✓</span>}
       {state === "wrong" && <span className="answer-button__mark" aria-hidden="true">✗</span>}
     </button>

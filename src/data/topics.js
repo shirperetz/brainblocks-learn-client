@@ -9,6 +9,9 @@ export const TOPICS = [
   { key: "COMPARISON", emoji: "⚖️", name: "השוואת מספרים", blurb: "מי גדול ומי קטן", color: "var(--teal)" },
   { key: "SEQUENCES", emoji: "🔢", name: "סדרות מספרים", blurb: "ממשיכים את הסדרה", color: "var(--pink)" },
   { key: "WORD_PROBLEMS", emoji: "📖", name: "בעיות מילוליות", blurb: "סיפור שצריך לפתור", color: "var(--red-soft)" },
+  // 2026-11-11: שברים (ה׳-ו׳) וגיאומטריה (ו׳) - with pictures (QuestionPicture).
+  { key: "FRACTIONS", emoji: "🍕", name: "שברים", blurb: "חלקים של שלם - חצי, רבע ועוד", color: "var(--orange)" },
+  { key: "GEOMETRY", emoji: "📐", name: "גיאומטריה", blurb: "היקף, שטח, זוויות וצורות", color: "var(--teal)" },
   { key: "MIXED", emoji: "🎲", name: "תרגול מעורב", blurb: "קצת מהכל", color: "var(--yellow)" },
 ];
 
@@ -23,7 +26,7 @@ const TOPICS_BY_GRADE = {
   G2: ["ADDITION", "SUBTRACTION", "COMPARISON", "SEQUENCES", "MIXED"],
   G3: ["ADDITION", "SUBTRACTION", "MULTIPLICATION", "DIVISION", "COMPARISON", "SEQUENCES", "MIXED"],
   G4: ["ADDITION", "SUBTRACTION", "MULTIPLICATION", "DIVISION", "COMPARISON", "SEQUENCES", "WORD_PROBLEMS", "MIXED"],
-  G5: TOPICS.map((t) => t.key),
+  G5: TOPICS.map((t) => t.key).filter((k) => k !== "GEOMETRY"), // גיאומטריה מכיתה ו׳
   G6: TOPICS.map((t) => t.key),
 };
 

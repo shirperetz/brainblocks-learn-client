@@ -4,6 +4,7 @@ import AnswerButton from "../components/AnswerButton";
 import ProgressBar from "../components/ProgressBar";
 import Mascot from "../components/Mascot";
 import HelpButton from "../components/HelpButton";
+import QuestionPicture from "../components/QuestionPicture";
 import MathText from "../components/MathText";
 import { getTopic } from "../data/topics";
 import { getQuestions, submitSession } from "../services/learnApi";
@@ -156,6 +157,7 @@ export default function PlayPage() {
               <p className="play__question-text">
                 <MathText text={current.text} />
               </p>
+              <QuestionPicture visual={current.visual} />
             </div>
 
             {selected === null && (

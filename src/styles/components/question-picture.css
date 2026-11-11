@@ -1,0 +1,46 @@
+/* The picture under a fraction / geometry question (2026-11-11). */
+.q-picture {
+  margin: 0.75rem auto 0;
+  width: min(100%, 15rem);
+}
+
+.q-picture svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.q-picture__label {
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 800;
+  fill: var(--ink);
+  text-anchor: middle;
+  direction: rtl;
+  unicode-bidi: plaintext;
+}
+
+.q-picture__label--ask {
+  font-size: 26px;
+  fill: var(--purple-dark);
+}
+
+/* A fraction written the way children learn it - one number above the other. */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  line-height: 1;
+  margin: 0 0.12em;
+  font-size: 0.8em;
+}
+
+.frac__top {
+  padding: 0 0.15em 0.08em;
+  border-bottom: 0.08em solid currentColor;
+}
+
+.frac__bottom {
+  padding: 0.08em 0.15em 0;
+}

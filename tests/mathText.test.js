@@ -15,3 +15,9 @@ test("formulas and series are found; the Hebrew around them is kept", () => {
   const t = "כמה זה 363 + 852?";
   assert.equal(mathParts(t).map((p) => p.text).join(""), t);
 });
+
+test("fractions are math too (2026-11-11)", () => {
+  assert.deepEqual(math("2/7 + 3/7 = ?"), ["2/7 + 3/7 = ?"]);
+  assert.deepEqual(math("איזה שבר שווה ל-1/2?"), ["1/2"]);
+  assert.deepEqual(math("כמה זה 3/4 מ-20?"), ["3/4"]);
+});
