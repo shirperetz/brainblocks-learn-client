@@ -56,14 +56,15 @@ function bar(a, b) {
 
 /** A rectangle scaled to fit, its sides labelled in cm. */
 function rect(a, b) {
-  const scale = Math.min(170 / a, 120 / b);
+  // 2026-11-11: 58 units on the left are kept for the side label ("10 ס״מ"), so it is never cut off.
+  const scale = Math.min(150 / a, 120 / b);
   const w = a * scale, h = b * scale;
-  const x = (220 - w) / 2, y = (170 - h) / 2;
+  const x = 58 + (155 - w) / 2, y = (170 - h) / 2;
   return (
     <>
       <rect x={x} y={y} width={w} height={h} fill="var(--card-2)" stroke={LINE} strokeWidth="3" rx="2" />
-      <text x={110} y={y + h + 18} className="q-picture__label">{a} ס״מ</text>
-      <text x={x - 6} y={y + h / 2} className="q-picture__label" textAnchor="end" dominantBaseline="middle">{b} ס״מ</text>
+      <text x={x + w / 2} y={y + h + 18} className="q-picture__label">{a} ס״מ</text>
+      <text x={x - 6} y={y + h / 2} className="q-picture__label q-picture__label--left" textAnchor="end" dominantBaseline="middle">{b} ס״מ</text>
     </>
   );
 }
@@ -81,15 +82,15 @@ function triangle(a, b) {
 }
 
 function rightTriangle(a, b) {
-  const scale = Math.min(170 / a, 125 / b);
+  const scale = Math.min(150 / a, 125 / b);
   const w = a * scale, h = b * scale;
-  const x = (220 - w) / 2 + 10, y = 150;
+  const x = 58 + (155 - w) / 2, y = 150;
   return (
     <>
       <polygon points={`${x},${y} ${x + w},${y} ${x},${y - h}`} fill="var(--card-2)" stroke={LINE} strokeWidth="3" />
       <polyline points={`${x},${y - 14} ${x + 14},${y - 14} ${x + 14},${y}`} fill="none" stroke={LINE} strokeWidth="2" />
       <text x={x + w / 2} y={y + 20} className="q-picture__label">{a} ס״מ</text>
-      <text x={x - 6} y={y - h / 2} className="q-picture__label" textAnchor="end" dominantBaseline="middle">{b} ס״מ</text>
+      <text x={x - 6} y={y - h / 2} className="q-picture__label q-picture__label--left" textAnchor="end" dominantBaseline="middle">{b} ס״מ</text>
     </>
   );
 }
@@ -109,8 +110,8 @@ function triangleSides(a, b, c) {
     <>
       <polygon points={`${A} ${B} ${C}`} fill="var(--card-2)" stroke={LINE} strokeWidth="3" />
       <text x={110} y={172} className="q-picture__label">{a} ס״מ</text>
-      <text x={52} y={88} className="q-picture__label" textAnchor="end">{b}</text>
-      <text x={158} y={88} className="q-picture__label" textAnchor="start">{c}</text>
+      <text x={52} y={88} className="q-picture__label q-picture__label--left" textAnchor="end">{b}</text>
+      <text x={158} y={88} className="q-picture__label q-picture__label--right" textAnchor="start">{c}</text>
     </>
   );
 }

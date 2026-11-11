@@ -44,3 +44,17 @@
 .frac__bottom {
   padding: 0.08em 0.15em 0;
 }
+
+/* Labels beside a side (2026-11-11): the class's "middle" overrode the attribute and the
+   length sat on the line of a narrow rectangle. Left labels end at the side, right ones start there. */
+.q-picture__label--left,
+.q-picture__label--right {
+  direction: ltr;
+  unicode-bidi: normal;
+}
+.q-picture__label--left {
+  text-anchor: end;
+}
+.q-picture__label--right {
+  text-anchor: start;
+}
