@@ -12,7 +12,8 @@ export const TOPICS = [
   // 2026-11-11: שברים (ה׳-ו׳) וגיאומטריה (ו׳) - with pictures (QuestionPicture).
   { key: "FRACTIONS", emoji: "🍕", name: "שברים", blurb: "חלקים של שלם - חצי, רבע ועוד", color: "var(--orange)" },
   // 2026-11-11 (Shir): geometry as three separate tracks, six levels each.
-  { key: "ANGLES", emoji: "📐", name: "זוויות", blurb: "חדה, ישרה, קהה - וכמה מעלות חסרות", color: "var(--teal)" },
+  { key: "ANGLES", emoji: "📐", name: "זוויות", blurb: "חדה, ישרה, קהה ושטוחה - להכיר זוויות", color: "var(--teal)" },
+  { key: "ANGLE_CALC", emoji: "🔺", name: "חישוב זוויות", blurb: "כמה מעלות חסרות - בקו ישר, במשולש ומסביב", color: "var(--pink)" },
   { key: "PERIMETER", emoji: "📏", name: "צלעות והיקף", blurb: "צלעות, צורות והיקף", color: "var(--blue)" },
   { key: "AREA", emoji: "⬛", name: "שטח", blurb: "כמה מקום יש בתוך הצורה", color: "var(--purple)" },
   { key: "MIXED", emoji: "🎲", name: "תרגול מעורב", blurb: "קצת מהכל", color: "var(--yellow)" },
