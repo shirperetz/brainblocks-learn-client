@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { ProfileProvider } from "./context/ProfileProvider";
 import App from "./App.jsx";
+import { stillHere } from "./services/apiClient";
 import "./styles/global.css";
 
 // 2026-11-11: a sign-up link with the join code (…/?code=123456) fills it in on the sign-up screen;
@@ -18,6 +19,10 @@ try {
 } catch {
   // storage blocked - the child types the code instead
 }
+
+// 2026-11-11: any tap or key = "still here" for the idle log-out (sent at most once a minute).
+window.addEventListener("pointerdown", stillHere, { passive: true });
+window.addEventListener("keydown", stillHere, { passive: true });
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

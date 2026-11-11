@@ -40,6 +40,23 @@ function hadToken() {
   }
 }
 
+/**
+ * 2026-11-11: the child is really using the app (a tap / a key) -> tell the server at most once a
+ * minute, so the 30-minute idle log-out only happens when nobody touches it (a whole level is played
+ * in the browser with no request - found by the kid bot: logged out at the end of a level).
+ */
+let lastPing = 0;
+export function stillHere() {
+  const now = Date.now();
+  if (now - lastPing < 60_000 || !hadToken()) return;
+  lastPing = now;
+  fetch(`${API_BASE_URL}/api/learn/ping`, { headers: tokenHeader() })
+    .then((r) => {
+      if (r.status === 401) loggedOut();
+    })
+    .catch(() => {});
+}
+
 let leaving = false;
 function loggedOut() {
   if (leaving) return;
