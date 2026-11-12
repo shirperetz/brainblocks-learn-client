@@ -29,3 +29,14 @@ test("division with ':' and degrees stay left-to-right (2026-11-11)", () => {
   assert.deepEqual(math("זווית של 140° היא זווית..."), ["140°"]);
   assert.deepEqual(math("סביב נקודה יש שלוש זוויות. שתיים מהן 120° ו-90°."), ["120°", "90°"]);
 });
+
+// 2026-11-12 (Shir's screenshots: "8 = 40 × ?" and "+ ? ... 617 = 1032" came out mirrored).
+test("an equation that starts with ? is one math part", () => {
+  assert.deepEqual(math("מה המספר החסר? ? × 8 = 40"), ["? × 8 = 40"]);
+  assert.deepEqual(math("מה המספר החסר? ? + 617 = 1032"), ["? + 617 = 1032"]);
+  assert.deepEqual(math("מה המספר החסר? 12 - ? = 5"), ["12 - ? = 5"]);
+  // the sentence's own question mark is not math
+  assert.deepEqual(math("איזה המספר הקטן ביותר?"), []);
+  const t = "מה המספר החסר? ? × 8 = 40";
+  assert.equal(mathParts(t).map((p) => p.text).join(""), t);
+});
