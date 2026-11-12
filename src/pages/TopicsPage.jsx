@@ -4,6 +4,7 @@ import { getStats } from "../services/learnApi";
 import "../styles/pages/challenges.css";
 import OptionCard from "../components/OptionCard";
 import Mascot from "../components/Mascot";
+import WeeklyTasks from "../components/WeeklyTasks";
 import { TOPICS, isTopicAllowedForGrade } from "../data/topics";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/onboarding.css";
@@ -38,6 +39,8 @@ export default function TopicsPage() {
           <Mascot avatarKey={profile.avatar} size="sm" message="במה נתרגל היום?" />
           <h1 className="screen-title">בחר נושא</h1>
         </div>
+
+        <WeeklyTasks profileId={profile.id} />
 
         <div className="challenge-row" role="group" aria-label="אתגרים">
           <button className="challenge-card" onClick={() => navigate("/daily")}>

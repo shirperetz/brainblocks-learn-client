@@ -120,3 +120,67 @@
   color: var(--purple-dark);
   margin: 0.2rem 0 0.6rem;
 }
+
+/* 2026-11-12 (idea #5): the teacher's weekly tasks, above the challenges */
+.weekly {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.weekly__title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.weekly__task {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  border: 2px solid var(--yellow);
+  border-radius: var(--radius-md);
+  padding: 0.7rem 0.8rem;
+  background: #fffbea;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+  font: inherit;
+  color: var(--ink);
+  text-align: start;
+  cursor: pointer;
+}
+
+.weekly__task.is-done {
+  border-color: var(--green);
+  background: #eafaf2;
+}
+
+.weekly__icon {
+  font-size: 1.8rem;
+  flex: none;
+}
+
+.weekly__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.weekly__name {
+  font-weight: 800;
+}
+
+.weekly__sub {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.weekly__hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  text-align: center;
+}

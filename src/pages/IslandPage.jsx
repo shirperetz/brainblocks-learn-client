@@ -6,6 +6,7 @@ import { preload, say, sfx } from "../game/audio";
 import { getCharacter } from "../data/characters";
 import { getStageMap } from "../services/learnApi";
 import { useRequireProfile } from "../hooks/useRequireProfile";
+import WeeklyTasks from "../components/WeeklyTasks";
 import "../styles/pages/island.css";
 
 /** אי המספרים - the game hub for grades 1-2: four big pictures, spoken, almost no reading. */
@@ -58,6 +59,7 @@ export default function IslandPage() {
       </header>
 
       <h1 className="island__title">🏝️ אי המספרים</h1>
+      <WeeklyTasks profileId={profile.id} />
 
       <div className="island__grid">
         {GAMES.map((g) => (

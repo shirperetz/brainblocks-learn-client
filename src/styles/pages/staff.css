@@ -675,3 +675,75 @@
   font-weight: 800;
   background: var(--white);
 }
+
+/* 2026-11-12 (idea #5): weekly tasks */
+.tasks {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.task {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.task.is-ended {
+  opacity: 0.6;
+}
+
+.task__head {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  padding: 0;
+}
+
+.task__head small {
+  color: var(--ink-soft);
+}
+
+.task__kids {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.3rem;
+}
+
+.task__kids li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.3rem;
+  background: var(--card-2);
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.9rem;
+}
+
+.task__kids li.is-done {
+  background: #eafaf2;
+}
+
+.task__kids li.is-none {
+  background: #fff0f2;
+}

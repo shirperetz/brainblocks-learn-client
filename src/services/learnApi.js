@@ -231,3 +231,26 @@ export function chooseIslandItem(profileId, spot, item) {
 export function staffChildIsland(childId) {
   return apiRequest(`/api/learn/staff/children/${childId}/island`);
 }
+
+// ---- weekly tasks from the teacher (idea #5, 2026-11-12) ----
+
+/** The child's running tasks: [{ id, topic, rounds, done, daysLeft, endDate }]. */
+export function getAssignments(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/assignments`);
+}
+
+/** The class's tasks, each with every child's progress (teacher / admin). */
+export function staffAssignments(classId) {
+  return apiRequest(`/api/learn/staff/classes/${classId}/assignments`);
+}
+
+export function staffCreateAssignment(classId, { topic, rounds, days }) {
+  return apiRequest(`/api/learn/staff/classes/${classId}/assignments`, {
+    method: "POST",
+    body: JSON.stringify({ topic, rounds, days }),
+  });
+}
+
+export function staffCancelAssignment(id) {
+  return apiRequest(`/api/learn/staff/assignments/${id}/cancel`, { method: "POST" });
+}

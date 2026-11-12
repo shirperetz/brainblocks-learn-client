@@ -6,6 +6,7 @@ import { GRADES, getGrade } from "../data/grades";
 import { TREND, columnsFor, levelOf, timeAgo, topicInfo } from "../data/progress";
 import * as api from "../services/learnApi";
 import { Legend } from "./ChildReportPage";
+import StaffWeeklyTasks from "../components/StaffWeeklyTasks";
 import "../styles/pages/staff.css";
 
 // 2026-11-11 (Shir: "teachers look at their students, I look at mine, and I oversee everything"):
@@ -40,7 +41,8 @@ export default function StaffPage() {
         if (!alive) return;
         setMe(d.me);
         setOverview(d.overview);
-        setWaiting(d.kids.filter((k) => !k.approved && !k.disabled));
+        // 2026-11-12: on a class tab - only that class's waiting children (it showed every class's).
+        setWaiting(d.kids.filter((k) => !k.approved && !k.disabled && (classId == null || (k.classId ?? 0) === classId)));
         setTeachers(d.teachers);
         setTeacherCode(d.teacherCode);
       })
@@ -136,6 +138,14 @@ export default function StaffPage() {
             ))}
           </ul>
         </section>
+      )}
+
+      {/* ---- the weekly task of the class on the tab (idea #5) ---- */}
+      {typeof tab === "number" && tab !== 0 && classes.find((c) => c.id === tab) && (
+        <StaffWeeklyTasks key={tab} cls={classes.find((c) => c.id === tab)} />
+      )}
+      {typeof tab !== "number" && classes.length > 0 && (
+        <p className="staff-card__hint">📅 למשימה שבועית - בחרי כיתה למעלה.</p>
       )}
 
       {/* ---- needs attention ---- */}
