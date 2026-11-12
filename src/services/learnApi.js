@@ -1,7 +1,7 @@
 // Typed calls against the /api/learn endpoints. One function per backend operation
 // so screens never build URLs or JSON bodies by hand.
 
-import { API_BASE_URL, apiRequest } from "./apiClient";
+import { API_BASE_URL, apiRequest, tokenHeader } from "./apiClient";
 
 // 2026-11-11: children's accounts - a profile is made with a username + password, and every
 // device logs in with them. Both return { token, profile }.
@@ -62,7 +62,8 @@ export async function speakUrl(text) {
   try {
     const r = await fetch(`${API_BASE_URL}/api/learn/speak`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      // 2026-11-12: with the login token - without it every read-aloud got 401 since accounts (11.11).
+      headers: { "Content-Type": "application/json", ...tokenHeader() },
       body: JSON.stringify({ text }),
     });
     if (r.status !== 200) return null;

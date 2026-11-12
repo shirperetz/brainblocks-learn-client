@@ -1,0 +1,39 @@
+/* 2026-11-12: 🔊 read the question aloud */
+.read-aloud {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--white);
+  font-size: 1.5rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.1s ease;
+}
+.read-aloud:active:not(:disabled) {
+  transform: scale(0.92);
+}
+.read-aloud--playing {
+  border-color: var(--purple);
+  animation: read-aloud-pulse 1s ease-in-out infinite;
+}
+.read-aloud--none {
+  opacity: 0.45;
+}
+@keyframes read-aloud-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(124 92 255 / 0.4); }
+  50% { box-shadow: 0 0 0 0.5rem rgb(124 92 255 / 0); }
+}
+.play__question-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.play__question-row .play__question-text {
+  flex: 1;
+  min-width: 0;
+}

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { CHARACTERS } from "../data/characters";
 import { COMPANIONS } from "../data/companions";
+import { readAloudDefault, setReadAloud } from "../game/readAloud";
 import { getGrade } from "../data/grades";
 import { isMuted, setMuted, sfx } from "../game/audio";
 import { useRequireProfile } from "../hooks/useRequireProfile";
@@ -16,6 +17,7 @@ export default function SettingsPage() {
   const { profile, ready } = useRequireProfile();
   const { patchProfile, changePassword, resetProfile } = useProfile();
   const [muted, setMutedState] = useState(isMuted());
+  const [readAloud, setReadAloudState] = useState(() => readAloudDefault(profile?.grade));
   const [pw, setPw] = useState({ current: "", next: "", again: "" });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -27,6 +29,12 @@ export default function SettingsPage() {
     setMuted(!muted);
     setMutedState(!muted);
     if (muted) sfx.tap();
+  }
+
+  function toggleReadAloud() {
+    setReadAloud(!readAloud);
+    setReadAloudState(!readAloud);
+    sfx.tap();
   }
 
   async function pickCharacter(key) {
@@ -89,6 +97,15 @@ export default function SettingsPage() {
         <button className={`switch ${muted ? "" : "is-on"}`} onClick={toggleSound} aria-pressed={!muted}>
           <span className="switch__knob" aria-hidden="true" />
           <span>{muted ? "הקול כבוי" : "הקול פועל - הדמות מדברת"}</span>
+        </button>
+      </section>
+
+      <section className="staff-card">
+        <h2>📖 הקראת שאלות</h2>
+        <p className="staff-card__hint">ליד כל שאלה יש 🔊. אפשר שהשאלה תוקרא לבד בכל פעם.</p>
+        <button className={`switch ${readAloud ? "is-on" : ""}`} onClick={toggleReadAloud} aria-pressed={readAloud}>
+          <span className="switch__knob" aria-hidden="true" />
+          <span>{readAloud ? "כל שאלה מוקראת לבד" : "מקריאים רק כשלוחצים על 🔊"}</span>
         </button>
       </section>
 

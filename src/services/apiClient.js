@@ -75,7 +75,8 @@ function loggedOut() {
   window.location.assign(`/login?expired=1${here.startsWith("/staff") || here === "/admin" ? `&next=${encodeURIComponent(here)}` : ""}`);
 }
 
-function tokenHeader() {
+/** The logged-in device token as a header (also for the few calls that use fetch directly). */
+export function tokenHeader() {
   try {
     const token = localStorage.getItem(TOKEN_STORAGE_KEY);
     return token ? { "X-Learner-Token": token } : {};

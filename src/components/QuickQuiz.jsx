@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import AnswerButton from "./AnswerButton";
 import HelpButton from "./HelpButton";
+import ReadAloud from "./ReadAloud";
+import { readAloudDefault } from "../game/readAloud";
 import MathText from "./MathText";
 import { cheer } from "../game/companion";
 import "../styles/pages/play.css";
@@ -67,9 +69,13 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
   return (
     <>
       <div className="play__question card">
-        <p className="play__question-text">
-          <MathText text={q.text} />
-        </p>
+        <div className="play__question-row">
+          <p className="play__question-text">
+            <MathText text={q.text} />
+          </p>
+          {/* 2026-11-12: 🔊 - not in the 60-second race, where reading aloud would cost time */}
+          {help && <ReadAloud key={`${index}-${q.text}`} text={q.text} auto={readAloudDefault(grade)} />}
+        </div>
       </div>
       {help && selected === null && (
         <HelpButton

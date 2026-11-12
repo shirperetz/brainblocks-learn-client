@@ -4,6 +4,8 @@ import AnswerButton from "../components/AnswerButton";
 import ProgressBar from "../components/ProgressBar";
 import Mascot from "../components/Mascot";
 import HelpButton from "../components/HelpButton";
+import ReadAloud from "../components/ReadAloud";
+import { readAloudDefault } from "../game/readAloud";
 import QuestionPicture from "../components/QuestionPicture";
 import MathText from "../components/MathText";
 import { getTopic } from "../data/topics";
@@ -162,9 +164,12 @@ export default function PlayPage() {
         {current && !submitting && (
           <>
             <div className="play__question card" style={{ "--accent": topicInfo?.color }}>
-              <p className="play__question-text">
-                <MathText text={current.text} />
-              </p>
+              <div className="play__question-row">
+                <p className="play__question-text">
+                  <MathText text={current.text} />
+                </p>
+                <ReadAloud key={`${index}-${current.text}`} text={current.text} auto={readAloudDefault(profile.grade)} />
+              </div>
               <QuestionPicture visual={current.visual} />
             </div>
 
