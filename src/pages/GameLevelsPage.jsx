@@ -43,7 +43,7 @@ export default function GameLevelsPage() {
   return (
     <div className="app-shell island-shell" style={{ "--hut": game.color }}>
       <header className="island__top">
-        <button className="round-btn" onClick={() => navigate("/island")} aria-label="חזרה לאי">
+        <button className="round-btn" onClick={() => navigate(`/isle/${game.isle}`)} aria-label="חזרה לאי">
           🏝️
         </button>
         <h1 className="levels__title">

@@ -1,0 +1,230 @@
+/* 2026-11-12: 🕐 אי השעון והכסף - the clock, the shop and the money games. */
+
+/* ---- options (times / amounts) ---- */
+.time-picks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  width: min(100%, 30rem);
+  margin: 0 auto;
+}
+.time-pick {
+  padding: 0.9rem 0.5rem;
+  border-radius: 1.2rem;
+  border: 3px solid #fff;
+  background: linear-gradient(180deg, #fff 0%, #f1f6ff 100%);
+  box-shadow: 0 5px 0 #c9d6ef, 0 8px 18px rgba(40, 70, 130, 0.12);
+  font: 800 clamp(1.6rem, 6vw, 2.2rem) var(--font);
+  color: var(--ink);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.12s ease;
+}
+.time-pick:active { transform: translateY(3px); box-shadow: 0 2px 0 #c9d6ef; }
+.time-pick.is-gone { opacity: 0.3; transform: scale(0.94); box-shadow: none; }
+.time-pick.is-right { background: linear-gradient(180deg, #d9fbe8 0%, #a8f0c8 100%); box-shadow: 0 5px 0 #4fc98a; }
+
+/* ---- the clock ---- */
+.clock-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+.clock-face {
+  width: min(78vw, 17rem);
+  aspect-ratio: 1;
+  filter: drop-shadow(0 10px 18px rgba(40, 70, 130, 0.22));
+}
+.clock-face__rim { fill: #ff9f43; }
+.clock-face__dial { fill: #fffdf6; }
+.clock-face__tick { stroke: #c7c2d9; stroke-width: 1.2; stroke-linecap: round; }
+.clock-face__tick.is-big { stroke: #6e6890; stroke-width: 2.6; }
+.clock-face__num {
+  font: 800 19px var(--font);
+  fill: #2b2550;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.clock-face__min {
+  font: 700 10px var(--font);
+  fill: #2f8fd8;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.clock-face__hour { stroke: #ff7a1a; stroke-width: 9; stroke-linecap: round; }
+.clock-face__minute { stroke: #2b2550; stroke-width: 5; stroke-linecap: round; }
+.clock-face__pin { fill: #2b2550; }
+.clock-face.is-hint .clock-face__hour { stroke-width: 11; }
+.clock-face.is-solved .clock-face__dial { fill: #e6fbef; }
+.clock-game__tip {
+  margin: 0;
+  padding: 0.4rem 0.9rem;
+  border-radius: 1rem;
+  background: #fff4e5;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ---- coins and bills ---- */
+.coin, .bill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
+  font-family: var(--font);
+  font-weight: 800;
+  color: #3b3524;
+  border: 0;
+  padding: 0;
+  flex: none;
+  user-select: none;
+}
+button.coin, button.bill { cursor: pointer; }
+button.coin:active, button.bill:active { transform: translateY(2px) scale(0.97); }
+button.coin:disabled, button.bill:disabled { opacity: 0.5; cursor: default; }
+.coin {
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #dfe3ea 38%, #a9b1bf 100%);
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.7), inset 0 0 0 5px #9aa3b3, 0 4px 8px rgba(0, 0, 0, 0.18);
+  font-size: 1.3rem;
+}
+.coin--1 { width: 3rem; height: 3rem; font-size: 1.1rem; }
+.coin--2 { width: 3.3rem; height: 3.3rem; }
+.coin--5 { width: 3.7rem; height: 3.7rem; }
+.coin--10 {
+  width: 3.8rem;
+  height: 3.8rem;
+  background: radial-gradient(circle at 35% 30%, #fff6cf 0%, #f2c94c 45%, #c98f12 100%);
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.6), inset 0 0 0 5px #b07d0c, 0 4px 8px rgba(0, 0, 0, 0.18);
+}
+.bill {
+  width: 6rem;
+  height: 3.3rem;
+  border-radius: 0.5rem;
+  font-size: 1.4rem;
+  color: #fff;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.45), 0 4px 8px rgba(0, 0, 0, 0.18);
+}
+.bill--20 { background: linear-gradient(135deg, #e5484d 0%, #b8202a 100%); }
+.bill--50 { background: linear-gradient(135deg, #3bb273 0%, #1d7a4b 100%); }
+.money__s { font-size: 0.7em; opacity: 0.8; }
+.coin.is-small { transform: scale(0.82); }
+.bill.is-small { transform: scale(0.82); }
+
+/* ---- the shop ---- */
+.shop-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+.shop-shelf {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  padding: 0.8rem 1.4rem;
+  border-radius: 1.4rem;
+  background: linear-gradient(180deg, #ffe9c7 0%, #ffd79a 100%);
+  box-shadow: inset 0 -8px 0 #e8b56a, 0 8px 18px rgba(150, 90, 20, 0.15);
+}
+.shop-shelf.is-sold { animation: shop-sold 0.6s ease; }
+@keyframes shop-sold { 50% { transform: scale(1.06) rotate(-1deg); } }
+.shop-shelf__sum { font-weight: 800; font-size: 1.2rem; }
+.shop-item { display: inline-flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+.shop-item__emoji { font-size: 3.4rem; line-height: 1; }
+.shop-item__tag {
+  padding: 0.15rem 0.7rem;
+  border-radius: 0.6rem;
+  background: #fff;
+  border: 2px dashed #e08a2b;
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: #2b2550;
+}
+.shop-counter {
+  width: min(100%, 30rem);
+  min-height: 4.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem;
+  border-radius: 1.2rem;
+  background: #fff;
+  border: 3px dashed #c9d6ef;
+}
+.shop-counter.is-wrong { border-color: #ff8a8a; animation: shop-shake 0.35s ease; }
+@keyframes shop-shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.shop-counter__empty { color: var(--ink-soft); font-weight: 700; }
+.shop-status { margin: 0; min-height: 1.5rem; font-weight: 800; font-size: 1.15rem; text-align: center; }
+.wallet {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border-radius: 1.4rem;
+  background: linear-gradient(180deg, #8d6e63 0%, #6d4c41 100%);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.2), 0 8px 16px rgba(80, 40, 20, 0.2);
+}
+.shop-pay {
+  padding: 0.8rem 2.4rem;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  box-shadow: 0 5px 0 #0b8a60;
+  color: #fff;
+  font: 800 1.35rem var(--font);
+  cursor: pointer;
+}
+.shop-pay:disabled { opacity: 0.45; cursor: default; }
+.shop-pay:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #0b8a60; }
+
+/* ---- how much money ---- */
+.coins-game { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.money-pile {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem;
+  border-radius: 1.4rem;
+  background: rgba(255, 255, 255, 0.75);
+  max-width: 32rem;
+}
+.money-pile__one { display: inline-flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+.money-pile__run { font-weight: 800; color: #2f8fd8; font-size: 1rem; }
+.change-story {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1rem;
+  border-radius: 1.4rem;
+  background: rgba(255, 255, 255, 0.8);
+}
+.change-story__part { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+.change-story__label { font-weight: 800; color: var(--ink-soft); }
+.change-story__arrow { font-size: 1.8rem; color: #9aa3b3; }
+.change-story__q {
+  min-width: 4.5rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 1rem;
+  border: 3px dashed #2f8fd8;
+  font: 800 1.8rem var(--font);
+  text-align: center;
+  color: #2f8fd8;
+}
+.change-story__hint { flex-basis: 100%; margin: 0; text-align: center; font-weight: 800; font-size: 1.3rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-shelf.is-sold, .shop-counter.is-wrong { animation: none; }
+}

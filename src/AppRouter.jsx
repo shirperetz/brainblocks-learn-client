@@ -6,6 +6,7 @@ import CharacterPage from "./pages/CharacterPage";
 import GradePage from "./pages/GradePage";
 import TopicsPage from "./pages/TopicsPage";
 import StageMapPage from "./pages/StageMapPage";
+import SeaPage from "./pages/SeaPage";
 import PlayPage from "./pages/PlayPage";
 import SummaryPage from "./pages/SummaryPage";
 import IslandPage from "./pages/IslandPage";
@@ -40,7 +41,8 @@ export default function AppRouter() {
       <Route path="/map/:topic" element={<StageMapPage />} />
       <Route path="/play/:topic/:stage" element={<PlayPage />} />
       <Route path="/summary/:topic/:stage" element={<SummaryPage />} />
-      <Route path="/island" element={<IslandPage />} />
+      <Route path="/island" element={<SeaPage />} />
+      <Route path="/isle/:isle" element={<IslandPage />} />
       <Route path="/island/:game" element={<GameLevelsPage />} />
       <Route path="/island/:game/:level" element={<GamePlayPage />} />
       <Route path="/review" element={<ReviewPage />} />

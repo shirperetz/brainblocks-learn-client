@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { hasIslands } from "../game/games";
 import DolphinPerch from "../components/DolphinPerch";
 import { useNavigate } from "react-router-dom";
 import { getStats } from "../services/learnApi";
@@ -44,6 +45,10 @@ export default function TopicsPage() {
 
         {/* 2026-11-12 (Shir: the room code inside the game's home page, not at the entrance) */}
         <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>
+        {/* 2026-11-12 (Shir): ג׳ sees the islands too (א׳-ב׳ start there) */}
+        {hasIslands(profile.grade) && (
+          <button className="room-entry room-entry--sea" onClick={() => navigate("/island")}>🌊 לים האיים - משחקים</button>
+        )}
         <WeeklyTasks profileId={profile.id} />
         <ClassBuilding profileId={profile.id} />
 

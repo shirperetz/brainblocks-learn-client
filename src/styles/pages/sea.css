@@ -1,0 +1,105 @@
+/* 2026-11-12: ים האיים - every island floats on one sea (tall on a phone, wide on a computer). */
+.sea {
+  position: relative;
+  width: min(100%, 34rem);
+  margin: 0 auto;
+  aspect-ratio: 3 / 5;
+  border-radius: 32px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.35) 0 7%, transparent 8%),
+    radial-gradient(circle at 82% 88%, rgba(255, 255, 255, 0.2) 0 6%, transparent 7%),
+    repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06) 0 18px, transparent 18px 36px),
+    linear-gradient(180deg, #4cc3ec 0%, #2fa8de 55%, #1f8fd0 100%);
+  box-shadow: 0 18px 40px rgba(31, 100, 160, 0.25), inset 0 0 0 4px rgba(255, 255, 255, 0.6);
+}
+.sea--wide {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: calc(100vh - 17rem);
+  min-height: 25rem;
+}
+.sea__deco {
+  position: absolute;
+  font-size: 2rem;
+  pointer-events: none;
+  animation: sea-bob 4.5s ease-in-out infinite;
+  filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.15));
+}
+.sea__deco--boat { left: 8%; top: 6%; }
+.sea__deco--whale { right: 6%; top: 44%; animation-delay: 1.2s; }
+.sea__deco--fish { left: 46%; bottom: 3%; font-size: 1.5rem; animation-delay: 2s; }
+.sea--wide .sea__deco--boat { left: 44%; top: 6%; }
+.sea--wide .sea__deco--whale { right: 3%; top: 12%; }
+.sea--wide .sea__deco--fish { left: 60%; bottom: 6%; }
+
+.isle {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font);
+  width: 9.5rem;
+}
+.isle__land {
+  position: relative;
+  width: 7.2rem;
+  height: 5rem;
+  border-radius: 48% 52% 45% 55% / 55% 50% 50% 45%;
+  background:
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--isle) 55%, #b6ec8e) 0 45%, transparent 47%),
+    radial-gradient(ellipse at 50% 50%, #f6dd98 0 66%, transparent 68%);
+  box-shadow: 0 0 0 6px rgba(191, 238, 252, 0.75);
+  display: grid;
+  place-items: center;
+  animation: sea-bob 5s ease-in-out infinite;
+  animation-delay: var(--d);
+  transition: transform 0.15s ease;
+}
+.isle__emoji { font-size: 2.6rem; line-height: 1; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.18)); }
+.isle:active .isle__land { transform: scale(0.95); }
+.isle:hover .isle__land { transform: scale(1.05); }
+.isle__name {
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+.isle__stars,
+.isle__lock {
+  padding: 0.05rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--ink);
+}
+.isle.is-closed .isle__land { filter: grayscale(0.85) brightness(1.05); opacity: 0.8; }
+.isle.is-nudging .isle__land { animation: sea-shake 0.4s ease; }
+.sea--wide .isle { width: 11rem; }
+.sea--wide .isle__land { width: 9rem; height: 6.2rem; }
+.sea--wide .isle__emoji { font-size: 3.2rem; }
+.sea--wide .isle__name { font-size: 1.05rem; }
+
+@keyframes sea-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes sea-shake {
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sea__deco, .isle__land { animation: none; }
+}
+.room-entry--sea { background: linear-gradient(90deg, #2fa8de 0%, #4cc3ec 100%); }

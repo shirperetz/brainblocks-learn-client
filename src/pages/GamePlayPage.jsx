@@ -20,6 +20,11 @@ import DragonRound from "../game/DragonRound";
 import BalloonRound from "../game/BalloonRound";
 import BridgeRound from "../game/BridgeRound";
 import TrainRound from "../game/TrainRound";
+import ClockRound from "../game/ClockRound";
+import ShopRound from "../game/ShopRound";
+import CoinsRound from "../game/CoinsRound";
+import { clockRounds, coinsRounds, fewestCoins, shopRounds } from "../game/levelsClock";
+import "../styles/pages/clock-isle.css";
 import { submitSession } from "../services/learnApi";
 import { cheer } from "../game/companion";
 import HelpButton from "../components/HelpButton";
@@ -75,6 +80,39 @@ const KINDS = {
       `בודקים כמה ${r.step > 0 ? "גדל" : "קטן"} המספר מקרון לקרון, וממשיכים באותה צורה עד הקרון עם סימן השאלה.`,
     Round: TrainRound,
   },
+  // 2026-11-12: 🕐 אי השעון והכסף
+  clock: {
+    rounds: clockRounds,
+    speech: () => ["clock_q"],
+    text: (r) => `מה השעה בשעון? (המחוג הקצר ליד ${r.h}, המחוג הארוך על ${r.m === 0 ? 12 : r.m / 5})`,
+    answer: (r) => r.answer,
+    explain: (r) => `המחוג הקצר ליד ${r.h}, הארוך על ${r.m === 0 ? 12 : r.m / 5} - השעה ${r.answer}`,
+    hint: () =>
+      "קודם מסתכלים על המחוג הקצר - הוא מראה את השעה. אחר כך על המחוג הארוך: על 12 זה בדיוק, על 6 זה וחצי, על 3 זה ורבע, על 9 זה רבע ל.",
+    Round: ClockRound,
+  },
+  shop: {
+    rounds: shopRounds,
+    speech: (r) => (r.two ? ["shop_two"] : r.price <= 20 ? ["shop_price", `n${r.price}`, "shekels"] : ["shop_pay"]),
+    text: (r) => (r.two ? `לשלם בדיוק על שני דברים: ${r.prices.join(" + ")} שקלים` : `לשלם בדיוק ${r.price} שקלים במטבעות`),
+    answer: (r) => String(r.price),
+    explain: (r) => `${fewestCoins(r.price, r.coins).join(" + ")} = ${r.price}`,
+    hint: () =>
+      "מתחילים מהמטבע הכי גדול שלא עובר את המחיר, ואז מוסיפים מטבעות קטנים, וסופרים כל פעם כמה יש, עד שמגיעים בדיוק למחיר.",
+    Round: ShopRound,
+  },
+  coins: {
+    rounds: coinsRounds,
+    speech: (r) => [r.change ? "coins_change" : "coins_q"],
+    text: (r) => (r.change ? `היו לי ${r.had} שקלים, קניתי ב-${r.price} שקלים. כמה נשאר?` : `כמה כסף יש: ${r.money.join(" + ")} שקלים`),
+    answer: (r) => String(r.answer),
+    explain: (r) => (r.change ? `${r.had} - ${r.price} = ${r.answer}` : `${r.money.join(" + ")} = ${r.answer}`),
+    hint: (r) =>
+      r.change
+        ? "מתחילים מהמחיר וסופרים קדימה עד הכסף שהיה, או מורידים את המחיר מהכסף שהיה."
+        : "מתחילים מהמטבע הגדול, ומוסיפים כל פעם את המטבע הבא, וסופרים בקול.",
+    Round: CoinsRound,
+  },
 };
 
 /** Remounts per level, so "next level" starts clean. */
@@ -110,6 +148,7 @@ function GamePlay() {
     if (gameKey === "dragon") ["dragon_more", "dragon_less", "dragon_yum"].forEach((k) => keys.add(k));
     if (gameKey === "bridge") keys.add("bridge_done");
     if (gameKey === "train") keys.add("train_go");
+    if (gameKey === "shop") ["shop_more", "shop_less", "shop_thanks"].forEach((k) => keys.add(k));
     preload([...keys]);
   }, [kind, rounds, game, gameKey]);
 
@@ -250,7 +289,7 @@ function GamePlay() {
                 ◀
               </button>
             )}
-            <button className="round-btn round-btn--big" onClick={() => navigate("/island")} aria-label="לאי">
+            <button className="round-btn round-btn--big" onClick={() => navigate(`/isle/${game.isle}`)} aria-label="לאי">
               🏝️
             </button>
           </div>

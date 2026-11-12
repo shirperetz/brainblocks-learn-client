@@ -1,29 +1,31 @@
 import { useEffect, useState } from "react";
 import DolphinPerch from "../components/DolphinPerch";
-import { Navigate, useNavigate } from "react-router-dom";
-import { GAMES, startsOnIsland } from "../game/games";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { GAMES, getIsle } from "../game/games";
 import { LEVELS_PER_GAME } from "../game/levels";
 import { preload, say, sfx } from "../game/audio";
-import { getCharacter } from "../data/characters";
 import { getStageMap } from "../services/learnApi";
 import { useRequireProfile } from "../hooks/useRequireProfile";
-import WeeklyTasks from "../components/WeeklyTasks";
-import "../styles/pages/room.css";
-import ClassBuilding from "../components/ClassBuilding";
 import "../styles/pages/island.css";
 
-/** אי המספרים - the game hub for grades 1-2: four big pictures, spoken, almost no reading. */
+/**
+ * One island and its games (2026-11-10 אי המספרים; 2026-11-12 every island on the sea map: /isle/:isle).
+ * Big pictures, spoken, almost no reading.
+ */
 export default function IslandPage() {
   const navigate = useNavigate();
   const { profile, ready } = useRequireProfile();
+  const { isle: isleKey } = useParams();
+  const isle = getIsle(isleKey);
+  const games = GAMES.filter((g) => g.isle === isleKey);
   const [stars, setStars] = useState({});
 
   useEffect(() => {
-    if (!ready) return;
-    preload(["island_intro", "locked", ...GAMES.filter((g) => g.intro).map((g) => g.intro)]);
-    say("island_intro");
+    if (!ready || !isle?.ready) return;
+    preload([isle.intro, "locked", ...games.filter((g) => g.intro).map((g) => g.intro)]);
+    say(isle.intro);
     let active = true;
-    GAMES.filter((g) => g.ready).forEach((g) =>
+    games.filter((g) => g.ready).forEach((g) =>
       getStageMap(profile.id, g.topic)
         .then((m) => active && setStars((s) => ({ ...s, [g.key]: m.totalStars })))
         .catch(() => {}),
@@ -31,12 +33,12 @@ export default function IslandPage() {
     return () => {
       active = false;
     };
-  }, [ready, profile]);
+  }, [ready, profile, isle]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!ready) return null;
-  // 2026-11-12: a child locked to grade ג׳-ו׳ practices that grade's topics, not the island (א׳-ב׳).
-  if (profile.gradeLocked && !startsOnIsland(profile.grade)) return <Navigate to="/topics" replace />;
-  const me = getCharacter(profile.avatar);
+  if (!isle?.ready) return <Navigate to="/island" replace />;
+  // A child locked by the teacher to a grade this island isn't made for goes back to the sea.
+  if (profile.gradeLocked && profile.grade && !isle.grades.includes(profile.grade)) return <Navigate to="/island" replace />;
 
   function open(g) {
     sfx.tap();
@@ -49,26 +51,15 @@ export default function IslandPage() {
 
   return (
     <div className="app-shell island-shell">
-      <button className="back-button" onClick={() => navigate("/")}>
-        ← בית
+      <button className="back-button" onClick={() => navigate("/island")}>
+        ← לים
       </button>
-      <header className="island__top">
-        <div className="island__me">
-          <span className="island__avatar" style={{ background: me.color }}>
-            {me.emoji}
-          </span>
-          <span className="island__name">{profile.name}</span>
-        </div>
-      </header>
 
-      <h1 className="island__title">🏝️ אי המספרים</h1>
+      <h1 className="island__title">{isle.emoji} {isle.name}</h1>
       <DolphinPerch message="לאיזה משחק הולכים?" />
-      <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>
-      <WeeklyTasks profileId={profile.id} />
-      <ClassBuilding profileId={profile.id} />
 
       <div className="island__grid">
-        {GAMES.map((g) => (
+        {games.map((g) => (
           <button
             key={g.key}
             className={`hut ${g.ready ? "" : "is-locked"}`}
@@ -90,9 +81,6 @@ export default function IslandPage() {
         ))}
       </div>
 
-      <button className="text-link island__grown" onClick={() => navigate("/topics")}>
-        לכל נושאי החשבון (לגדולים)
-      </button>
     </div>
   );
 }
