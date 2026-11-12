@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { useNavigate, useParams } from "react-router-dom";
 import AnswerButton from "../components/AnswerButton";
 import ProgressBar from "../components/ProgressBar";
-import Mascot from "../components/Mascot";
 import HelpButton from "../components/HelpButton";
 import ReadAloud from "../components/ReadAloud";
 import { readAloudDefault } from "../game/readAloud";
@@ -185,6 +185,7 @@ export default function PlayPage() {
 
         {current && !submitting && (
           <>
+            <DolphinPerch side message={mascotMessage} />
             <div className="play__question card" style={{ "--accent": topicInfo?.color }}>
               <div className="play__question-row">
                 <p className="play__question-text">
@@ -216,9 +217,6 @@ export default function PlayPage() {
               ))}
             </div>
 
-            <div className="play__mascot">
-              <Mascot avatarKey={profile.avatar} size="sm" message={mascotMessage} />
-            </div>
           </>
         )}
       </div>

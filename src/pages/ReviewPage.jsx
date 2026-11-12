@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
-import Mascot from "../components/Mascot";
 import AnswerButton from "../components/AnswerButton";
 import HelpButton from "../components/HelpButton";
 import MathText from "../components/MathText";
@@ -72,12 +72,20 @@ export default function ReviewPage() {
       </button>
       <div className="challenge">
         <h1 className="screen-title">🔁 חוזרים על מה שהיה קשה</h1>
+        <DolphinPerch side
+          message={
+            items && items.length === 0
+              ? "אין חזרות להיום - כל הכבוד! 🌟"
+              : items && index >= items.length
+                ? `תיקנתם ${fixed} מתוך ${items.length}!`
+                : null
+          }
+        />
         {error && <p className="form-error">{error}</p>}
         {items === null && !error && <p className="play__loading">טוען...</p>}
 
         {items && items.length === 0 && (
           <div className="challenge__intro card">
-            <Mascot avatarKey={profile.avatar} size="sm" message="אין חזרות להיום - כל הכבוד! 🌟" />
             <BigButton variant="blue" onClick={() => navigate("/topics")}>
               לנושאים
             </BigButton>
@@ -121,7 +129,6 @@ export default function ReviewPage() {
 
         {items && items.length > 0 && index >= items.length && (
           <div className="challenge__intro card">
-            <Mascot avatarKey={profile.avatar} size="sm" message={`תיקנתם ${fixed} מתוך ${items.length}!`} />
             <BigButton variant="blue" onClick={() => navigate("/topics")}>
               לנושאים
             </BigButton>

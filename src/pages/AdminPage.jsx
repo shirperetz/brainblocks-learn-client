@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { getGrade } from "../data/grades";
@@ -111,6 +112,7 @@ export default function AdminPage() {
         ← חזרה
       </button>
       <h1 className="screen-title">ניהול</h1>
+      <DolphinPerch />
       <p className="screen-subtitle">
         {children.length} פרופילים · {withUser} עם שם משתמש
       </p>

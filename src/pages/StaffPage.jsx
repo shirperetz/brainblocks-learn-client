@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
@@ -85,6 +86,7 @@ export default function StaffPage() {
         )}
       </div>
       <h1 className="screen-title">{isAdmin ? "כל הילדים" : "הכיתות שלי"}</h1>
+      <DolphinPerch />
       {/* 2026-11-12: the live game room */}
       <button className="admin__btn staff__room-btn" onClick={() => navigate("/staff/room/new")}>🎮 פתיחת חדר משחק</button>
       <p className="screen-subtitle">

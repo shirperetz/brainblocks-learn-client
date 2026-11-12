@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
-import Mascot from "../components/Mascot";
 import AnswerButton from "../components/AnswerButton";
 import MathText from "../components/MathText";
 import { getQuestions, getStats, submitSession } from "../services/learnApi";
@@ -129,11 +129,11 @@ export default function TimedPage() {
       </button>
       <div className="challenge">
         <h1 className="screen-title">⏱️ אתגר 60 שניות</h1>
+        <DolphinPerch side message={phase === "intro" ? "כמה תספיקו בדקה אחת?" : null} />
         {error && <p className="form-error">{error}</p>}
 
         {phase === "intro" && (
           <div className="challenge__intro card">
-            <Mascot avatarKey={profile.avatar} size="sm" message="כמה תספיקו בדקה אחת?" />
             <p className="challenge__big">{best ? `השיא שלכם: ${best} ⭐` : "עוד אין שיא - זה הזמן!"}</p>
             <BigButton variant="green" onClick={start}>
               מוכנים? צאו!

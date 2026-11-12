@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { getGame } from "../game/games";
 import {
@@ -201,6 +202,7 @@ function GamePlay() {
           🔊
         </button>
       </header>
+      <DolphinPerch side />
 
       {error && <p className="form-error">{error}</p>}
 

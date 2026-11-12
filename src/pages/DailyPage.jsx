@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
-import Mascot from "../components/Mascot";
 import QuickQuiz from "../components/QuickQuiz";
 import { getQuestions, getStats, submitSession } from "../services/learnApi";
 import { useProfile } from "../context/profileStore";
@@ -65,11 +65,11 @@ export default function DailyPage() {
       </button>
       <div className="challenge">
         <h1 className="screen-title">🔥 האתגר היומי</h1>
+        <DolphinPerch side message={!questions && !result && stats ? (stats.dailyDone ? "כבר עשיתם היום! אפשר שוב בשביל הכיף" : "5 שאלות, כל יום") : null} />
         {error && <p className="form-error">{error}</p>}
 
         {!questions && !result && stats && (
           <div className="challenge__intro card">
-            <Mascot avatarKey={profile.avatar} size="sm" message={stats.dailyDone ? "כבר עשיתם היום! אפשר שוב בשביל הכיף" : "5 שאלות, כל יום"} />
             <p className="challenge__big">
               {stats.dailyStreak > 0 ? `🔥 ${stats.dailyStreak} ${stats.dailyStreak === 1 ? "יום" : "ימים"} ברצף` : "מתחילים רצף חדש!"}
             </p>

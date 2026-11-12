@@ -1,21 +1,23 @@
-/* 2026-11-12: Shir's dolphin - bottom corner opposite the sound button (which is on the left). */
-.companion {
-  position: fixed;
-  bottom: max(6px, env(safe-area-inset-bottom));
-  right: 6px;
-  z-index: 49;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.1rem;
+/* 2026-11-12 (Shir picked "C"): the dolphin sits on top of the page's main card - its tail rests on the
+   card's edge, the speech bubble beside its pointing fin. ltr only for the order (dolphin on the left,
+   bubble to its right, where the fin points); the bubble text is rtl again. */
+.dolphin-perch {
+  position: relative;
+  z-index: 3;
+  margin-bottom: -1rem; /* the tail overlaps the card below */
   pointer-events: none;
-  /* ltr only for the layout: in rtl "flex-end" is the LEFT, and a bubble pulled the dolphin away
-     from the corner onto the page. The bubble's text is rtl again below. */
+}
+.companion {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   direction: ltr;
+  padding-left: 0.4rem;
 }
 .companion__dolphin {
   pointer-events: auto;
-  width: 5.2rem;
+  flex: none;
+  width: 5rem;
   aspect-ratio: 2 / 3;
   padding: 0;
   border: 0;
@@ -26,7 +28,37 @@
 }
 @media (min-width: 760px) {
   .companion__dolphin {
-    width: 7.5rem;
+    width: 6.5rem;
+  }
+}
+/* Game screens on a wide screen: the game moves right, the dolphin stands big on the left. */
+@media (min-width: 1000px) {
+  .app-shell:has(.dolphin-perch--side) {
+    position: relative;
+    width: min(76rem, 100% - 28px);
+    padding-left: 16rem;
+  }
+  .dolphin-perch--side {
+    position: absolute;
+    left: 0;
+    top: 7rem;
+    width: 15rem;
+    margin: 0;
+  }
+  .dolphin-perch--side .companion {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0;
+  }
+  .dolphin-perch--side .companion__dolphin {
+    width: 12rem;
+  }
+  .dolphin-perch--side .companion__bubble {
+    margin: 0;
+    max-width: 14rem;
+    font-size: 1.05rem;
+    border-radius: 1rem 1rem 1rem 1rem;
   }
 }
 .dolphin {
@@ -39,8 +71,8 @@
 }
 .companion__bubble {
   pointer-events: auto;
-  max-width: min(15rem, 70vw);
-  margin-right: 1.2rem;
+  max-width: min(16rem, 62vw);
+  margin-bottom: 1.6rem;
   direction: rtl;
   background: #fff;
   color: var(--ink);
@@ -48,7 +80,7 @@
   font-size: 0.95rem;
   line-height: 1.35;
   padding: 0.55rem 0.8rem;
-  border-radius: 1rem 1rem 0.3rem 1rem;
+  border-radius: 1rem 1rem 1rem 0.3rem;
   box-shadow: var(--shadow-card);
   border: 2px solid var(--line);
   animation: companion-pop 0.25s ease;

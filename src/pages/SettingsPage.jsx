@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { CHARACTERS } from "../data/characters";
@@ -85,6 +86,7 @@ export default function SettingsPage() {
     <div className="app-shell staff settings">
       <button className="back-button" onClick={() => navigate("/")}>← בית</button>
       <h1 className="screen-title">⚙️ הגדרות</h1>
+      <DolphinPerch />
       <p className="screen-subtitle">
         {profile.name} · @{profile.username}
       </p>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { getGame } from "../game/games";
 import { say, sfx } from "../game/audio";
@@ -50,6 +51,7 @@ export default function GameLevelsPage() {
         </h1>
         <span className="round-btn round-btn--ghost" aria-hidden="true" />
       </header>
+      <DolphinPerch />
 
       {error && <p className="form-error">{error}</p>}
       {!stages && !error && <p className="play__loading">טוען...</p>}

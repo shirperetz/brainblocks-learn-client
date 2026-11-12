@@ -1,7 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import StarRating from "../components/StarRating";
-import { getCharacter } from "../data/characters";
 import { getTopic } from "../data/topics";
 import { getStageMap } from "../services/learnApi";
 import { useRequireProfile } from "../hooks/useRequireProfile";
@@ -81,7 +81,6 @@ export default function StageMapPage() {
   const current = stages.find((s) => s.status !== "LOCKED" && s.status !== "COMPLETED")
     ?? stages.filter((s) => s.status !== "LOCKED").slice(-1)[0];
   const allDone = stages.length > 0 && stages.every((s) => s.status === "COMPLETED");
-  const me = getCharacter(profile.avatar);
 
   return (
     <div className="app-shell topic-island-shell" style={{ "--accent": topicInfo.color }}>
@@ -98,6 +97,8 @@ export default function StageMapPage() {
         <span className="topic-island__flag" aria-hidden="true">{topicInfo.emoji}</span>
         האי של ה{topicInfo.name}
       </h1>
+
+      <DolphinPerch message={allDone ? "כבשתם את האי! 🏆" : "בוחרים שלב ויוצאים לדרך!"} />
 
       {error && <p className="form-error">{error}</p>}
 
@@ -138,9 +139,6 @@ export default function StageMapPage() {
           const last = i === stages.length - 1;
           return (
             <div key={stage.stageNumber} className="island-stop" style={{ left: `${x}%`, top: `${y}%` }}>
-              {here && (
-                <span className="island-stop__me" aria-hidden="true" style={{ background: me.color }}>{me.emoji}</span>
-              )}
               <button
                 className={`island-stone${locked ? " is-locked" : ""}${done ? " is-done" : ""}${here ? " is-here" : ""}${last ? " is-treasure" : ""}${lockedNudge === stage.stageNumber ? " is-nudging" : ""}`}
                 onClick={() => openStage(stage)}

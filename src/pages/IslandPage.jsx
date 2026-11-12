@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { Navigate, useNavigate } from "react-router-dom";
 import { GAMES, startsOnIsland } from "../game/games";
 import { LEVELS_PER_GAME } from "../game/levels";
@@ -61,6 +62,7 @@ export default function IslandPage() {
       </header>
 
       <h1 className="island__title">🏝️ אי המספרים</h1>
+      <DolphinPerch message="לאיזה משחק הולכים?" />
       <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>
       <WeeklyTasks profileId={profile.id} />
       <ClassBuilding profileId={profile.id} />

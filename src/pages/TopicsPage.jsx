@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { useNavigate } from "react-router-dom";
 import { getStats } from "../services/learnApi";
 import "../styles/pages/challenges.css";
 import OptionCard from "../components/OptionCard";
-import Mascot from "../components/Mascot";
 import WeeklyTasks from "../components/WeeklyTasks";
 import "../styles/pages/room.css";
 import ClassBuilding from "../components/ClassBuilding";
@@ -38,8 +38,8 @@ export default function TopicsPage() {
             <span className="steps__dot is-active" />
             <span className="steps__dot is-active" />
           </div>
-          <Mascot avatarKey={profile.avatar} size="sm" message="במה נתרגל היום?" />
           <h1 className="screen-title">בחר נושא</h1>
+          <DolphinPerch message="במה נתרגל היום?" />
         </div>
 
         {/* 2026-11-12 (Shir: the room code inside the game's home page, not at the entrance) */}

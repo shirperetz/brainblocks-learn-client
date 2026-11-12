@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import DolphinPerch from "../components/DolphinPerch";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
@@ -86,7 +87,8 @@ export default function MyIslandPage() {
         ← {staffView ? "לדוח" : "בית"}
       </button>
       <header className="my-island__head">
-        {me && (
+        {/* Shir 12.11: no child emoji on the child's own screens - only a teacher viewing sees whose island */}
+        {me && staffView && (
           <span className="my-island__avatar" style={{ background: me.color }} aria-hidden="true">
             {me.emoji}
           </span>
@@ -102,6 +104,7 @@ export default function MyIslandPage() {
           )}
         </div>
       </header>
+      <DolphinPerch />
 
       {error && <p className="form-error">{error}</p>}
       {!island && !error && <p className="my-island__loading">טוען...</p>}
