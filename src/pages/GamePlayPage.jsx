@@ -138,9 +138,6 @@ function GamePlay() {
     () => (kind ? kind.rounds(level, Math.random, recentKeys(profile?.id, gameKey, level)) : []),
     [kind, level, runId, profile?.id], // eslint-disable-line react-hooks/exhaustive-deps
   );
-  useEffect(() => {
-    if (rounds.length) rememberKeys(profile?.id, gameKey, level, rounds.map((x) => x._key).filter(Boolean));
-  }, [rounds]); // eslint-disable-line react-hooks/exhaustive-deps
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
@@ -182,6 +179,9 @@ function GamePlay() {
   if (!ready) return null;
 
   function onRoundDone({ correct, chosen, hintUsed }) {
+    // 2026-11-12 (Shir: "if the child didn't know it, the exercise comes back at some point, to see the
+    // progress"): only what was right the first time is kept out of the next runs - a mistake may return.
+    if (correct && round?._key) rememberKeys(profile?.id, gameKey, level, [round._key]);
     cheer(correct ? "correct" : "wrong");
     answers.current.push({
       questionText: kind.text(round),
