@@ -153,7 +153,11 @@ export default function SettingsPage() {
         <h2>🎓 הכיתה שלי</h2>
         <div className="admin__row">
           <strong className="settings__grade">{getGrade(profile.grade)?.label ?? "עוד לא נבחרה"}</strong>
-          <button className="admin__btn admin__btn--ghost" onClick={() => navigate("/grade")}>החלפת כיתה</button>
+          {profile.gradeLocked ? (
+            <span className="staff-card__hint">🔒 המורה קבעה את הכיתה</span>
+          ) : (
+            <button className="admin__btn admin__btn--ghost" onClick={() => navigate("/grade")}>החלפת כיתה</button>
+          )}
         </div>
       </section>
 

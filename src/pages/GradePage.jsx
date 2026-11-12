@@ -13,9 +13,33 @@ import "../styles/pages/onboarding.css";
 // It decides everything after it: grades א-ב go to אי המספרים (spoken), older grades to the topics.
 // A new child continues to the character; a returning child (changing grade) is saved right away.
 export default function GradePage() {
-  const { loading } = useProfile();
+  const { loading, profile } = useProfile();
   if (loading) return null;
+  // 2026-11-12: the teacher/admin set this child's grade - it can't be changed here (nor on the server).
+  if (profile?.gradeLocked) return <GradeLocked grade={profile.grade} />;
   return <GradeForm />;
+}
+
+function GradeLocked({ grade }) {
+  const navigate = useNavigate();
+  const label = GRADES.find((g) => g.key === grade)?.label ?? "";
+  return (
+    <div className="app-shell">
+      <button className="back-button" onClick={() => navigate("/")}>← בית</button>
+      <div className="onboarding">
+        <div className="onboarding__header">
+          <Mascot avatarKey="ROBOT" size="md" message="🔒" />
+          <h1 className="screen-title">{label}</h1>
+          <p className="screen-subtitle">המורה בחרה בשבילך את הכיתה הזאת, אז מתרגלים רק בה. אם צריך לשנות - מבקשים מהמורה.</p>
+        </div>
+        <div className="onboarding__actions">
+          <BigButton variant="green" onClick={() => navigate(startsOnIsland(grade) ? "/island" : "/topics")}>
+            יאללה לתרגל!
+          </BigButton>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function GradeForm() {

@@ -160,10 +160,18 @@ export function staffMoveChild(childId, classId) {
   });
 }
 
-export function staffCreateClass(name, teacherId) {
+export function staffCreateClass(name, teacherId, grade) {
   return apiRequest("/api/learn/staff/classes", {
     method: "POST",
-    body: JSON.stringify(teacherId ? { name, teacherId } : { name }),
+    body: JSON.stringify({ name, ...(teacherId ? { teacherId } : {}), ...(grade ? { grade } : {}) }),
+  });
+}
+
+/** 2026-11-12: set (and lock) the grade a child practices. */
+export function staffSetGrade(childId, { grade, locked }) {
+  return apiRequest(`/api/learn/staff/children/${childId}/grade`, {
+    method: "POST",
+    body: JSON.stringify({ ...(grade ? { grade } : {}), locked }),
   });
 }
 

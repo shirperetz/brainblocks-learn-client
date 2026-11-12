@@ -634,3 +634,44 @@
 .report-hero__island small {
   font-size: 0.85rem;
 }
+
+/* ---- 2026-11-12: lock a child / a class to a grade ---- */
+.grade-lock__grades {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.grade-lock__grade {
+  min-width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 0.8rem;
+  border: 2px solid var(--line);
+  background: var(--white);
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--ink);
+  cursor: pointer;
+}
+.grade-lock__grade.is-on {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: var(--white);
+}
+.grade-lock__lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.grade-lock__lock input {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+.class-row__grade {
+  border: 2px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.3rem 0.4rem;
+  font-weight: 800;
+  background: var(--white);
+}

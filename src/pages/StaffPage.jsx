@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
-import { getGrade } from "../data/grades";
+import { GRADES, getGrade } from "../data/grades";
 import { TREND, columnsFor, levelOf, timeAgo, topicInfo } from "../data/progress";
 import * as api from "../services/learnApi";
 import { Legend } from "./ChildReportPage";
@@ -21,6 +21,7 @@ export default function StaffPage() {
   const [teachers, setTeachers] = useState([]);
   const [teacherCode, setTeacherCode] = useState("");
   const [newClass, setNewClass] = useState("");
+  const [newClassGrade, setNewClassGrade] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -245,6 +246,24 @@ export default function StaffPage() {
                 </small>
               </div>
               <code className="class-row__code" title="קוד הכיתה">{c.joinCode}</code>
+              {/* 2026-11-12: the class's grade - every child in it practices only this grade (locked) */}
+              <select
+                className="class-row__grade"
+                value={c.grade ?? ""}
+                aria-label={`הכיתה שמתרגלים ב${c.name}`}
+                onChange={(e) => {
+                  const g = e.target.value;
+                  const label = GRADES.find((x) => x.key === g)?.label;
+                  if (window.confirm(g ? `כל הילדים ב${c.name} יתרגלו רק ${label}. להמשיך?` : `לבטל את הנעילה של ${c.name}?`)) {
+                    act(() => api.staffUpdateClass(c.id, { grade: g }), g ? `${c.name}: כולם מתרגלים ${label} 🔒` : "הנעילה בוטלה");
+                  }
+                }}
+              >
+                <option value="">🎓 כיתה: חופשי</option>
+                {GRADES.map((g) => (
+                  <option key={g.key} value={g.key}>🔒 {g.label}</option>
+                ))}
+              </select>
               <div className="person__actions">
                 <button className="admin__btn admin__btn--ghost"
                   onClick={() => window.confirm("קוד חדש? הקוד הישן יפסיק לעבוד") &&
@@ -262,8 +281,19 @@ export default function StaffPage() {
         <div className="admin__row">
           <input className="admin__input" placeholder="שם כיתה חדשה (למשל ה׳2)" maxLength={30} value={newClass}
             onChange={(e) => setNewClass(e.target.value)} />
+          <select className="class-row__grade" value={newClassGrade} onChange={(e) => setNewClassGrade(e.target.value)}
+            aria-label="איזו כיתה מתרגלים">
+            <option value="">כיתה: חופשי</option>
+            {GRADES.map((g) => (
+              <option key={g.key} value={g.key}>🔒 {g.label}</option>
+            ))}
+          </select>
           <button className="admin__btn" disabled={!newClass.trim()}
-            onClick={() => act(async () => { await api.staffCreateClass(newClass.trim()); setNewClass(""); }, "הכיתה נפתחה")}>
+            onClick={() => act(async () => {
+              await api.staffCreateClass(newClass.trim(), undefined, newClassGrade || undefined);
+              setNewClass("");
+              setNewClassGrade("");
+            }, "הכיתה נפתחה")}>
             + כיתה חדשה
           </button>
         </div>

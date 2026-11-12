@@ -3,9 +3,9 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import MathText from "../components/MathText";
 import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
-import { getGrade } from "../data/grades";
+import { GRADES, getGrade } from "../data/grades";
 import { LEVELS, LEVEL_ORDER, TREND, levelOf, timeAgo, topicInfo } from "../data/progress";
-import { staffReport } from "../services/learnApi";
+import { staffReport, staffSetGrade } from "../services/learnApi";
 import "../styles/pages/staff.css";
 
 // 2026-11-11 (Shir: "the children's results - what she finds hard and what she doesn't - really
@@ -42,7 +42,67 @@ export default function ChildReportPage() {
       {error && <p className="form-error">{error}</p>}
       {!report && !error && <p className="staff__loading">טוען...</p>}
       {report && <Report report={report} openTopic={openTopic} setOpenTopic={setOpenTopic} />}
+      {report && (
+        <GradeLock
+          key={report.child.id}
+          child={report.child}
+          onSaved={(changes) => setReport({ ...report, child: { ...report.child, ...changes } })}
+        />
+      )}
     </div>
+  );
+}
+
+/**
+ * 2026-11-12 (Shir: "limit the child - tell him which grade to practice, not all grades"): the grade
+ * this child practices, locked or open. The server enforces it (topics + questions + saved rounds).
+ */
+function GradeLock({ child, onSaved }) {
+  const [grade, setGrade] = useState(child.grade ?? "");
+  const [locked, setLocked] = useState(Boolean(child.gradeLocked));
+  const [msg, setMsg] = useState("");
+  const [err, setErr] = useState("");
+  const changed = grade !== (child.grade ?? "") || locked !== Boolean(child.gradeLocked);
+
+  async function save() {
+    try {
+      const p = await staffSetGrade(child.id, { grade: grade || undefined, locked });
+      onSaved({ grade: p.grade, gradeLocked: p.gradeLocked });
+      setMsg(locked ? `נשמר: ${child.name} מתרגל/ת רק ${getGrade(grade)?.label ?? ""}` : "נשמר: הכיתה פתוחה לבחירה");
+      setErr("");
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+
+  return (
+    <section className="staff-card grade-lock">
+      <h2>🎓 הכיתה שהילד/ה מתרגל/ת</h2>
+      <p className="staff-card__hint">בנעילה הילד/ה לא יכול/ה להחליף כיתה, ומקבל/ת רק את הנושאים של הכיתה הזאת.</p>
+      <div className="grade-lock__grades" role="radiogroup" aria-label="כיתה">
+        {GRADES.map((g) => (
+          <button
+            key={g.key}
+            type="button"
+            role="radio"
+            aria-checked={grade === g.key}
+            className={`grade-lock__grade ${grade === g.key ? "is-on" : ""}`}
+            onClick={() => setGrade(g.key)}
+          >
+            {g.letter}
+          </button>
+        ))}
+      </div>
+      <label className="grade-lock__lock">
+        <input type="checkbox" checked={locked} onChange={(e) => setLocked(e.target.checked)} disabled={!grade} />
+        🔒 לנעול על הכיתה הזאת
+      </label>
+      {msg && <p className="admin__message" role="status">{msg}</p>}
+      {err && <p className="form-error">{err}</p>}
+      <button className="admin__btn" onClick={save} disabled={!changed}>
+        שמירה
+      </button>
+    </section>
   );
 }
 
@@ -63,7 +123,8 @@ function Report({ report, openTopic, setOpenTopic }) {
         <div className="report-hero__who">
           <h1>{c.name}</h1>
           <p>
-            {getGrade(c.grade)?.label ?? "בלי כיתה"} · @{c.username ?? "—"} · שיחק/ה {timeAgo(c.lastActiveAt)}
+            {getGrade(c.grade)?.label ?? "בלי כיתה"}
+            {c.gradeLocked ? " 🔒" : ""} · @{c.username ?? "—"} · שיחק/ה {timeAgo(c.lastActiveAt)}
           </p>
         </div>
         <Link className="report-hero__island" to={`/staff/child/${c.id}/island`} title="האי שבנה/תה">

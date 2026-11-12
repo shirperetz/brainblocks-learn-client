@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { GAMES } from "../game/games";
+import { Navigate, useNavigate } from "react-router-dom";
+import { GAMES, startsOnIsland } from "../game/games";
 import { LEVELS_PER_GAME } from "../game/levels";
 import { preload, say, sfx } from "../game/audio";
 import { getCharacter } from "../data/characters";
@@ -30,6 +30,8 @@ export default function IslandPage() {
   }, [ready, profile]);
 
   if (!ready) return null;
+  // 2026-11-12: a child locked to grade ג׳-ו׳ practices that grade's topics, not the island (א׳-ב׳).
+  if (profile.gradeLocked && !startsOnIsland(profile.grade)) return <Navigate to="/topics" replace />;
   const me = getCharacter(profile.avatar);
 
   function open(g) {
