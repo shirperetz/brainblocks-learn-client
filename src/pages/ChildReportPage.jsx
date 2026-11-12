@@ -280,6 +280,39 @@ function Report({ report, openTopic, setOpenTopic }) {
         </section>
       )}
 
+      {/* ---- 2026-11-12 stage 2/B: where the mistakes come from ---- */}
+      {report.patterns?.length > 0 && (
+        <section className="staff-card patterns">
+          <h2>🔍 מה כנראה משתבש</h2>
+          <p className="staff-card__hint">טעויות שחזרו לפחות 3 פעמים לאחרונה - זיהוי לפי התשובה שנבחרה.</p>
+          <ul className="pattern-list">
+            {report.patterns.map((p) => (
+              <li key={`${p.skill}-${p.type}`} className="pattern">
+                <div className="pattern__top">
+                  <strong className="pattern__label">{p.label}</strong>
+                  <span className="pattern__count">{p.count} פעמים</span>
+                </div>
+                <div className="pattern__meta">
+                  {topicInfo(p.topic).emoji} {p.skillName}
+                </div>
+                {p.example && (
+                  <div className="mistake">
+                    <MathText text={p.example.question} />
+                    <span className="mistake__label">
+                      ענה/תה: <span className="mistake__given">{p.example.given}</span>
+                    </span>
+                    <span className="mistake__label">
+                      נכון: <span className="mistake__right">{p.example.correct}</span>
+                    </span>
+                  </div>
+                )}
+                <p className="pattern__tip">💡 {p.tip}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* ---- hard / strong ---- */}
       <div className="two-col">
         <section className="staff-card">
@@ -401,6 +434,7 @@ function SkillRow({ s, withExample }) {
         {topicInfo(s.topic).emoji} {topicInfo(s.topic).name} · שלב {s.stage}
         {s.hints > 0 && ` · ${s.hints} פעמים "לא הבנתי"`}
       </div>
+      {withExample && s.pattern && <div className="skill-row__pattern">🔍 {s.pattern.label}</div>}
       {withExample && s.example && (
         <div className="mistake">
           <MathText text={s.example.question} />

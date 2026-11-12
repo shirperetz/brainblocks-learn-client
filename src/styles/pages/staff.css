@@ -750,3 +750,51 @@
 
 /* 2026-11-12: the live game room button */
 .staff__room-btn { display: block; margin: 0 auto 0.8rem; min-height: 48px; font-size: 1.05rem; }
+
+/* 2026-11-12 stage 2/B: where the mistakes come from */
+.pattern-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+.pattern {
+  background: #fff7e8;
+  border: 2px solid #f3c56b;
+  border-radius: 0.8rem;
+  padding: 0.7rem 0.8rem;
+  display: grid;
+  gap: 0.4rem;
+}
+.pattern__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.pattern__label {
+  font-size: 1.02rem;
+  color: #7a4a00;
+}
+.pattern__count {
+  font-weight: 800;
+  color: #a55f00;
+  white-space: nowrap;
+}
+.pattern__meta {
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.pattern__tip {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+.skill-row__pattern {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #a55f00;
+}

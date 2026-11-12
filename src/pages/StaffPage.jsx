@@ -190,6 +190,25 @@ export default function StaffPage() {
         </section>
       )}
 
+      {/* ---- 2026-11-12 stage 2/B: the same kind of mistake in several children ---- */}
+      {overview?.commonMistakes?.length > 0 && (
+        <section className="staff-card">
+          <h2>🔍 טעויות שחוזרות בכיתה</h2>
+          <p className="staff-card__hint">אותה טעות אצל כמה ילדים - אפשר להסביר אותה לכולם יחד.</p>
+          <ul className="pattern-list">
+            {overview.commonMistakes.map((m) => (
+              <li key={m.type} className="pattern">
+                <div className="pattern__top">
+                  <strong className="pattern__label">{m.label}</strong>
+                  <span className="pattern__count">{m.children} ילדים</span>
+                </div>
+                <p className="pattern__tip">💡 {m.tip}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* ---- the class table ---- */}
       <section className="staff-card">
         <h2>📋 מפת הכיתה</h2>
