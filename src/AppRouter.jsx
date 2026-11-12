@@ -24,6 +24,8 @@ import StaffRoomPage from "./pages/StaffRoomPage";
 import RoomBoardPage from "./pages/RoomBoardPage";
 import RoomJoinPage from "./pages/RoomJoinPage";
 import RoomPlayPage from "./pages/RoomPlayPage";
+import WhoPage from "./pages/WhoPage";
+import TeacherSignupPage from "./pages/TeacherSignupPage";
 
 // All routes for עולם החשבון. Real pages replace the Placeholders milestone by milestone.
 export default function AppRouter() {
@@ -54,6 +56,8 @@ export default function AppRouter() {
       <Route path="/staff/room/:id" element={<StaffRoomPage />} />
       <Route path="/staff/room/:id/board" element={<RoomBoardPage />} />
       <Route path="/room" element={<RoomJoinPage />} />
+      <Route path="/who" element={<WhoPage />} />
+      <Route path="/teacher-signup" element={<TeacherSignupPage />} />
       <Route path="/room/:code" element={<RoomPlayPage />} />
       <Route path="/staff/child/:id" element={<ChildReportPage />} />
       <Route path="/settings" element={<SettingsPage />} />

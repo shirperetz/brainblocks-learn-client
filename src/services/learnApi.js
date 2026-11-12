@@ -12,6 +12,11 @@ export function register({ joinCode, username, password, name, avatar, grade, di
   });
 }
 
+/** 2026-11-12: a teacher signs up with no code - waits for the admin's approval. */
+export function registerTeacher({ username, password, name }) {
+  return apiRequest("/api/learn/auth/register-teacher", { method: "POST", body: JSON.stringify({ username, password, name }) });
+}
+
 export function login({ username, password }) {
   return apiRequest("/api/learn/auth/login", {
     method: "POST",

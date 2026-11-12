@@ -93,3 +93,25 @@
   background: var(--purple); color: #fff; font: 700 1.05rem var(--font); cursor: pointer;
   box-shadow: 0 4px 12px rgba(86, 63, 170, 0.25);
 }
+
+/* 2026-11-12: "מי נרשם/ת?" - centered, two big cards (Shir: "make it nice") */
+.who { min-height: 100vh; display: flex; flex-direction: column; }
+.who__body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1.4rem; padding-bottom: 3rem; }
+.who__choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 360px) { .who__choices { grid-template-columns: minmax(0, 1fr); } }
+.who__card {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1.6rem 0.8rem 1.4rem;
+  border: 3px solid transparent; border-radius: var(--radius-lg); background: #fff; color: var(--ink);
+  box-shadow: var(--shadow-card); font: inherit; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.who__card:hover, .who__card:focus-visible { transform: translateY(-3px); }
+.who__card--child { border-color: #bdeed6; }
+.who__card--child:hover, .who__card--child:focus-visible { border-color: var(--green); }
+.who__card--teacher { border-color: #cfe4ff; }
+.who__card--teacher:hover, .who__card--teacher:focus-visible { border-color: var(--blue); }
+.who__icon { width: 5rem; height: 5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.8rem; }
+.who__card--child .who__icon { background: #e7f8ef; }
+.who__card--teacher .who__icon { background: #e8f2ff; }
+.who__title { font-size: 1.35rem; font-weight: 800; }
+.who__sub { font-size: 0.9rem; color: var(--ink-soft); text-align: center; }
+.who__note { margin: 0; text-align: center; font-size: 0.9rem; color: var(--ink-soft); }

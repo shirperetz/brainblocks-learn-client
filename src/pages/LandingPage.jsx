@@ -12,7 +12,8 @@ export default function LandingPage() {
 
   function handleStart() {
     // Returning child jumps straight in; a new child starts with the grade (then the character).
-    navigate(hasProfile ? (startsOnIsland(profile?.grade) ? "/island" : "/topics") : "/grade");
+    // 2026-11-12: someone new is first asked "a child or a teacher?" (/who), then the child goes on to the grade.
+    navigate(hasProfile ? (startsOnIsland(profile?.grade) ? "/island" : "/topics") : "/who");
   }
 
   return (

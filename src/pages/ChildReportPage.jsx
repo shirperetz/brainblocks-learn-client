@@ -5,7 +5,7 @@ import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
 import { GRADES, getGrade } from "../data/grades";
 import { LEVELS, LEVEL_ORDER, TREND, levelOf, timeAgo, topicInfo } from "../data/progress";
-import { staffMe, staffMoveChild, staffReport, staffSetGrade } from "../services/learnApi";
+import { staffMe, staffMoveChild, staffReport, staffSetGrade, staffSetPassword } from "../services/learnApi";
 import "../styles/pages/staff.css";
 
 // 2026-11-11 (Shir: "the children's results - what she finds hard and what she doesn't - really
@@ -42,6 +42,7 @@ export default function ChildReportPage() {
       {error && <p className="form-error">{error}</p>}
       {!report && !error && <p className="staff__loading">טוען...</p>}
       {report && <Report report={report} openTopic={openTopic} setOpenTopic={setOpenTopic} />}
+      {report && <NewPassword key={`p${report.child.id}`} child={report.child} />}
       {report && (
         <MoveClass
           key={`c${report.child.id}`}
@@ -66,6 +67,41 @@ export default function ChildReportPage() {
  * the child is in. A teacher sees only her own classes; the admin all of them + "בלי כיתה". A class
  * that practices one grade gives it to the child, locked (the server does it).
  */
+/**
+ * 2026-11-12 (Shir: a teacher gets "a new password for a child" - only for her own children; the server
+ * checks it's hers): a child who forgot the password gets a new one from its teacher.
+ */
+function NewPassword({ child }) {
+  const [password, setPassword] = useState("");
+  const [msg, setMsg] = useState("");
+  const [err, setErr] = useState("");
+
+  async function save() {
+    try {
+      await staffSetPassword(child.id, { password });
+      setMsg(`הסיסמה של ${child.name} הוחלפה. תמסרי לו/ה: ${password}`);
+      setErr("");
+      setPassword("");
+    } catch (e) {
+      setErr(e.message);
+      setMsg("");
+    }
+  }
+
+  return (
+    <section className="staff-card">
+      <h2>🔑 סיסמה חדשה ל{child.name}</h2>
+      <p className="staff-card__hint">כשילד/ה שוכח/ת סיסמה. שם המשתמש: <b dir="ltr">{child.username ?? "—"}</b></p>
+      <div className="admin__row">
+        <input className="admin__input" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="סיסמה חדשה (לפחות 6)" aria-label="סיסמה חדשה" autoComplete="off" />
+        <button className="admin__btn" disabled={password.length < 6} onClick={save}>שמירה</button>
+      </div>
+      {msg && <p className="admin__message" role="status">{msg}</p>}
+      {err && <p className="form-error">{err}</p>}
+    </section>
+  );
+}
+
 function MoveClass({ child, admin, onSaved }) {
   const [classes, setClasses] = useState(null);
   const [target, setTarget] = useState(child.classId ?? 0);
