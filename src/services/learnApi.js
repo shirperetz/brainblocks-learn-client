@@ -81,6 +81,11 @@ export function resolveMistake(mistakeId, profileId) {
   return apiRequest(`/api/learn/mistakes/${mistakeId}/resolve?profileId=${profileId}`, { method: "POST" });
 }
 
+/** 2026-11-12: wrong in the review - it comes back tomorrow (right: after 1, 3, 7 days, then learned). */
+export function missMistake(mistakeId, profileId) {
+  return apiRequest(`/api/learn/mistakes/${mistakeId}/missed?profileId=${profileId}`, { method: "POST" });
+}
+
 export function getStats(profileId) {
   return apiRequest(`/api/learn/profiles/${profileId}/stats`);
 }

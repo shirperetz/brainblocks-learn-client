@@ -5,11 +5,14 @@ import Mascot from "../components/Mascot";
 import AnswerButton from "../components/AnswerButton";
 import HelpButton from "../components/HelpButton";
 import MathText from "../components/MathText";
-import { getMistakes, resolveMistake } from "../services/learnApi";
+import { getMistakes, missMistake, resolveMistake } from "../services/learnApi";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import { reviewOptions } from "../game/review";
 import "../styles/pages/play.css";
 import "../styles/pages/challenges.css";
+
+// 2026-11-12 (idea #4): after the 1st/2nd/3rd right answer it comes back in a day / 3 days / a week.
+const AGAIN = { 1: "מחר", 2: "בעוד 3 ימים", 3: "בעוד שבוע" };
 
 // 🔁 Back to what was hard: past wrong answers, one at a time. Right this time -> it leaves the list.
 export default function ReviewPage() {
@@ -20,6 +23,7 @@ export default function ReviewPage() {
   const [picked, setPicked] = useState(null);
   const [fixed, setFixed] = useState(0);
   const [error, setError] = useState("");
+  const [note, setNote] = useState("");
 
   useEffect(() => {
     if (!ready) return;
@@ -37,12 +41,20 @@ export default function ReviewPage() {
     setPicked(opt);
     if (opt === m.correctAnswer) {
       setFixed((n) => n + 1);
-      resolveMistake(m.id, profile.id).catch(() => {});
+      // 2026-11-12: right -> it comes back after 1, 3, 7 days (then it is learned).
+      resolveMistake(m.id, profile.id)
+        .then((r) => setNote(r.resolved ? "🎓 למדת את זה לגמרי!" : `👍 נחזור על זה ${AGAIN[r.step] ?? "בעוד כמה ימים"}`))
+        .catch(() => {});
+    } else {
+      // wrong -> tomorrow, from the start
+      missMistake(m.id, profile.id).catch(() => {});
+      setNote("לא נורא - נחזור על זה מחר 💪");
     }
   }
 
   function next() {
     setPicked(null);
+    setNote("");
     setIndex((i) => i + 1);
   }
 
@@ -65,7 +77,7 @@ export default function ReviewPage() {
 
         {items && items.length === 0 && (
           <div className="challenge__intro card">
-            <Mascot avatarKey={profile.avatar} size="sm" message="אין מה לחזור - כל הכבוד!" />
+            <Mascot avatarKey={profile.avatar} size="sm" message="אין חזרות להיום - כל הכבוד! 🌟" />
             <BigButton variant="blue" onClick={() => navigate("/topics")}>
               לנושאים
             </BigButton>
@@ -97,7 +109,8 @@ export default function ReviewPage() {
             </div>
             {picked !== null && (
               <div className="challenge__intro card">
-                <p>{picked === m.correctAnswer ? "🎉 נכון! זה כבר לא קשה לכם." : `התשובה: ${m.correctAnswer}. ${m.explanation ?? ""}`}</p>
+                <p>{picked === m.correctAnswer ? "🎉 נכון!" : `התשובה: ${m.correctAnswer}. ${m.explanation ?? ""}`}</p>
+                {note && <p className="review__note">{note}</p>}
                 <BigButton variant="green" onClick={next}>
                   הבא ←
                 </BigButton>

@@ -113,3 +113,10 @@
     transition: none;
   }
 }
+
+/* 2026-11-12: when a reviewed mistake comes back */
+.review__note {
+  font-weight: 800;
+  color: var(--purple-dark);
+  margin: 0.2rem 0 0.6rem;
+}
