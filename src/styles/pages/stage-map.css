@@ -100,6 +100,24 @@
 .island-deco--boat { left: 88%; top: 10%; animation: island-bob 4s ease-in-out infinite; }
 .island-deco--fish { left: 9%; top: 92%; animation: island-bob 5s ease-in-out infinite reverse; }
 
+/* Computer / tablet: a wide island (the trail runs right -> left), the decorations move with it. */
+.topic-island--wide {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: calc(100vh - 11rem);
+  min-height: 26rem;
+}
+.topic-island--wide .island-deco { font-size: 2.4rem; }
+.topic-island--wide .island-deco--palm1 { left: 22%; top: 20%; }
+.topic-island--wide .island-deco--palm2 { left: 90%; top: 46%; font-size: 2.8rem; }
+.topic-island--wide .island-deco--palm3 { left: 50%; top: 84%; }
+.topic-island--wide .island-deco--hut { left: 35%; top: 80%; }
+.topic-island--wide .island-deco--shell { left: 9%; top: 76%; font-size: 1.5rem; }
+.topic-island--wide .island-deco--boat { left: 96%; top: 9%; }
+.topic-island--wide .island-deco--fish { left: 3%; top: 48%; }
+.topic-island--wide .island-stone { width: 5.2rem; height: 5.2rem; font-size: 2.1rem; }
+.topic-island--wide .island-stone.is-treasure:not(.is-locked) { width: 6rem; height: 6rem; }
+
 @keyframes island-bob {
   0%, 100% { transform: translate(-50%, -50%) rotate(-4deg); }
   50% { transform: translate(-50%, -62%) rotate(4deg); }
