@@ -32,3 +32,10 @@ export function pickLine(kind) {
   const list = LINES[kind] ?? LINES.tap;
   return list[Math.floor(Math.random() * list.length)];
 }
+
+/**
+ * 2026-11-12 (Shir: "remove it - I didn't mean that kind of supporting animal, I'll explain later"):
+ * the companion is OFF - not on the screens, not in the settings. The code and each child's choice
+ * stay (nothing deleted), so it can come back or be rebuilt the way she explains.
+ */
+export const COMPANION_ON = false;

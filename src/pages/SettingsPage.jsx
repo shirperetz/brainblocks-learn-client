@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { CHARACTERS } from "../data/characters";
-import { COMPANIONS } from "../data/companions";
+import { COMPANIONS, COMPANION_ON } from "../data/companions";
 import { readAloudDefault, setReadAloud } from "../game/readAloud";
 import { getGrade } from "../data/grades";
 import { isMuted, setMuted, sfx } from "../game/audio";
@@ -127,6 +127,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
+      {COMPANION_ON && (
       <section className="staff-card">
         <h2>🐾 החבר שעוזר לי</h2>
         <p className="staff-card__hint">יושב בפינה, מעודד ועוזר. לוחצים עליו - והוא אומר משהו.</p>
@@ -148,6 +149,7 @@ export default function SettingsPage() {
           })}
         </div>
       </section>
+      )}
 
       <section className="staff-card">
         <h2>🎓 הכיתה שלי</h2>
