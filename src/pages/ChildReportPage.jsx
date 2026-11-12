@@ -5,7 +5,7 @@ import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
 import { GRADES, getGrade } from "../data/grades";
 import { LEVELS, LEVEL_ORDER, TREND, levelOf, timeAgo, topicInfo } from "../data/progress";
-import { staffReport, staffSetGrade } from "../services/learnApi";
+import { staffMe, staffMoveChild, staffReport, staffSetGrade } from "../services/learnApi";
 import "../styles/pages/staff.css";
 
 // 2026-11-11 (Shir: "the children's results - what she finds hard and what she doesn't - really
@@ -43,13 +43,83 @@ export default function ChildReportPage() {
       {!report && !error && <p className="staff__loading">טוען...</p>}
       {report && <Report report={report} openTopic={openTopic} setOpenTopic={setOpenTopic} />}
       {report && (
+        <MoveClass
+          key={`c${report.child.id}`}
+          child={report.child}
+          admin={Boolean(profile.admin)}
+          onSaved={(changes) => setReport({ ...report, child: { ...report.child, ...changes } })}
+        />
+      )}
+      {report && (
         <GradeLock
-          key={report.child.id}
+          key={`${report.child.id}-${report.child.grade}-${report.child.gradeLocked}`}
           child={report.child}
           onSaved={(changes) => setReport({ ...report, child: { ...report.child, ...changes } })}
         />
       )}
     </div>
+  );
+}
+
+/**
+ * 2026-11-12 (Shir: "the option to switch classes - for me as admin and for the teachers"): which class
+ * the child is in. A teacher sees only her own classes; the admin all of them + "בלי כיתה". A class
+ * that practices one grade gives it to the child, locked (the server does it).
+ */
+function MoveClass({ child, admin, onSaved }) {
+  const [classes, setClasses] = useState(null);
+  const [target, setTarget] = useState(child.classId ?? 0);
+  const [msg, setMsg] = useState("");
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    let alive = true;
+    staffMe()
+      .then((m) => alive && setClasses(m.classes ?? []))
+      .catch((e) => alive && setErr(e.message));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  if (!classes) return null;
+  const current = classes.find((c) => c.id === child.classId);
+  const options = [...(admin ? [{ id: 0, name: "בלי כיתה (שלי)" }] : []), ...classes];
+  const changed = Number(target) !== (child.classId ?? 0);
+
+  async function save() {
+    const to = options.find((c) => c.id === Number(target));
+    if (!window.confirm(`להעביר את ${child.name} ל${to?.name ?? "כיתה"}?`)) return;
+    try {
+      const p = await staffMoveChild(child.id, Number(target));
+      onSaved({ classId: p.classId ?? null, grade: p.grade, gradeLocked: p.gradeLocked });
+      setMsg(`${child.name} עבר/ה ל${to?.name ?? ""}`);
+      setErr("");
+    } catch (e) {
+      setErr(e.message);
+      setMsg("");
+    }
+  }
+
+  return (
+    <section className="staff-card">
+      <h2>🏫 הכיתה של {child.name}</h2>
+      <p className="staff-card__hint">
+        עכשיו: <b>{current?.name ?? (child.classId ? "כיתה של מורה אחרת" : "בלי כיתה")}</b>.
+        {" "}אם לכיתה החדשה יש כיתת תרגול קבועה, הילד/ה מקבל/ת אותה נעולה.
+      </p>
+      <div className="admin__row">
+        <select className="class-row__grade" value={target} onChange={(e) => setTarget(e.target.value)} aria-label="להעביר לכיתה">
+          {!options.some((o) => o.id === (child.classId ?? 0)) && <option value={child.classId ?? 0}>{current?.name ?? "הכיתה הנוכחית"}</option>}
+          {options.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}{c.teacherName && admin ? ` · ${c.teacherName}` : ""}</option>
+          ))}
+        </select>
+        <button className="admin__btn" onClick={save} disabled={!changed}>העברה</button>
+      </div>
+      {msg && <p className="admin__message" role="status">{msg}</p>}
+      {err && <p className="form-error">{err}</p>}
+    </section>
   );
 }
 
