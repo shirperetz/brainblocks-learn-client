@@ -47,7 +47,7 @@ export default function LoginPage() {
       </button>
       <div className="onboarding">
         <div className="onboarding__header">
-          <Mascot avatarKey="ROBOT" size="md" message="שמחים שחזרת!" />
+          <Mascot dolphin size="md" message="שמחים שחזרת!" />
           <h1 className="screen-title">כניסה</h1>
           <p className="screen-subtitle">כתבו את שם המשתמש והסיסמה שלכם</p>
         </div>

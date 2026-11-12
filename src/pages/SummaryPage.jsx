@@ -4,7 +4,6 @@ import { cheer } from "../game/companion";
 import BigButton from "../components/BigButton";
 import StarRating from "../components/StarRating";
 import Mascot from "../components/Mascot";
-import { useProfile } from "../context/profileStore";
 import "../styles/pages/summary.css";
 
 // Screen 9 — celebrate the result and route onward.
@@ -12,7 +11,6 @@ export default function SummaryPage() {
   const { topic, stage } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { profile } = useProfile();
   const summary = location.state?.summary;
   // 2026-11-11: the companion celebrates (or encourages) once, when the summary appears.
   useEffect(() => {
@@ -27,7 +25,7 @@ export default function SummaryPage() {
   return (
     <div className="app-shell">
       <div className="summary">
-        <Mascot avatarKey={profile?.avatar ?? "ROBOT"} size="md" float />
+        <Mascot dolphin size="md" play={summary.passed ? "success" : "sad"} />
 
         <h1 className="screen-title">{summary.encouragement}</h1>
 

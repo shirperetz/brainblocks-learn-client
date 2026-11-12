@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { CHARACTERS } from "../data/characters";
-import { COMPANIONS, COMPANION_ON } from "../data/companions";
+import { DOLPHIN_NAME, DOLPHIN_STILL } from "../data/dolphin";
 import { readAloudDefault, setReadAloud } from "../game/readAloud";
 import { getGrade } from "../data/grades";
 import { isMuted, setMuted, sfx } from "../game/audio";
@@ -54,7 +54,7 @@ export default function SettingsPage() {
     sfx.tap();
     try {
       await patchProfile({ companion: key });
-      setMessage(key === "NONE" ? "החבר הלך לנוח. אפשר להחזיר אותו בכל רגע." : "החבר החדש כבר בפינה! 👋");
+      setMessage(key === "NONE" ? "הדולפין הלך לשחות. אפשר להחזיר אותו בכל רגע." : "הדולפין חזר לפינה! 👋");
       setError("");
     } catch (e) {
       setError(e.message);
@@ -127,29 +127,35 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {COMPANION_ON && (
       <section className="staff-card">
-        <h2>🐾 החבר שעוזר לי</h2>
+        <h2>🐬 {DOLPHIN_NAME} שעוזר לי</h2>
         <p className="staff-card__hint">יושב בפינה, מעודד ועוזר. לוחצים עליו - והוא אומר משהו.</p>
         <div className="char-grid">
-          {[...COMPANIONS, { key: "NONE", emoji: "🙈", name: "בלי חבר", color: "var(--line)" }].map((c) => {
-            const on = (profile.companion ?? "FOX") === c.key;
+          {[
+            { key: "FOX", img: DOLPHIN_STILL, name: "להראות", color: "#bfe6ff" },
+            { key: "NONE", emoji: "🙈", name: "להסתיר", color: "var(--line)" },
+          ].map((c) => {
+            // Any saved animal from before = shown; only "NONE" hides it.
+            const on = c.key === "NONE" ? profile.companion === "NONE" : profile.companion !== "NONE";
             return (
               <button
                 key={c.key}
                 className={`char-pick ${on ? "is-on" : ""}`}
                 style={{ "--c": c.color }}
-                onClick={() => pickCompanion(c.key)}
+                onClick={() => !on && pickCompanion(c.key)}
                 aria-pressed={on}
               >
-                <span className="char-pick__emoji" aria-hidden="true">{c.emoji}</span>
+                {c.img ? (
+                  <img className="char-pick__img" src={c.img} alt="" />
+                ) : (
+                  <span className="char-pick__emoji" aria-hidden="true">{c.emoji}</span>
+                )}
                 <span>{c.name}</span>
               </button>
             );
           })}
         </div>
       </section>
-      )}
 
       <section className="staff-card">
         <h2>🎓 הכיתה שלי</h2>

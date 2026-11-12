@@ -63,3 +63,16 @@
   border-right: 10px solid transparent;
   border-top: 10px solid var(--white);
 }
+
+/* 2026-11-12: Shir's dolphin in place of the emoji face. */
+.mascot__dolphin {
+  aspect-ratio: 2 / 3;
+  filter: drop-shadow(0 8px 12px rgba(20, 60, 110, 0.22));
+}
+.mascot--dolphin.mascot--sm .mascot__dolphin { width: 5rem; }
+.mascot--dolphin.mascot--md .mascot__dolphin { width: 8rem; }
+.mascot--dolphin.mascot--lg .mascot__dolphin { width: 11rem; }
+@media (min-width: 760px) {
+  .mascot--dolphin.mascot--md .mascot__dolphin { width: 9.5rem; }
+  .mascot--dolphin.mascot--lg .mascot__dolphin { width: 13rem; }
+}

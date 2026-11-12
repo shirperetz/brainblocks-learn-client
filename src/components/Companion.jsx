@@ -1,105 +1,131 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
-import { getCompanion, pickLine } from "../data/companions";
+import { pickLine } from "../data/companions";
+import { DOLPHIN_NAME, warmDolphin } from "../data/dolphin";
 import { onCheer } from "../game/companion";
 import { sfx } from "../game/audio";
+import Dolphin from "./Dolphin";
 import "../styles/components/companion.css";
 
-// Child screens only - not the welcome / log-in / sign-up / teachers' / admin screens.
-const CHILD_PATHS = /^\/(island|topics|map|play|summary|review|daily|timed|my-island|settings)(\/|$)/;
+// Child screens only - not the welcome / log-in / sign-up / teachers' / admin screens. The summary has
+// its own big dolphin, so the corner one stays away from there.
+const CHILD_PATHS = /^\/(island|topics|map|play|review|daily|timed|my-island|settings)(\/|$)/;
+// Shir (the admin) asked to have the dolphin too - also on her own admin / staff screens.
+const ADMIN_PATHS = /^\/(admin|staff)(\/|$)/;
 const STUCK_MS = 25_000;
+const BORED_MS = 40_000;
 const SHOW_MS = 3_200;
 
 /**
- * 2026-11-11 (Shir: "an animal that is always on every page of the children, to help and encourage").
- * Sits in the corner; pages send it events (game/companion.js). Bubbles only - no voice, so it never
- * talks over the game's own voice. 3 right answers in a row = a streak cheer; 25 s on one question
- * = "need help?"; a tap = a random encouragement. The child picks it in Settings (or hides it).
+ * 2026-11-12 (Shir: "a mascot - a character that helps / accompanies the children"): her dolphin, in the
+ * corner of every child screen (it replaces the emoji animals of 11.11). Pages send it events
+ * (game/companion.js); bubbles only - no voice, so it never talks over the read-aloud.
+ *   new screen -> wave · right -> smile · 3 in a row / stage passed -> success · wrong / stage failed -> sad
+ *   25 s on one question or "🤔 לא הבנתי" -> think · 40 s without a touch -> bored · a tap -> smile
+ * Hidden when the child turned it off in Settings (profile.companion = "NONE").
  */
 export default function Companion() {
   const { profile } = useProfile();
   const { pathname } = useLocation();
   const [bubble, setBubble] = useState(null);
-  const [mood, setMood] = useState("idle"); // idle | happy | sad | party
+  const [anim, setAnim] = useState({ name: "wave", key: 0 });
+  // A new screen: wave hello (set while rendering - React's pattern for state that follows a prop).
+  const [seenPath, setSeenPath] = useState(pathname);
+  if (seenPath !== pathname) {
+    setSeenPath(pathname);
+    setAnim((a) => ({ name: "wave", key: a.key + 1 }));
+  }
   const streak = useRef(0);
   const hideTimer = useRef(null);
   const stuckTimer = useRef(null);
+  const boredTimer = useRef(null);
 
-  const visible = Boolean(profile && !profile.teacher && !profile.admin && CHILD_PATHS.test(pathname));
-  const animal = profile ? getCompanion(profile.companion) : null;
+  const onScreen = profile?.admin
+    ? CHILD_PATHS.test(pathname) || ADMIN_PATHS.test(pathname)
+    : Boolean(profile && !profile.teacher && CHILD_PATHS.test(pathname));
+  const visible = Boolean(profile && profile.companion !== "NONE" && onScreen);
+
+  function act(name) {
+    setAnim((a) => ({ name, key: a.key + 1 }));
+  }
 
   useEffect(() => {
-    if (!visible || !animal) return undefined;
-    function say(kind, nextMood) {
+    if (visible) warmDolphin();
+  }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return undefined;
+    function say(kind, motion) {
       clearTimeout(hideTimer.current);
       setBubble({ text: pickLine(kind), path: window.location.pathname });
-      setMood(nextMood);
-      hideTimer.current = setTimeout(() => {
-        setBubble(null);
-        setMood("idle");
-      }, SHOW_MS);
+      act(motion);
+      hideTimer.current = setTimeout(() => setBubble(null), SHOW_MS);
     }
     function armStuck() {
       clearTimeout(stuckTimer.current);
-      stuckTimer.current = setTimeout(() => say("stuck", "idle"), STUCK_MS);
+      stuckTimer.current = setTimeout(() => say("stuck", "think"), STUCK_MS);
     }
     const off = onCheer(({ kind }) => {
       if (kind === "question") return armStuck();
       clearTimeout(stuckTimer.current);
       if (kind === "correct") {
         streak.current += 1;
-        if (streak.current > 0 && streak.current % 3 === 0) say("streak", "party");
-        else say("correct", "happy");
-        return;
+        if (streak.current % 3 === 0) say("streak", "success");
+        else say("correct", "smile");
+        return undefined;
       }
       if (kind === "wrong") {
         streak.current = 0;
         say("wrong", "sad");
-        return;
+        return undefined;
       }
-      if (kind === "levelPassed") return say("levelPassed", "party");
+      if (kind === "help") return act("think");
+      if (kind === "levelPassed") return say("levelPassed", "success");
       if (kind === "levelFailed") return say("levelFailed", "sad");
-      if (kind === "gifts") return say("gifts", "happy");
+      if (kind === "gifts") return say("gifts", "smile");
       return undefined;
     });
+
+    // Bored: nothing touched for a while -> one bored sigh, then wait for the next quiet spell.
+    function armBored() {
+      clearTimeout(boredTimer.current);
+      boredTimer.current = setTimeout(() => act("bored"), BORED_MS);
+    }
+    armBored();
+    window.addEventListener("pointerdown", armBored);
+    window.addEventListener("keydown", armBored);
     return () => {
       off();
       clearTimeout(hideTimer.current);
       clearTimeout(stuckTimer.current);
+      clearTimeout(boredTimer.current);
+      window.removeEventListener("pointerdown", armBored);
+      window.removeEventListener("keydown", armBored);
     };
-  }, [visible, animal]);
+  }, [visible]);
 
-  // A new screen: forget the streak and the "stuck?" timer (an old bubble is not shown - see below).
+  // A new screen: forget the streak and the "stuck?" timer.
   useEffect(() => {
     streak.current = 0;
     clearTimeout(stuckTimer.current);
   }, [pathname]);
 
-  if (!visible || !animal) return null;
+  if (!visible) return null;
 
   function tap() {
     sfx.pop();
     clearTimeout(hideTimer.current);
     setBubble({ text: pickLine("tap"), path: pathname });
-    setMood("happy");
-    hideTimer.current = setTimeout(() => {
-      setBubble(null);
-      setMood("idle");
-    }, SHOW_MS);
+    act("smile");
+    hideTimer.current = setTimeout(() => setBubble(null), SHOW_MS);
   }
 
   return (
     <div className="companion" aria-live="polite">
       {bubble && bubble.path === pathname && <div className="companion__bubble">{bubble.text}</div>}
-      <button
-        type="button"
-        className={`companion__animal companion__animal--${mood}`}
-        style={{ "--c": animal.color }}
-        onClick={tap}
-        aria-label={`${animal.name} - לחצו לעידוד`}
-      >
-        <span aria-hidden="true">{animal.emoji}</span>
+      <button type="button" className="companion__dolphin" onClick={tap} aria-label={`${DOLPHIN_NAME} - לחצו לעידוד`}>
+        <Dolphin play={anim.name} playKey={anim.key} label="" />
       </button>
     </div>
   );

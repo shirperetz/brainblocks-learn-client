@@ -28,7 +28,7 @@ export default function LandingPage() {
       </div>
 
       <div className="landing__content">
-        <Mascot avatarKey={profile?.avatar ?? "ROBOT"} size="lg" float message="שלום! בואו נלמד יחד" />
+        <Mascot dolphin size="lg" message="שלום! בואו נלמד יחד" />
 
         <h1 className="screen-title landing__title">ברוכים הבאים לעולם החשבון</h1>
         <p className="screen-subtitle">לומדים חשבון בכיף, במשחקים ובשלבים</p>

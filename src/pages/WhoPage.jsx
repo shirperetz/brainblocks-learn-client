@@ -14,7 +14,7 @@ export default function WhoPage() {
       <button className="back-button" onClick={() => navigate("/")}>← חזרה</button>
       <div className="onboarding who__body">
         <div className="onboarding__header">
-          <Mascot avatarKey="ROBOT" size="md" float message="שלום! מי מגיע/ה היום?" />
+          <Mascot dolphin size="md" message="שלום! מי מגיע/ה היום?" />
           <h1 className="screen-title">ברוכים הבאים!</h1>
           <p className="screen-subtitle">בוחרים מי נרשם/ת, ומתחילים</p>
         </div>

@@ -1,9 +1,22 @@
 import { getCharacter } from "../data/characters";
+import Dolphin from "./Dolphin";
 import "../styles/components/mascot.css";
 
 // The child's companion character. Shows the avatar emoji on a colored bubble,
 // with an optional speech bubble for encouragement. `size` = "sm" | "md" | "lg".
-export default function Mascot({ avatarKey = "ROBOT", message = null, size = "md", float = false }) {
+// 2026-11-12: `dolphin` = Shir's dolphin instead of the emoji (welcome / log-in / grade / summary);
+// `play` = which animation it does when the screen opens (default: wave).
+export default function Mascot({ avatarKey = "ROBOT", message = null, size = "md", float = false, dolphin = false, play = "wave" }) {
+  if (dolphin) {
+    return (
+      <div className={`mascot mascot--${size} mascot--dolphin`}>
+        {message && <div className="mascot__bubble">{message}</div>}
+        <div className="mascot__dolphin">
+          <Dolphin play={play} />
+        </div>
+      </div>
+    );
+  }
   const character = getCharacter(avatarKey);
   return (
     <div className={`mascot mascot--${size}`}>

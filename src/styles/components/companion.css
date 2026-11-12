@@ -1,42 +1,47 @@
-/* 2026-11-11: the companion animal - bottom corner opposite the sound button (which is on the left). */
+/* 2026-11-12: Shir's dolphin - bottom corner opposite the sound button (which is on the left). */
 .companion {
   position: fixed;
-  bottom: max(14px, env(safe-area-inset-bottom));
-  right: 14px;
+  bottom: max(6px, env(safe-area-inset-bottom));
+  right: 6px;
   z-index: 49;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.4rem;
+  gap: 0.1rem;
   pointer-events: none;
+  /* ltr only for the layout: in rtl "flex-end" is the LEFT, and a bubble pulled the dolphin away
+     from the corner onto the page. The bubble's text is rtl again below. */
+  direction: ltr;
 }
-.companion__animal {
+.companion__dolphin {
   pointer-events: auto;
-  width: 3.6rem;
-  height: 3.6rem;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  background: var(--c);
-  box-shadow: var(--shadow-card);
-  font-size: 2.1rem;
-  line-height: 1;
-  display: grid;
-  place-items: center;
+  width: 5.2rem;
+  aspect-ratio: 2 / 3;
+  padding: 0;
+  border: 0;
+  background: none;
   cursor: pointer;
-  animation: companion-breathe 3.2s ease-in-out infinite;
+  -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(0 6px 10px rgba(20, 60, 110, 0.25));
 }
-.companion__animal--happy {
-  animation: companion-jump 0.6s ease;
+@media (min-width: 760px) {
+  .companion__dolphin {
+    width: 7.5rem;
+  }
 }
-.companion__animal--party {
-  animation: companion-party 0.9s ease 2;
-}
-.companion__animal--sad {
-  animation: companion-nod 0.8s ease;
+.dolphin {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 .companion__bubble {
   pointer-events: auto;
   max-width: min(15rem, 70vw);
+  margin-right: 1.2rem;
+  direction: rtl;
   background: #fff;
   color: var(--ink);
   font-weight: 800;
@@ -48,33 +53,18 @@
   border: 2px solid var(--line);
   animation: companion-pop 0.25s ease;
 }
-@keyframes companion-breathe {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-@keyframes companion-jump {
-  0% { transform: translateY(0) scale(1); }
-  40% { transform: translateY(-18px) scale(1.1); }
-  100% { transform: translateY(0) scale(1); }
-}
-@keyframes companion-party {
-  0% { transform: rotate(0) scale(1); }
-  25% { transform: rotate(-15deg) scale(1.15); }
-  50% { transform: rotate(15deg) scale(1.15); }
-  100% { transform: rotate(0) scale(1); }
-}
-@keyframes companion-nod {
-  0%, 100% { transform: rotate(0); }
-  30% { transform: rotate(-8deg); }
-  60% { transform: rotate(8deg); }
-}
 @keyframes companion-pop {
   from { transform: scale(0.6); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .companion__animal,
   .companion__bubble {
     animation: none !important;
   }
+}
+/* Settings: the dolphin's picture on the "show" choice. */
+.char-pick__img {
+  width: 2.6rem;
+  height: 3.9rem;
+  object-fit: contain;
 }

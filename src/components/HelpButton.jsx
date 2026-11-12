@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { getHelp, speakUrl } from "../services/learnApi";
 import { sayUrl, stopVoice } from "../game/audio";
+import { cheer } from "../game/companion";
 import "../styles/components/help.css";
 
 /**
@@ -23,6 +24,7 @@ export default function HelpButton({ question, grade, speak = false, onUsed, com
   const [presses, setPresses] = useState(0); // explanations shown so far (0, 1, 2...)
 
   async function ask() {
+    cheer("help"); // the dolphin thinks along
     setOpen(true);
     setLoading(true);
     if (!used.current) {

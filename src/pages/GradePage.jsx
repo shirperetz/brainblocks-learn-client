@@ -28,7 +28,7 @@ function GradeLocked({ grade }) {
       <button className="back-button" onClick={() => navigate("/")}>← בית</button>
       <div className="onboarding">
         <div className="onboarding__header">
-          <Mascot avatarKey="ROBOT" size="md" message="🔒" />
+          <Mascot dolphin size="md" play="think" message="🔒" />
           <h1 className="screen-title">{label}</h1>
           <p className="screen-subtitle">המורה בחרה בשבילך את הכיתה הזאת, אז מתרגלים רק בה. אם צריך לשנות - מבקשים מהמורה.</p>
         </div>
@@ -86,7 +86,7 @@ function GradeForm() {
             <span className="steps__dot is-active" />
             <span className="steps__dot" />
           </div>
-          <Mascot avatarKey={profile?.avatar ?? "ROBOT"} size="sm" message="באיזו כיתה אתם?" />
+          <Mascot dolphin size="sm" play="think" message="באיזו כיתה אתם?" />
           <h1 className="screen-title">בחר כיתה</h1>
         </div>
 
