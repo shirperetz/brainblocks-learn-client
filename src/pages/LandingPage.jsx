@@ -54,6 +54,12 @@ export default function LandingPage() {
                   </BigButton>
                 </>
               )}
+              {/* 2026-11-12 (Shir: "I still don't see where to open a room"): right on the home screen. */}
+              {(profile.admin || profile.teacher) && (
+                <BigButton variant="green" onClick={() => navigate("/staff/room/new")}>
+                  🎮 פתיחת חדר משחק
+                </BigButton>
+              )}
               {profile.admin && (
                 <>
                   <BigButton variant="blue" onClick={() => navigate("/staff")}>
