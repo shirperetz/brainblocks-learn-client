@@ -335,3 +335,22 @@ export function roomQuestion(code) {
 export function roomAnswer(code, answer) {
   return apiRequest(roomPath(code, "answer"), { method: "POST", body: JSON.stringify({ answer }), headers: guestHeaders(code) });
 }
+
+// 2026-11-12: the school tree (teachers -> classes -> children) and making a user a teacher - admin only.
+export function adminTree() {
+  return apiRequest("/api/learn/admin/tree");
+}
+
+export function adminSetTeacher(id, teacher) {
+  return apiRequest(`/api/learn/admin/children/${id}/teacher`, {
+    method: "POST",
+    body: JSON.stringify({ teacher }),
+  });
+}
+
+export function adminMoveClass(classId, teacherId) {
+  return apiRequest(`/api/learn/admin/classes/${classId}/teacher`, {
+    method: "POST",
+    body: JSON.stringify({ teacherId }),
+  });
+}

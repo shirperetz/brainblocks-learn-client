@@ -5,6 +5,7 @@ import { useProfile } from "../context/profileStore";
 import { getGrade } from "../data/grades";
 import { getCharacter } from "../data/characters";
 import * as learnApi from "../services/learnApi";
+import SchoolTree from "../components/SchoolTree";
 import "../styles/pages/admin.css";
 
 // 2026-11-11: Shir's admin screen - every child, reset a password (or give an old profile a
@@ -21,6 +22,8 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(null); // { id, username, password, needsUsername }
   const [filter, setFilter] = useState("");
+  // 2026-11-12 (Shir): a tab with teachers -> classes -> children.
+  const [tab, setTab] = useState("children");
 
   const load = useCallback(
     () =>
@@ -117,6 +120,16 @@ export default function AdminPage() {
         {children.length} פרופילים · {withUser} עם שם משתמש
       </p>
 
+      <div className="admin-tabs" role="tablist">
+        <button type="button" role="tab" aria-selected={tab === "children"} className={`admin-tabs__tab ${tab === "children" ? "is-on" : ""}`} onClick={() => setTab("children")}>
+          👧 כל המשתמשים
+        </button>
+        <button type="button" role="tab" aria-selected={tab === "school"} className={`admin-tabs__tab ${tab === "school" ? "is-on" : ""}`} onClick={() => setTab("school")}>
+          👩‍🏫 מורים וכיתות
+        </button>
+      </div>
+
+      {tab === "school" ? <SchoolTree /> : (<>
       {message && <p className="admin__message" role="status">{message}</p>}
       {error && <p className="form-error">{error}</p>}
 
@@ -234,6 +247,7 @@ export default function AdminPage() {
           ))}
         </ul>
       </section>
+      </>)}
     </div>
   );
 }
