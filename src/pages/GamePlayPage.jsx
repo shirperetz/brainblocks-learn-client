@@ -26,6 +26,7 @@ import CoinsRound from "../game/CoinsRound";
 import { clockRounds, coinsRounds, fewestCoins, shopRounds } from "../game/levelsClock";
 import "../styles/pages/clock-isle.css";
 import { submitSession } from "../services/learnApi";
+import { recentKeys, rememberKeys } from "../game/recent";
 import { cheer } from "../game/companion";
 import HelpButton from "../components/HelpButton";
 import { useProfile } from "../context/profileStore";
@@ -83,7 +84,7 @@ const KINDS = {
   // 2026-11-12: 🕐 אי השעון והכסף
   clock: {
     rounds: clockRounds,
-    speech: () => ["clock_q"],
+    speech: (r) => [r.mode === "pick" ? "clock_pick" : "clock_q"],
     text: (r) => `מה השעה בשעון? (המחוג הקצר ליד ${r.h}, המחוג הארוך על ${r.m === 0 ? 12 : r.m / 5})`,
     answer: (r) => r.answer,
     explain: (r) => `המחוג הקצר ליד ${r.h}, הארוך על ${r.m === 0 ? 12 : r.m / 5} - השעה ${r.answer}`,
@@ -132,7 +133,14 @@ function GamePlay() {
   const { refreshProfile } = useProfile();
 
   const [runId, setRunId] = useState(0); // bump to play the level again with new rounds
-  const rounds = useMemo(() => (kind ? kind.rounds(level) : []), [kind, level, runId]); // eslint-disable-line react-hooks/exhaustive-deps
+  // 2026-11-12 (Shir: "no repeating questions"): avoid what this child played lately on this device.
+  const rounds = useMemo(
+    () => (kind ? kind.rounds(level, Math.random, recentKeys(profile?.id, gameKey, level)) : []),
+    [kind, level, runId, profile?.id], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  useEffect(() => {
+    if (rounds.length) rememberKeys(profile?.id, gameKey, level, rounds.map((x) => x._key).filter(Boolean));
+  }, [rounds]); // eslint-disable-line react-hooks/exhaustive-deps
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");

@@ -16,16 +16,24 @@ function shuffle(list, rand) {
   return a;
 }
 
-/** `count` rounds, never the same key twice (while the level still has fresh ones). */
-function series(count, make, keyOf, rand) {
+/**
+ * Makes `count` rounds with `make`: never the same `keyOf` twice in a row, no repeat at all while the
+ * level still has fresh ones, and (2026-11-12, Shir: "no repeating the same questions - an endless
+ * pool") nothing this child got recently on this device (`avoid`) while fresh ones exist.
+ * Each round gets its key as `_key`, so the game can remember it.
+ */
+function series(count, make, keyOf, rand, avoid = new Set()) {
   const out = [];
   const seen = new Set();
   let guard = 0;
-  while (out.length < count && guard++ < 2000) {
+  while (out.length < count && guard++ < 3000) {
     const r = make(rand);
     const k = keyOf(r);
-    if (seen.has(k) && guard < 1500) continue;
+    if (out.length && keyOf(out[out.length - 1]) === k) continue;
+    if (seen.has(k) && guard < 2500) continue;
+    if (avoid.has(k) && guard < 1500) continue;
     seen.add(k);
+    r._key = k;
     out.push(r);
   }
   return out;
@@ -57,6 +65,9 @@ export function clockRound(level, rand = Math.random) {
   const h = between(rand, 1, 12);
   const m = pick(rand, cfg.minutes);
   const answer = timeText(h, m);
+  // 2026-11-12 (Shir: "no repeating questions"): also the other way round - the time is
+  // written, the child picks the clock that shows it (options are drawn clocks).
+  const mode = rand() < 0.5 ? "pick" : "read";
   const wrong = [
     timeText(wrapHour(h + 1), m),
     timeText(wrapHour(h - 1), m),
@@ -74,11 +85,11 @@ export function clockRound(level, rand = Math.random) {
   }
   let extra = 3;
   while (set.size < 4) set.add(timeText(wrapHour(h + extra++), m));
-  return { h, m, answer, options: shuffle([...set], rand) };
+  return { h, m, answer, mode, options: shuffle([...set], rand) };
 }
 
-export function clockRounds(level, rand = Math.random) {
-  return series(CLOCK_ROUNDS, (r) => clockRound(level, r), (x) => x.answer, rand);
+export function clockRounds(level, rand = Math.random, avoid = new Set()) {
+  return series(CLOCK_ROUNDS, (r) => clockRound(level, r), (x) => `${x.mode}${x.answer}`, rand, avoid);
 }
 
 /** The angles of the hands, in degrees from 12 o'clock clockwise. */
@@ -102,8 +113,8 @@ const ITEMS = ["🍎", "🍌", "🥛", "🍞", "🧃", "🍦", "🍪", "🧸", "
 // ---- החנות: pay exactly --------------------------------------------------------------------
 // coins = what is in the wallet to tap; showTotal = the counter shows the running sum (levels 1-3).
 const SHOP = {
-  1: { price: [2, 5], coins: [1, 2], showTotal: true },
-  2: { price: [3, 10], coins: [1, 2, 5], showTotal: true },
+  1: { price: [2, 9], coins: [1, 2], showTotal: true },
+  2: { price: [3, 15], coins: [1, 2, 5], showTotal: true },
   3: { price: [6, 20], coins: [1, 2, 5, 10], showTotal: true },
   4: { price: [11, 30], coins: [1, 2, 5, 10], showTotal: false },
   5: { price: [21, 50], coins: [1, 2, 5, 10, 20], showTotal: false },
@@ -120,8 +131,8 @@ export function shopRound(level, rand = Math.random) {
   return { items, prices, price, coins: cfg.coins, showTotal: cfg.showTotal, two: Boolean(cfg.two) };
 }
 
-export function shopRounds(level, rand = Math.random) {
-  return series(SHOP_ROUNDS, (r) => shopRound(level, r), (x) => `${x.items.join("")}${x.price}`, rand);
+export function shopRounds(level, rand = Math.random, avoid = new Set()) {
+  return series(SHOP_ROUNDS, (r) => shopRound(level, r), (x) => `${x.items.join("")}${x.price}`, rand, avoid);
 }
 
 /** "more" (not enough yet) | "less" (too much) | "ok". */
@@ -146,11 +157,11 @@ export function fewestCoins(amount, coins) {
 
 // ---- כמה כסף?: count the money; level 6 = change --------------------------------------------
 const COINS = {
-  1: { coins: [1], count: [2, 5] },
-  2: { coins: [1, 2], count: [2, 5], max: 10 },
-  3: { coins: [1, 2, 5], count: [2, 5], max: 15 },
-  4: { coins: [1, 2, 5, 10], count: [3, 5], max: 30 },
-  5: { coins: [1, 2, 5, 10, 20], count: [3, 5], max: 50 },
+  1: { coins: [1, 2], count: [2, 6], max: 10 },
+  2: { coins: [1, 2, 5], count: [2, 6], max: 20 },
+  3: { coins: [1, 2, 5, 10], count: [3, 6], max: 30 },
+  4: { coins: [1, 2, 5, 10, 20], count: [3, 6], max: 50 },
+  5: { coins: [1, 2, 5, 10, 20, 50], count: [3, 6], max: 100 },
   6: { change: true },
 };
 
@@ -171,7 +182,7 @@ export function coinsRound(level, rand = Math.random) {
   const cfg = COINS[level] ?? COINS[1];
   if (cfg.change) {
     // "You had 10 / 20 shekels and bought something for X - how much is left?"
-    const had = pick(rand, [10, 10, 20, 20, 50]);
+    const had = pick(rand, [10, 20, 50, 100]);
     const price = between(rand, Math.ceil(had * 0.3), had - 1);
     const answer = had - price;
     return { change: true, had, price, item: pick(rand, ITEMS), money: [had], answer, options: moneyOptions(answer, rand, had) };
@@ -186,6 +197,6 @@ export function coinsRound(level, rand = Math.random) {
   return { change: false, money, answer, options: moneyOptions(answer, rand) };
 }
 
-export function coinsRounds(level, rand = Math.random) {
-  return series(COINS_ROUNDS, (r) => coinsRound(level, r), (x) => `${x.change ? x.had + "-" + x.price : x.money.join("+")}`, rand);
+export function coinsRounds(level, rand = Math.random, avoid = new Set()) {
+  return series(COINS_ROUNDS, (r) => coinsRound(level, r), (x) => `${x.change ? x.had + "-" + x.price : x.money.join("+")}`, rand, avoid);
 }

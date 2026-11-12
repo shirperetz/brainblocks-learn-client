@@ -15,19 +15,23 @@ function shuffle(list, rand) {
 }
 
 /**
- * Makes `count` rounds with `make`: never the same `keyOf` twice in a row, and no repeat at all
- * while the level still has fresh ones (level 1 of the balloons has only 10 different sums).
+ * Makes `count` rounds with `make`: never the same `keyOf` twice in a row, no repeat at all while the
+ * level still has fresh ones, and (2026-11-12, Shir: "no repeating the same questions - an endless
+ * pool") nothing this child got recently on this device (`avoid`) while fresh ones exist.
+ * Each round gets its key as `_key`, so the game can remember it.
  */
-function series(count, make, keyOf, rand) {
+function series(count, make, keyOf, rand, avoid = new Set()) {
   const out = [];
   const seen = new Set();
   let guard = 0;
-  while (out.length < count && guard++ < 2000) {
+  while (out.length < count && guard++ < 3000) {
     const r = make(rand);
     const k = keyOf(r);
     if (out.length && keyOf(out[out.length - 1]) === k) continue;
-    if (seen.has(k) && guard < 1500) continue;
+    if (seen.has(k) && guard < 2500) continue;
+    if (avoid.has(k) && guard < 1500) continue;
     seen.add(k);
+    r._key = k;
     out.push(r);
   }
   return out;
@@ -48,7 +52,7 @@ const DRAGON = {
 
 export const DRAGON_ROUNDS = 6;
 
-export function dragonRounds(level, rand = Math.random) {
+export function dragonRounds(level, rand = Math.random, avoid = new Set()) {
   const cfg = DRAGON[level] ?? DRAGON[1];
   return series(
     DRAGON_ROUNDS,
@@ -59,6 +63,7 @@ export function dragonRounds(level, rand = Math.random) {
     },
     (x) => x.want,
     rand,
+    avoid,
   );
 }
 
@@ -114,8 +119,8 @@ export function options(answer, rand = Math.random) {
   return shuffle([...set], rand);
 }
 
-export function balloonRounds(level, rand = Math.random) {
-  return series(BALLOON_ROUNDS, (r) => balloonRound(level, r), (x) => `${x.a}${x.op}${x.b}`, rand);
+export function balloonRounds(level, rand = Math.random, avoid = new Set()) {
+  return series(BALLOON_ROUNDS, (r) => balloonRound(level, r), (x) => `${x.a}${x.op}${x.b}`, rand, avoid);
 }
 
 /** Clip keys for "כמה זה 3 ועוד 2". */
@@ -151,8 +156,8 @@ export function bridgeRound(level, rand = Math.random) {
   return { target, have, answer, eq: Boolean(cfg.eq), options: options(answer, rand) };
 }
 
-export function bridgeRounds(level, rand = Math.random) {
-  return series(BRIDGE_ROUNDS, (r) => bridgeRound(level, r), (x) => `${x.have}/${x.target}`, rand);
+export function bridgeRounds(level, rand = Math.random, avoid = new Set()) {
+  return series(BRIDGE_ROUNDS, (r) => bridgeRound(level, r), (x) => `${x.have}/${x.target}`, rand, avoid);
 }
 
 /** "על הגשר יש שבעה קרשים. כמה חסרים עד עשר?" */
@@ -211,8 +216,8 @@ function tensOptions(answer, rand) {
   return shuffle([...set], rand);
 }
 
-export function trainRounds(level, rand = Math.random) {
-  return series(TRAIN_ROUNDS, (r) => trainRound(level, r), (x) => x.wagons.join(","), rand);
+export function trainRounds(level, rand = Math.random, avoid = new Set()) {
+  return series(TRAIN_ROUNDS, (r) => trainRound(level, r), (x) => x.wagons.join(","), rand, avoid);
 }
 
 /** "איזה מספר חסר ברכבת?" - then the wagons are read, the missing one as "מה?". */

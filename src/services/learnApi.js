@@ -178,10 +178,10 @@ export function staffCreateClass(name, teacherId, grade) {
 }
 
 /** 2026-11-12: set (and lock) the grade a child practices. */
-export function staffSetGrade(childId, { grade, locked }) {
+export function staffSetGrade(childId, { grade, locked, changeAllowed }) {
   return apiRequest(`/api/learn/staff/children/${childId}/grade`, {
     method: "POST",
-    body: JSON.stringify({ ...(grade ? { grade } : {}), locked }),
+    body: JSON.stringify({ ...(grade ? { grade } : {}), locked, ...(changeAllowed !== undefined ? { changeAllowed } : {}) }),
   });
 }
 

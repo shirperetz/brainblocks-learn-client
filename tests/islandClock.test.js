@@ -17,7 +17,7 @@ test("clock: answer among 4 distinct times, minutes as the level says, hands at 
     for (let seed = 1; seed <= 200; seed++) {
       const rounds = clockRounds(level, seeded(seed));
       assert.equal(rounds.length, 8);
-      assert.equal(new Set(rounds.map((r) => r.answer)).size, 8, `L${level} repeats`);
+      assert.equal(new Set(rounds.map((r) => r._key)).size, 8, `L${level} repeats`);
       for (const r of rounds) {
         assert.ok(minutes[level].includes(r.m), `L${level} minute ${r.m}`);
         assert.ok(r.h >= 1 && r.h <= 12);
@@ -35,7 +35,7 @@ test("clock: answer among 4 distinct times, minutes as the level says, hands at 
 });
 
 test("shop: price in range, payable with the wallet's coins, check says more / less / ok", () => {
-  const range = { 1: [2, 5], 2: [3, 10], 3: [6, 20], 4: [11, 30], 5: [21, 50], 6: [10, 50] };
+  const range = { 1: [2, 9], 2: [3, 15], 3: [6, 20], 4: [11, 30], 5: [21, 50], 6: [10, 50] };
   for (let level = 1; level <= 6; level++) {
     for (let seed = 1; seed <= 200; seed++) {
       for (const r of shopRounds(level, seeded(seed))) {
@@ -52,7 +52,7 @@ test("shop: price in range, payable with the wallet's coins, check says more / l
 });
 
 test("coins: the answer is the sum (or what's left), among 4 distinct positive options", () => {
-  const max = { 1: 5, 2: 10, 3: 15, 4: 30, 5: 50 };
+  const max = { 1: 10, 2: 20, 3: 30, 4: 50, 5: 100 };
   for (let level = 1; level <= 6; level++) {
     for (let seed = 1; seed <= 200; seed++) {
       const rounds = coinsRounds(level, seeded(seed));
@@ -65,13 +65,26 @@ test("coins: the answer is the sum (or what's left), among 4 distinct positive o
         } else {
           assert.equal(r.answer, r.money.reduce((a, b) => a + b, 0));
           assert.ok(r.answer <= max[level], `L${level} sum ${r.answer}`);
-          assert.ok(level > 1 || r.money.every((c) => c === 1));
+          assert.ok(level > 1 || r.money.every((c) => c <= 2));
         }
         assert.equal(r.options.length, 4);
         assert.equal(new Set(r.options).size, 4);
         assert.ok(r.options.includes(r.answer));
         assert.ok(r.options.every((o) => o > 0));
       }
+    }
+  }
+});
+
+// 2026-11-12 (Shir: "no repeating the same questions"): what this child got last time is avoided.
+test("rounds avoid what was played recently, while fresh ones exist", () => {
+  for (const [name, make] of [["clock", clockRounds], ["shop", shopRounds], ["coins", coinsRounds]]) {
+    for (let level = 1; level <= 6; level++) {
+      const first = make(level, seeded(7));
+      const avoid = new Set(first.map((r) => r._key));
+      const second = make(level, seeded(99), avoid);
+      const again = second.filter((r) => avoid.has(r._key)).length;
+      assert.equal(again, 0, `${name} L${level}: ${again} repeated from last time`);
     }
   }
 });

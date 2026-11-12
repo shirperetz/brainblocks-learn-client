@@ -228,3 +228,19 @@ button.coin:disabled, button.bill:disabled { opacity: 0.5; cursor: default; }
 @media (prefers-reduced-motion: reduce) {
   .shop-shelf.is-sold, .shop-counter.is-wrong { animation: none; }
 }
+
+/* 2026-11-12: "which clock shows ...?" - four small clocks as the options */
+.clock-game__ask {
+  margin: 0.4rem 0;
+  padding: 0.8rem 1.4rem;
+  border-radius: 1.2rem;
+  background: #fff;
+  font-weight: 800;
+  font-size: clamp(1.3rem, 5vw, 1.7rem);
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(40, 70, 130, 0.12);
+}
+.clock-game__ask b { font-size: 1.3em; color: #ff7a1a; font-variant-numeric: tabular-nums; }
+.time-pick--clock { padding: 0.45rem; display: grid; place-items: center; }
+.clock-face--small { width: min(36vw, 9.5rem); filter: none; }
+.bill--100 { background: linear-gradient(135deg, #ffb347 0%, #e07b00 100%); }

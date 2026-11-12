@@ -17,10 +17,14 @@ export default function GradePage() {
   if (loading) return null;
   // 2026-11-12: the teacher/admin set this child's grade - it can't be changed here (nor on the server).
   if (profile?.gradeLocked) return <GradeLocked grade={profile.grade} />;
+  // 2026-11-12 (Shir): a child with a grade changes it only with the admin's permission (server too).
+  if (profile?.grade && !profile.gradeChangeAllowed && !profile.admin && !profile.teacher) {
+    return <GradeLocked grade={profile.grade} byAdmin />;
+  }
   return <GradeForm />;
 }
 
-function GradeLocked({ grade }) {
+function GradeLocked({ grade, byAdmin = false }) {
   const navigate = useNavigate();
   const label = GRADES.find((g) => g.key === grade)?.label ?? "";
   return (
@@ -30,7 +34,11 @@ function GradeLocked({ grade }) {
         <div className="onboarding__header">
           <Mascot dolphin size="md" play="think" message="🔒" />
           <h1 className="screen-title">{label}</h1>
-          <p className="screen-subtitle">המורה בחרה בשבילך את הכיתה הזאת, אז מתרגלים רק בה. אם צריך לשנות - מבקשים מהמורה.</p>
+          <p className="screen-subtitle">
+            {byAdmin
+              ? "זו הכיתה שלך. כדי להחליף כיתה מבקשים מהמורה."
+              : "המורה בחרה בשבילך את הכיתה הזאת, אז מתרגלים רק בה. אם צריך לשנות - מבקשים מהמורה."}
+          </p>
         </div>
         <div className="onboarding__actions">
           <BigButton variant="green" onClick={() => navigate(startsOnIsland(grade) ? "/island" : "/topics")}>

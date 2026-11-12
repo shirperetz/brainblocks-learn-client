@@ -47,14 +47,14 @@ export default function ChildReportPage() {
         <MoveClass
           key={`c${report.child.id}`}
           child={report.child}
-          admin={Boolean(profile.admin)}
           onSaved={(changes) => setReport({ ...report, child: { ...report.child, ...changes } })}
         />
       )}
       {report && (
         <GradeLock
-          key={`${report.child.id}-${report.child.grade}-${report.child.gradeLocked}`}
+          key={`${report.child.id}-${report.child.grade}-${report.child.gradeLocked}-${report.child.gradeChangeAllowed}`}
           child={report.child}
+          admin={Boolean(profile.admin)}
           onSaved={(changes) => setReport({ ...report, child: { ...report.child, ...changes } })}
         />
       )}
@@ -166,14 +166,17 @@ function MoveClass({ child, admin, onSaved }) {
 function GradeLock({ child, onSaved }) {
   const [grade, setGrade] = useState(child.grade ?? "");
   const [locked, setLocked] = useState(Boolean(child.gradeLocked));
+  // 2026-11-12 (Shir): may the child change its own grade - the admin or the teacher decides (default yes).
+  const [mayChange, setMayChange] = useState(Boolean(child.gradeChangeAllowed));
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
-  const changed = grade !== (child.grade ?? "") || locked !== Boolean(child.gradeLocked);
+  const changed = grade !== (child.grade ?? "") || locked !== Boolean(child.gradeLocked)
+    || mayChange !== Boolean(child.gradeChangeAllowed);
 
   async function save() {
     try {
-      const p = await staffSetGrade(child.id, { grade: grade || undefined, locked });
-      onSaved({ grade: p.grade, gradeLocked: p.gradeLocked });
+      const p = await staffSetGrade(child.id, { grade: grade || undefined, locked, changeAllowed: mayChange });
+      onSaved({ grade: p.grade, gradeLocked: p.gradeLocked, gradeChangeAllowed: p.gradeChangeAllowed });
       setMsg(locked ? `נשמר: ${child.name} מתרגל/ת רק ${getGrade(grade)?.label ?? ""}` : "נשמר: הכיתה פתוחה לבחירה");
       setErr("");
     } catch (e) {
@@ -202,6 +205,10 @@ function GradeLock({ child, onSaved }) {
       <label className="grade-lock__lock">
         <input type="checkbox" checked={locked} onChange={(e) => setLocked(e.target.checked)} disabled={!grade} />
         🔒 לנעול על הכיתה הזאת
+      </label>
+      <label className="grade-lock__lock">
+        <input type="checkbox" checked={mayChange} onChange={(e) => setMayChange(e.target.checked)} disabled={locked} />
+        🔄 מותר לילד/ה להחליף כיתה בעצמו/ה
       </label>
       {msg && <p className="admin__message" role="status">{msg}</p>}
       {err && <p className="form-error">{err}</p>}
