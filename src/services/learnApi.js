@@ -39,8 +39,8 @@ export function getStageMap(profileId, topic) {
   return apiRequest(`/api/learn/profiles/${profileId}/map?topic=${topic}`);
 }
 
-export function getQuestions({ profileId, topic, stage, count = 10 }) {
-  const params = new URLSearchParams({ profileId, topic, stage, count });
+export function getQuestions({ profileId, topic, stage, count = 10, secure = false }) {
+  const params = new URLSearchParams({ profileId, topic, stage, count, ...(secure ? { secure: "true" } : {}) });
   return apiRequest(`/api/learn/questions?${params.toString()}`);
 }
 
@@ -55,10 +55,21 @@ export function submitSession(payload) {
 
 /** A short explanation of one question (local AI, or the game's own hint). Never the answer. */
 /** attempt: 0 = first press, 1 = "explain differently" (both from code, always correct), 2+ = the local AI. */
-export function getHelp({ questionText, correctAnswer, chosenAnswer, grade, attempt = 0, fallbackHint }) {
+export function getHelp({ questionText, correctAnswer, chosenAnswer, grade, attempt = 0, fallbackHint, bankId }) {
   return apiRequest("/api/learn/help", {
     method: "POST",
-    body: JSON.stringify({ questionText, correctAnswer, chosenAnswer, grade, attempt, fallbackHint }),
+    body: JSON.stringify({ questionText, correctAnswer, chosenAnswer, grade, attempt, fallbackHint, bankId }),
+  });
+}
+
+/**
+ * 2026-11-12 (stage 2): the server checks the answer to a bank question and only then tells the right
+ * answer + explanation -> { correct, correctAnswer, correctIndex, explanation }.
+ */
+export function answerQuestion(bankId, answer) {
+  return apiRequest(`/api/learn/questions/${bankId}/answer`, {
+    method: "POST",
+    body: JSON.stringify({ answer }),
   });
 }
 

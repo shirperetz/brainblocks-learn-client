@@ -42,6 +42,7 @@ export default function HelpButton({ question, grade, speak = false, onUsed, com
         grade,
         attempt,
         fallbackHint: question.hint,
+        bankId: question.bankId, // 2026-11-12: the server fills the right answer (the phone doesn't have it)
       });
       if (n !== asked.current) return;
       setHelp(h);

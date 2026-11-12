@@ -77,6 +77,9 @@ export default function TimedPage() {
     if (!q || flash) return;
     const correct = j === q.correctIndex;
     answers.current.push({
+      // 2026-11-12 (stage 2): the clock is running, so no server round-trip per answer here - but the
+      // score is computed on the server from the bank (a faked "right" doesn't count).
+      bankId: q.bankId,
       questionText: q.text,
       chosenAnswer: q.options[j],
       correctAnswer: q.options[q.correctIndex],

@@ -32,7 +32,7 @@ export default function DailyPage() {
   function start() {
     answers.current = [];
     setResult(null);
-    getQuestions({ profileId: profile.id, topic: "MIXED", stage: 3, count: COUNT })
+    getQuestions({ profileId: profile.id, topic: "MIXED", stage: 3, count: COUNT, secure: true })
       .then((qs) => {
         started.current = Date.now();
         setQuestions(qs);

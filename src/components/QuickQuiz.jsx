@@ -5,6 +5,7 @@ import ReadAloud from "./ReadAloud";
 import { readAloudDefault } from "../game/readAloud";
 import MathText from "./MathText";
 import { cheer } from "../game/companion";
+import { answerQuestion } from "../services/learnApi";
 import "../styles/pages/play.css";
 
 const FEEDBACK_MS = 900;
@@ -20,9 +21,16 @@ const FEEDBACK_MS = 900;
 export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = true, feedbackMs = FEEDBACK_MS }) {
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState(null);
+  // 2026-11-12 (stage 2): a bank question comes without its answer - the server checks it.
+  const [checked, setChecked] = useState(null); // { index, correctIndex, explanation }
+  const [busy, setBusy] = useState(false);
+  const [checkError, setCheckError] = useState("");
   const helpUsed = useRef(false);
   const timer = useRef(null);
-  const q = questions[index];
+  const raw = questions[index];
+  const q = raw && checked && checked.index === index
+    ? { ...raw, correctIndex: checked.correctIndex, explanation: checked.explanation ?? raw.explanation }
+    : raw;
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
@@ -33,20 +41,38 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
 
   if (!q) return null;
 
-  function pick(j) {
-    if (selected !== null) return;
+  async function pick(j) {
+    if (selected !== null || busy) return;
+    let correctIndex = q.correctIndex;
+    let explanation = q.explanation;
+    if (q.bankId && correctIndex < 0) {
+      setBusy(true);
+      try {
+        const r = await answerQuestion(q.bankId, q.options[j]);
+        correctIndex = r.correctIndex;
+        explanation = r.explanation || explanation;
+        setChecked({ index, correctIndex, explanation });
+        setCheckError("");
+      } catch {
+        setBusy(false);
+        setCheckError("לא הצלחנו לבדוק את התשובה - בדקו את החיבור ונסו שוב");
+        return;
+      }
+      setBusy(false);
+    }
     setSelected(j);
-    const correct = j === q.correctIndex;
+    const correct = j === correctIndex;
     if (help) cheer(correct ? "correct" : "wrong");
     onAnswer?.(
       {
+        bankId: q.bankId,
         questionText: q.text,
         chosenAnswer: q.options[j],
-        correctAnswer: q.options[q.correctIndex],
+        correctAnswer: q.options[correctIndex],
         correct,
         hintUsed: helpUsed.current,
         topic: q.topic,
-        explanation: q.explanation,
+        explanation,
       skill: q.skill,
       },
       q,
@@ -80,16 +106,17 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
       {help && selected === null && (
         <HelpButton
           key={`${index}-${q.text}`}
-          question={{ text: q.text, correct: q.options[q.correctIndex], hint: q.hint }}
+          question={{ text: q.text, correct: q.options[q.correctIndex], hint: q.hint, bankId: q.bankId }}
           grade={grade}
           onUsed={() => (helpUsed.current = true)}
         />
       )}
       <div className="play__answers">
         {q.options.map((opt, j) => (
-          <AnswerButton key={j} label={opt} state={state(j)} disabled={selected !== null} onClick={() => pick(j)} />
+          <AnswerButton key={j} label={opt} state={state(j)} disabled={selected !== null || busy} onClick={() => pick(j)} />
         ))}
       </div>
+      {checkError && <p className="form-error">{checkError}</p>}
     </>
   );
 }

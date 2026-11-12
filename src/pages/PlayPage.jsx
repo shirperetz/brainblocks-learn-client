@@ -9,7 +9,7 @@ import { readAloudDefault } from "../game/readAloud";
 import QuestionPicture from "../components/QuestionPicture";
 import MathText from "../components/MathText";
 import { getTopic } from "../data/topics";
-import { getQuestions, submitSession } from "../services/learnApi";
+import { getQuestions, submitSession, answerQuestion } from "../services/learnApi";
 import { useProfile } from "../context/profileStore";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/play.css";
@@ -32,6 +32,7 @@ export default function PlayPage() {
   const [points, setPoints] = useState(0);
   const [feedback, setFeedback] = useState(null); // "correct" | "wrong" | null
   const [submitting, setSubmitting] = useState(false);
+  const [checking, setChecking] = useState(false); // waiting for the server to check an answer
 
   const answersRef = useRef([]);
   const streakRef = useRef(0);
@@ -53,7 +54,8 @@ export default function PlayPage() {
     let active = true;
     answersRef.current = [];
     startRef.current = Date.now();
-    getQuestions({ profileId: profile.id, topic, stage, count: 10 })
+    // 2026-11-12 (stage 2): secure - the right answer stays on the server until the child answers.
+    getQuestions({ profileId: profile.id, topic, stage, count: 10, secure: true })
       .then((data) => {
         if (!active) return;
         if (!data || data.length === 0) setError("לא הצלחנו להכין שאלות. נסו שוב.");
@@ -70,9 +72,26 @@ export default function PlayPage() {
   const current = questions[index];
   const total = questions.length;
 
-  function handleAnswer(optionIndex) {
-    if (selected !== null || !current) return;
-    const isCorrect = optionIndex === current.correctIndex;
+  async function handleAnswer(optionIndex) {
+    if (selected !== null || checking || !current) return;
+    let q = current;
+    // 2026-11-12 (stage 2): the server checks (a retry already knows the answer - it doesn't count).
+    if (!q.retry && q.bankId) {
+      setChecking(true);
+      try {
+        const r = await answerQuestion(q.bankId, q.options[optionIndex]);
+        q = { ...q, correctIndex: r.correctIndex, explanation: r.explanation };
+        const at = index;
+        setQuestions((qs) => qs.map((x, i) => (i === at ? q : x)));
+      } catch {
+        setChecking(false);
+        setError("לא הצלחנו לבדוק את התשובה - בדקו את החיבור ונסו שוב");
+        return;
+      }
+      setChecking(false);
+      setError("");
+    }
+    const isCorrect = optionIndex === q.correctIndex;
     setSelected(optionIndex);
     setFeedback(isCorrect ? "correct" : "wrong");
     cheer(isCorrect ? "correct" : "wrong");
@@ -86,7 +105,7 @@ export default function PlayPage() {
       return;
     }
     if (!isCorrect) {
-      const again = retryOf(current);
+      const again = retryOf(q);
       setQuestions((qs) => {
         const at = Math.min(index + 1 + RETRY_AFTER, qs.length);
         return [...qs.slice(0, at), again, ...qs.slice(at)];
@@ -101,14 +120,15 @@ export default function PlayPage() {
     }
 
     answersRef.current.push({
-      questionText: current.text,
-      chosenAnswer: current.options[optionIndex],
-      correctAnswer: current.options[current.correctIndex],
+      bankId: q.bankId, // the server judges this answer from the bank
+      questionText: q.text,
+      chosenAnswer: q.options[optionIndex],
+      correctAnswer: q.options[q.correctIndex],
       correct: isCorrect,
       hintUsed: helpUsedRef.current,
-      topic: current.topic,
-      explanation: current.explanation,
-      skill: current.skill,
+      topic: q.topic,
+      explanation: q.explanation,
+      skill: q.skill,
     });
 
     setTimeout(advance, FEEDBACK_MS);
@@ -199,7 +219,7 @@ export default function PlayPage() {
             {selected === null && (
               <HelpButton
                 key={`${index}-${current.text}`}
-                question={{ text: current.text, correct: current.options[current.correctIndex], hint: current.hint }}
+                question={{ text: current.text, correct: current.options[current.correctIndex], hint: current.hint, bankId: current.bankId }}
                 grade={profile.grade}
                 onUsed={() => (helpUsedRef.current = true)}
               />
@@ -211,7 +231,7 @@ export default function PlayPage() {
                   key={j}
                   label={opt}
                   state={optionState(j)}
-                  disabled={selected !== null}
+                  disabled={selected !== null || checking}
                   onClick={() => handleAnswer(j)}
                 />
               ))}
