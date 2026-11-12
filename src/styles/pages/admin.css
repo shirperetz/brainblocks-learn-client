@@ -170,3 +170,7 @@
   .tree-child__meta { margin-inline-start: 0; flex-basis: 100%; white-space: normal; }
   .tree-child__main { flex-wrap: wrap; }
 }
+.tree-child__move { font: inherit; font-size: 0.85rem; padding: 0.3rem 0.4rem; border-radius: 0.6rem; border: 1px solid var(--line); max-width: 11rem; }
+.tree-newclass { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+.tree-newclass input, .tree-newclass select { font: inherit; padding: 0.45rem 0.6rem; border-radius: 0.6rem; border: 1px solid var(--line); min-width: 0; }
+.tree-newclass input { flex: 1 1 9rem; }

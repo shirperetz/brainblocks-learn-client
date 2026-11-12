@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getGrade } from "../data/grades";
 import { getCharacter } from "../data/characters";
-import { adminMoveClass, adminSetTeacher, adminTree } from "../services/learnApi";
+import { adminMoveClass, adminSetTeacher, adminTree, staffCreateClass, staffMoveChild } from "../services/learnApi";
+import { GRADES } from "../data/grades";
 
 function ago(iso) {
   if (!iso) return "עוד לא שיחק/ה";
@@ -15,7 +16,7 @@ function ago(iso) {
 }
 
 /** One child row: avatar, name, grade, stars, last played - tap opens the child's report. */
-function ChildRow({ c, onOpen, onPromote }) {
+function ChildRow({ c, onOpen, onPromote, classOptions, onMove }) {
   const ch = getCharacter(c.avatar);
   return (
     <li className="tree-child">
@@ -30,6 +31,19 @@ function ChildRow({ c, onOpen, onPromote }) {
           {getGrade(c.grade)?.label ?? "בלי כיתה"} · ⭐ {c.stars} · {ago(c.lastActiveAt)}
         </span>
       </button>
+      {classOptions && (
+        <select
+          className="tree-child__move"
+          value={c.classId ?? ""}
+          onChange={(e) => onMove(c, e.target.value)}
+          aria-label={`להעביר את ${c.name} לכיתה`}
+        >
+          <option value="">{c.classId ? "בלי כיתה" : "להעביר לכיתה…"}</option>
+          {classOptions.map((o) => (
+            <option key={o.id} value={o.id}>{o.label}</option>
+          ))}
+        </select>
+      )}
       {onPromote && (
         <button type="button" className="admin__btn admin__btn--ghost tree-child__promote" onClick={() => onPromote(c)}>
           👩‍🏫 להפוך למורה
@@ -51,6 +65,7 @@ export default function SchoolTree() {
   const [open, setOpen] = useState({}); // teacher id -> true
   const [confirm, setConfirm] = useState(null); // { kind: "promote"|"demote", person }
   const [message, setMessage] = useState("");
+  const [newClass, setNewClass] = useState(null); // { teacherId, name, grade }
   const [error, setError] = useState("");
 
   const load = useCallback(() => {
@@ -82,9 +97,37 @@ export default function SchoolTree() {
     }
   }
 
+  // 2026-11-12 (Shir: "I want to move Romi to Eti's class"): every child can be moved to any class here,
+  // and a class can be opened for a teacher right under her card.
+  async function moveChild(c, classId) {
+    try {
+      await staffMoveChild(c.id, classId ? Number(classId) : null);
+      setMessage(classId ? `${c.name} הועבר/ה לכיתה` : `${c.name} יצא/ה מהכיתה`);
+      setError("");
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  async function createClass() {
+    if (!newClass?.name?.trim()) return;
+    try {
+      await staffCreateClass(newClass.name.trim(), newClass.teacherId, newClass.grade || undefined);
+      setMessage(`נפתחה כיתה ${newClass.name.trim()}`);
+      setError("");
+      setNewClass(null);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   if (!tree) return error ? <p className="form-error">{error}</p> : <p className="play__loading">טוען...</p>;
   const openChild = (c) => navigate(`/staff/child/${c.id}`);
   const teachers = tree.teachers;
+  const classOptions = teachers.flatMap((t) =>
+    t.classes.map((cls) => ({ id: cls.id, label: `${cls.name} - ${t.name}` })));
 
   return (
     <div className="tree">
@@ -147,11 +190,34 @@ export default function SchoolTree() {
                       <p className="staff-card__hint">עוד אין ילדים בכיתה.</p>
                     ) : (
                       <ul className="tree-children">
-                        {cls.children.map((c) => <ChildRow key={c.id} c={c} onOpen={openChild} />)}
+                        {cls.children.map((c) => (
+                          <ChildRow key={c.id} c={c} onOpen={openChild} classOptions={classOptions} onMove={moveChild} />
+                        ))}
                       </ul>
                     )}
                   </div>
                 ))}
+                {newClass?.teacherId === t.id ? (
+                  <div className="tree-newclass">
+                    <input
+                      type="text"
+                      placeholder="שם הכיתה, למשל ג׳2"
+                      value={newClass.name}
+                      onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
+                      aria-label="שם הכיתה"
+                    />
+                    <select value={newClass.grade} onChange={(e) => setNewClass({ ...newClass, grade: e.target.value })} aria-label="כיתה">
+                      <option value="">כל הכיתות</option>
+                      {GRADES.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}
+                    </select>
+                    <button type="button" className="admin__btn" onClick={createClass} disabled={!newClass.name.trim()}>פתיחה</button>
+                    <button type="button" className="admin__btn admin__btn--ghost" onClick={() => setNewClass(null)}>ביטול</button>
+                  </div>
+                ) : (
+                  <button type="button" className="admin__btn" onClick={() => setNewClass({ teacherId: t.id, name: "", grade: "" })}>
+                    ➕ כיתה חדשה ל{t.name}
+                  </button>
+                )}
                 {!t.admin && (
                   <button type="button" className="admin__btn admin__btn--ghost" onClick={() => setConfirm({ kind: "demote", person: t })}>
                     ↩️ להחזיר לתלמיד/ה
@@ -175,7 +241,14 @@ export default function SchoolTree() {
           ) : (
             <ul className="tree-children">
               {tree.noTeacher.map((c) => (
-                <ChildRow key={c.id} c={c} onOpen={openChild} onPromote={(p) => setConfirm({ kind: "promote", person: p })} />
+                <ChildRow
+                  key={c.id}
+                  c={c}
+                  onOpen={openChild}
+                  classOptions={classOptions}
+                  onMove={moveChild}
+                  onPromote={(p) => setConfirm({ kind: "promote", person: p })}
+                />
               ))}
             </ul>
           )}
