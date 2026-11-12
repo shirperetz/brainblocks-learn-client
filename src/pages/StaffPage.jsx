@@ -7,6 +7,7 @@ import { TREND, columnsFor, levelOf, timeAgo, topicInfo } from "../data/progress
 import * as api from "../services/learnApi";
 import { Legend } from "./ChildReportPage";
 import StaffWeeklyTasks from "../components/StaffWeeklyTasks";
+import ClassBuilding from "../components/ClassBuilding";
 import "../styles/pages/staff.css";
 
 // 2026-11-11 (Shir: "teachers look at their students, I look at mine, and I oversee everything"):
@@ -142,7 +143,10 @@ export default function StaffPage() {
 
       {/* ---- the weekly task of the class on the tab (idea #5) ---- */}
       {typeof tab === "number" && tab !== 0 && classes.find((c) => c.id === tab) && (
-        <StaffWeeklyTasks key={tab} cls={classes.find((c) => c.id === tab)} />
+        <>
+          <ClassBuilding key={`b${tab}`} classId={tab} />
+          <StaffWeeklyTasks key={tab} cls={classes.find((c) => c.id === tab)} />
+        </>
       )}
       {typeof tab !== "number" && classes.length > 0 && (
         <p className="staff-card__hint">📅 למשימה שבועית - בחרי כיתה למעלה.</p>

@@ -254,3 +254,14 @@ export function staffCreateAssignment(classId, { topic, rounds, days }) {
 export function staffCancelAssignment(id) {
   return apiRequest(`/api/learn/staff/assignments/${id}/cancel`, { method: "POST" });
 }
+
+// ---- the class building (idea #6, 2026-11-12) ----
+
+/** The child's class building this week ({} when the child has no class). */
+export function getClassBuilding(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/class-building`);
+}
+
+export function staffClassBuilding(classId) {
+  return apiRequest(`/api/learn/staff/classes/${classId}/building`);
+}

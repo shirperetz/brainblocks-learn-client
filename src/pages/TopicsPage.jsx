@@ -5,6 +5,7 @@ import "../styles/pages/challenges.css";
 import OptionCard from "../components/OptionCard";
 import Mascot from "../components/Mascot";
 import WeeklyTasks from "../components/WeeklyTasks";
+import ClassBuilding from "../components/ClassBuilding";
 import { TOPICS, isTopicAllowedForGrade } from "../data/topics";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/onboarding.css";
@@ -41,6 +42,7 @@ export default function TopicsPage() {
         </div>
 
         <WeeklyTasks profileId={profile.id} />
+        <ClassBuilding profileId={profile.id} />
 
         <div className="challenge-row" role="group" aria-label="אתגרים">
           <button className="challenge-card" onClick={() => navigate("/daily")}>

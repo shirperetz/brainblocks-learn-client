@@ -1,0 +1,54 @@
+/* 2026-11-12 (idea #6): the class's weekly building */
+.building {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.8rem;
+  margin-bottom: 0.8rem;
+  border-radius: var(--radius-md);
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+  color: var(--ink);
+}
+
+.building.is-done {
+  background: #eafaf2;
+}
+
+.building__pic {
+  width: 96px;
+  height: 90px;
+  flex: none;
+}
+
+.building__text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.building__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.building__line {
+  margin: 0;
+  font-weight: 700;
+}
+
+.building__sub {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.building__ground { fill: #9fdc8a; }
+.building__base { fill: #a39e9a; }
+.building__wall { fill: var(--orange); }
+.building__window { fill: #fff6c9; }
+.building__roof { fill: var(--red-dark); }
+.building__pole { stroke: var(--ink); stroke-width: 2; }
+.building__flag { fill: var(--blue); }
