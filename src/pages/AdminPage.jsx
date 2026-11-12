@@ -89,11 +89,12 @@ export default function AdminPage() {
   }
 
   async function toggleBlock(c) {
-    const verb = c.disabled ? "לבטל את החסימה של" : "לחסום את";
+    const request = !c.approved && !c.disabled; // a sign-up waiting: "not approved", not "blocked"
+    const verb = request ? "לא לאשר את הבקשה של" : c.disabled ? "לבטל את החסימה של" : "לחסום את";
     if (!window.confirm(`${verb} ${c.name}${c.username ? ` (${c.username})` : ""}?`)) return;
     try {
       await learnApi.adminSetDisabled(c.id, !c.disabled);
-      done(c.disabled ? "החסימה בוטלה" : "המשתמש נחסם (אפשר לבטל בכל רגע)");
+      done(request ? "הבקשה לא אושרה (אפשר לשנות בכל רגע)" : c.disabled ? "החסימה בוטלה" : "המשתמש נחסם (אפשר לבטל בכל רגע)");
     } catch (e) {
       setError(e.message);
     }
@@ -120,7 +121,7 @@ export default function AdminPage() {
       {waiting.length > 0 && (
         <section className="admin__card admin__card--waiting">
           <h2>ממתינים לאישור ({waiting.length})</h2>
-          <p className="admin__hint">נרשמו עם קוד ההצטרפות. רק אחרי אישור שלך הם יכולים להיכנס.</p>
+          <p className="admin__hint">בקשות הרשמה - ילדים ומורים. רק אחרי אישור שלך הם יכולים להיכנס.</p>
           <ul className="admin__list">
             {waiting.map((c) => (
               <li key={c.id} className="admin__child">
@@ -128,15 +129,16 @@ export default function AdminPage() {
                   <span className="admin__emoji" aria-hidden="true">{getCharacter(c.avatar).emoji}</span>
                   <div>
                     <strong>{c.name}</strong>
+                    {c.teacher && <span className="admin__tag">👩‍🏫 מורה</span>}
                     <div className="admin__meta">
-                      @{c.username} · {getGrade(c.grade)?.label ?? "בלי כיתה"} · נרשם/ה{" "}
+                      @{c.username} · {c.teacher ? "מורה" : getGrade(c.grade)?.label ?? "בלי כיתה"} · נרשם/ה{" "}
                       {c.createdAt ? new Date(c.createdAt).toLocaleString("he-IL") : ""}
                     </div>
                   </div>
                 </div>
                 <div className="admin__actions">
                   <button className="admin__btn" onClick={() => approve(c)}>✓ אישור</button>
-                  <button className="admin__btn admin__btn--ghost" onClick={() => toggleBlock(c)}>✗ לא מכירה - חסימה</button>
+                  <button className="admin__btn admin__btn--ghost" onClick={() => toggleBlock(c)}>✕ לא לאשר</button>
                 </div>
               </li>
             ))}
@@ -182,10 +184,11 @@ export default function AdminPage() {
                   <strong>{c.name}</strong>
                   {c.admin && <span className="admin__tag">מנהלת</span>}
                   {c.disabled && <span className="admin__tag admin__tag--off">חסום</span>}
-                  {!c.approved && !c.disabled && <span className="admin__tag admin__tag--wait">ממתין</span>}
+                  {c.teacher && <span className="admin__tag">👩‍🏫 מורה</span>}
+                  {/* 2026-11-12 (Shir: "how do I approve - there's no button"; "not 'block' - a request waiting") */}
+                  {!c.approved && !c.disabled && <span className="admin__tag admin__tag--wait">🕓 בקשת הרשמה - מחכה לאישור</span>}
                   <div className="admin__meta">
-                    {c.username ? `@${c.username}` : "בלי שם משתמש"} · {getGrade(c.grade)?.label ?? "בלי כיתה"} ·{" "}
-                    {c.totalPoints} נק׳ · {c.sessions} משחקים · {c.openMistakes} טעויות פתוחות
+                    {c.username ? `@${c.username}` : "בלי שם משתמש"} · {c.teacher ? "מורה" : `${getGrade(c.grade)?.label ?? "בלי כיתה"} · ${c.totalPoints} נק׳ · ${c.sessions} משחקים · ${c.openMistakes} טעויות פתוחות`}
                   </div>
                   <div className="admin__meta">
                     שיחק לאחרונה: {c.lastActiveAt ? new Date(c.lastActiveAt).toLocaleString("he-IL") : "—"}
@@ -197,7 +200,12 @@ export default function AdminPage() {
                   onClick={() => setEditing({ id: c.id, username: c.username ? "" : "", password: "", needsUsername: !c.username, name: c.name })}>
                   {c.username ? "סיסמה חדשה" : "לתת שם משתמש"}
                 </button>
-                {!c.admin && (
+                {!c.approved && !c.disabled ? (
+                  <>
+                    <button className="admin__btn" onClick={() => approve(c)}>✓ אישור</button>
+                    <button className="admin__btn admin__btn--ghost" onClick={() => toggleBlock(c)}>✕ לא לאשר</button>
+                  </>
+                ) : !c.admin && (
                   <button className="admin__btn admin__btn--ghost" onClick={() => toggleBlock(c)}>
                     {c.disabled ? "ביטול חסימה" : "חסימה"}
                   </button>
