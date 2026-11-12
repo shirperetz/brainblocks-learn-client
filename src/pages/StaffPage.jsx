@@ -311,6 +311,23 @@ export default function StaffPage() {
                   onClick={() => act(() => api.staffUpdateClass(c.id, { closed: !c.closed }), c.closed ? "הכיתה פתוחה להרשמה" : "הכיתה נסגרה להרשמה")}>
                   {c.closed ? "פתיחה" : "סגירה"}
                 </button>
+                {/* 2026-11-12 (Shir: "possible to delete if needed, and it won't be seen") */}
+                <button className="admin__btn admin__btn--ghost admin__btn--danger"
+                  onClick={() => window.confirm(
+                    [
+                      `למחוק את הכיתה "${c.name}"?`,
+                      "",
+                      "הכיתה והקוד שלה ייעלמו, וגם המשימות השבועיות שלה.",
+                      c.children > 0 ? `${c.children} הילדים שבה לא יימחקו - הם יעברו ל"בלי כיתה".` : null,
+                      "",
+                      "אי אפשר לבטל.",
+                    ].filter((x) => x !== null).join("\n")) &&
+                    act(async () => {
+                      await api.staffDeleteClass(c.id);
+                      if (tab === c.id) setTab("all");
+                    }, `הכיתה "${c.name}" נמחקה`)}>
+                  🗑️ מחיקה
+                </button>
               </div>
             </li>
           ))}

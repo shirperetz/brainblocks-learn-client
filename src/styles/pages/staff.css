@@ -798,3 +798,9 @@
   font-weight: 700;
   color: #a55f00;
 }
+
+/* 2026-11-12: delete a class */
+.admin__btn--danger {
+  color: #b42340;
+  border-color: #f2b8c4;
+}

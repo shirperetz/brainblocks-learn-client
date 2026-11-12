@@ -200,6 +200,11 @@ export function staffUpdateClass(id, changes) {
   return apiRequest(`/api/learn/staff/classes/${id}`, { method: "PATCH", body: JSON.stringify(changes) });
 }
 
+/** 2026-11-12: the class is deleted; its children stay, with no class. */
+export function staffDeleteClass(id) {
+  return apiRequest(`/api/learn/staff/classes/${id}`, { method: "DELETE" });
+}
+
 export function staffTeachers() {
   return apiRequest("/api/learn/staff/teachers");
 }
