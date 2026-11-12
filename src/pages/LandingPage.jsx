@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
 import Mascot from "../components/Mascot";
-import { useProfile } from "../context/profileStore";
+import { lastUsername, useProfile } from "../context/profileStore";
 import { startsOnIsland } from "../game/games";
 import "../styles/pages/landing.css";
 
@@ -66,6 +66,17 @@ export default function LandingPage() {
               )}
               <BigButton variant="ghost" onClick={() => { resetProfile(); navigate("/login"); }}>
                 זה לא אני - החלפת משתמש
+              </BigButton>
+            </>
+          ) : lastUsername() ? (
+            // 2026-11-12: this device already had a login (logged out after 30 minutes) - log in first.
+            // "אני חדש/ה" starts a whole new child (grade -> character -> exercises): the small option.
+            <>
+              <BigButton variant="green" onClick={() => navigate("/login")} disabled={loading}>
+                {`כניסה - ${lastUsername()}`}
+              </BigButton>
+              <BigButton variant="ghost" onClick={handleStart} disabled={loading}>
+                אני ילד/ה חדש/ה
               </BigButton>
             </>
           ) : (

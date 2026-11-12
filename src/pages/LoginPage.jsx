@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
 import Mascot from "../components/Mascot";
-import { useProfile } from "../context/profileStore";
+import { useProfile, lastUsername } from "../context/profileStore";
 import "../styles/pages/onboarding.css";
 import "../styles/pages/admin.css";
 
@@ -16,7 +16,7 @@ export default function LoginPage() {
   // e.g. "/admin" from the admin link; after an automatic log-out, the staff page she was on
   const next = location.state?.next ?? query.get("next") ?? undefined;
   const expired = query.get("expired") === "1";
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(() => lastUsername()); // 2026-11-12: the name that last logged in here
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);

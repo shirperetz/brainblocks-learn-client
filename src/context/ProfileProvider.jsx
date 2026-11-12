@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as learnApi from "../services/learnApi";
 import { TOKEN_STORAGE_KEY } from "../services/apiClient";
-import { ProfileContext, PROFILE_STORAGE_KEY } from "./profileStore";
+import { ProfileContext, PROFILE_STORAGE_KEY, rememberUsername } from "./profileStore";
 
 /**
  * Holds the logged-in child (2026-11-11: children's accounts). The device keeps only the profile
@@ -71,6 +71,7 @@ export function ProfileProvider({ children }) {
 
   function signedIn({ token, profile: p }) {
     store(p.id, token);
+    rememberUsername(p.username);
     setProfile(p);
     return p;
   }
