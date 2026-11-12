@@ -47,6 +47,11 @@ export default function LandingPage() {
                   <BigButton variant="green" onClick={handleStart} disabled={loading}>
                     {`להמשיך לשחק, ${profile.name}`}
                   </BigButton>
+                  {/* 2026-11-12 (Shir: "children inside the site type the code the teacher shows on the
+                      board and join her game") - right on the home screen. */}
+                  <BigButton variant="blue" onClick={() => navigate("/room")}>
+                    🎮 יש לי קוד מהמורה - להיכנס למשחק
+                  </BigButton>
                   <BigButton variant="blue" onClick={() => navigate("/my-island")}>
                     🏝️ האי שלי
                   </BigButton>
