@@ -319,10 +319,10 @@ export default function StaffPage() {
       {isAdmin && (
         <section className="staff-card">
           <h2>👩‍🏫 מורים</h2>
-          <p className="staff-card__hint">מורה נרשמת בדף &quot;להורים ולמורים&quot; עם קוד המורים, ונכנסת רק אחרי אישור שלך.</p>
+          <p className="staff-card__hint">מורה נרשמת ב&quot;אני חדש/ה&quot; ← &quot;אני מורה&quot;, ונכנסת רק אחרי אישור שלך.</p>
           <TeacherCode key={teacherCode} code={teacherCode} onSave={(c) => act(() => api.staffChangeTeacherCode(c), c ? "קוד המורים עודכן" : "הרשמת מורים סגורה")} />
           {waitingTeachers.length > 0 && (
-            <p className="staff-card__hint">⏳ {waitingTeachers.length} ממתינות לאישור שלך (מסומנות למטה)</p>
+            <p className="staff-card__hint">🕓 {waitingTeachers.length} בקשות הרשמה מחכות לאישור שלך (למעלה ברשימה)</p>
           )}
           <ul className="people">
             {[...waitingTeachers, ...teachers.filter((t) => !waitingTeachers.includes(t))].map((t) => (
@@ -331,7 +331,8 @@ export default function StaffPage() {
                 <div className="person__who">
                   <strong>
                     {t.name}
-                    {!t.approved && !t.disabled && <span className="admin__tag admin__tag--wait">ממתינה</span>}
+                    {/* 2026-11-12 (Shir: "don't write 'block' - say there's a request waiting for approval") */}
+                    {!t.approved && !t.disabled && <span className="admin__tag admin__tag--wait">🕓 בקשת הרשמה - מחכה לאישור</span>}
                     {t.disabled && <span className="admin__tag admin__tag--off">חסומה</span>}
                   </strong>
                   <small>@{t.username} · {t.classes.length ? t.classes.join(", ") : "אין כיתות"} · {timeAgo(t.lastActiveAt)}</small>
@@ -340,11 +341,19 @@ export default function StaffPage() {
                   {!t.approved && !t.disabled && (
                     <button className="admin__btn" onClick={() => act(() => api.staffApproveTeacher(t.id), `${t.name} אושרה`)}>✓ אישור</button>
                   )}
-                  <button className="admin__btn admin__btn--ghost"
-                    onClick={() => window.confirm(`${t.disabled ? "לבטל חסימה של" : "לחסום את"} ${t.name}?`) &&
-                      act(() => api.staffSetTeacherDisabled(t.id, !t.disabled), t.disabled ? "החסימה בוטלה" : "נחסמה")}>
-                    {t.disabled ? "ביטול חסימה" : "חסימה"}
-                  </button>
+                  {!t.approved && !t.disabled ? (
+                    <button className="admin__btn admin__btn--ghost"
+                      onClick={() => window.confirm(`לא לאשר את הבקשה של ${t.name}? (אפשר לשנות אחר כך)`) &&
+                        act(() => api.staffSetTeacherDisabled(t.id, true), "הבקשה לא אושרה")}>
+                      ✕ לא לאשר
+                    </button>
+                  ) : (
+                    <button className="admin__btn admin__btn--ghost"
+                      onClick={() => window.confirm(`${t.disabled ? "לבטל חסימה של" : "לחסום את"} ${t.name}?`) &&
+                        act(() => api.staffSetTeacherDisabled(t.id, !t.disabled), t.disabled ? "החסימה בוטלה" : "נחסמה")}>
+                      {t.disabled ? "ביטול חסימה" : "חסימה"}
+                    </button>
+                  )}
                 </div>
               </li>
             ))}
