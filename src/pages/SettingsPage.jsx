@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { CHARACTERS } from "../data/characters";
+import { COMPANIONS } from "../data/companions";
 import { getGrade } from "../data/grades";
 import { isMuted, setMuted, sfx } from "../game/audio";
 import { useRequireProfile } from "../hooks/useRequireProfile";
@@ -34,6 +35,18 @@ export default function SettingsPage() {
     try {
       await patchProfile({ avatar: key });
       setMessage("הדמות הוחלפה!");
+      setError("");
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  async function pickCompanion(key) {
+    if (key === (profile.companion ?? "FOX")) return;
+    sfx.tap();
+    try {
+      await patchProfile({ companion: key });
+      setMessage(key === "NONE" ? "החבר הלך לנוח. אפשר להחזיר אותו בכל רגע." : "החבר החדש כבר בפינה! 👋");
       setError("");
     } catch (e) {
       setError(e.message);
@@ -94,6 +107,28 @@ export default function SettingsPage() {
               <span>{c.name}</span>
             </button>
           ))}
+        </div>
+      </section>
+
+      <section className="staff-card">
+        <h2>🐾 החבר שעוזר לי</h2>
+        <p className="staff-card__hint">יושב בפינה, מעודד ועוזר. לוחצים עליו - והוא אומר משהו.</p>
+        <div className="char-grid">
+          {[...COMPANIONS, { key: "NONE", emoji: "🙈", name: "בלי חבר", color: "var(--line)" }].map((c) => {
+            const on = (profile.companion ?? "FOX") === c.key;
+            return (
+              <button
+                key={c.key}
+                className={`char-pick ${on ? "is-on" : ""}`}
+                style={{ "--c": c.color }}
+                onClick={() => pickCompanion(c.key)}
+                aria-pressed={on}
+              >
+                <span className="char-pick__emoji" aria-hidden="true">{c.emoji}</span>
+                <span>{c.name}</span>
+              </button>
+            );
+          })}
         </div>
       </section>
 

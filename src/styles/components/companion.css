@@ -1,0 +1,80 @@
+/* 2026-11-11: the companion animal - bottom corner opposite the sound button (which is on the left). */
+.companion {
+  position: fixed;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  right: 14px;
+  z-index: 49;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+.companion__animal {
+  pointer-events: auto;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: var(--c);
+  box-shadow: var(--shadow-card);
+  font-size: 2.1rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  animation: companion-breathe 3.2s ease-in-out infinite;
+}
+.companion__animal--happy {
+  animation: companion-jump 0.6s ease;
+}
+.companion__animal--party {
+  animation: companion-party 0.9s ease 2;
+}
+.companion__animal--sad {
+  animation: companion-nod 0.8s ease;
+}
+.companion__bubble {
+  pointer-events: auto;
+  max-width: min(15rem, 70vw);
+  background: #fff;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  padding: 0.55rem 0.8rem;
+  border-radius: 1rem 1rem 0.3rem 1rem;
+  box-shadow: var(--shadow-card);
+  border: 2px solid var(--line);
+  animation: companion-pop 0.25s ease;
+}
+@keyframes companion-breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes companion-jump {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-18px) scale(1.1); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes companion-party {
+  0% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-15deg) scale(1.15); }
+  50% { transform: rotate(15deg) scale(1.15); }
+  100% { transform: rotate(0) scale(1); }
+}
+@keyframes companion-nod {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-8deg); }
+  60% { transform: rotate(8deg); }
+}
+@keyframes companion-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .companion__animal,
+  .companion__bubble {
+    animation: none !important;
+  }
+}

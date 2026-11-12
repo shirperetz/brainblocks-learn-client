@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import AnswerButton from "./AnswerButton";
 import HelpButton from "./HelpButton";
 import MathText from "./MathText";
+import { cheer } from "../game/companion";
 import "../styles/pages/play.css";
 
 const FEEDBACK_MS = 900;
@@ -23,12 +24,18 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
+  // 2026-11-11: the companion - not in the 60-second race (help off), where it would distract.
+  useEffect(() => {
+    if (help && questions[index]) cheer("question");
+  }, [help, index, questions]);
+
   if (!q) return null;
 
   function pick(j) {
     if (selected !== null) return;
     setSelected(j);
     const correct = j === q.correctIndex;
+    if (help) cheer(correct ? "correct" : "wrong");
     onAnswer?.(
       {
         questionText: q.text,

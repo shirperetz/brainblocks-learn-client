@@ -20,6 +20,7 @@ import BalloonRound from "../game/BalloonRound";
 import BridgeRound from "../game/BridgeRound";
 import TrainRound from "../game/TrainRound";
 import { submitSession } from "../services/learnApi";
+import { cheer } from "../game/companion";
 import HelpButton from "../components/HelpButton";
 import { useProfile } from "../context/profileStore";
 import { useRequireProfile } from "../hooks/useRequireProfile";
@@ -124,10 +125,16 @@ function GamePlay() {
 
   useEffect(() => stopVoice, []);
 
+  // 2026-11-11: each new round restarts the companion's "stuck?" timer.
+  useEffect(() => {
+    if (round && !result) cheer("question");
+  }, [round, result]);
+
   if (!game || !game.ready || !kind) return <Navigate to="/island" replace />;
   if (!ready) return null;
 
   function onRoundDone({ correct, chosen, hintUsed }) {
+    cheer(correct ? "correct" : "wrong");
     answers.current.push({
       questionText: kind.text(round),
       chosenAnswer: chosen,
@@ -152,6 +159,7 @@ function GamePlay() {
       .then((summary) => {
         refreshProfile();
         setResult(summary);
+        cheer(summary.passed ? "levelPassed" : "levelFailed");
         if (summary.passed) {
           sfx.star();
           say("level_done");

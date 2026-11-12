@@ -43,11 +43,30 @@ export function ProfileProvider({ children }) {
       store(null);
       return;
     }
-    learnApi
-      .getProfile(savedId)
-      .then(setProfile)
-      .catch(() => store(null))
-      .finally(() => setLoading(false));
+    // 2026-11-11 (found by the kid bot): ANY failure here used to erase the saved login - a moment
+    // without network, or switching pages while it loaded, logged the child out. Now only the server
+    // saying "not valid" (401/404) erases it; no answer at all is tried again a few times.
+    let alive = true;
+    (async () => {
+      for (let attempt = 0; attempt < 4 && alive; attempt++) {
+        try {
+          const p = await learnApi.getProfile(savedId);
+          if (alive) setProfile(p);
+          break;
+        } catch (e) {
+          if (e.status === 401 || e.status === 404) {
+            store(null);
+            break;
+          }
+          if (!e.network && !(e.status >= 500)) break;
+          await new Promise((r) => setTimeout(r, 1500));
+        }
+      }
+      if (alive) setLoading(false);
+    })();
+    return () => {
+      alive = false;
+    };
   }, []);
 
   function signedIn({ token, profile: p }) {

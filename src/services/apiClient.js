@@ -13,7 +13,9 @@ export async function apiRequest(path, options = {}) {
       headers: { "Content-Type": "application/json", ...tokenHeader(), ...options.headers },
     });
   } catch {
-    throw new Error("אופס! לא הצלחנו להתחבר. בדקו שהשרת פועל ונסו שוב.");
+    const err = new Error("אופס! לא הצלחנו להתחבר. בדקו שהשרת פועל ונסו שוב.");
+    err.network = true; // no answer at all (offline / a page switch) - NOT "this login is invalid"
+    throw err;
   }
 
   const data = await readResponseBody(response);
@@ -24,7 +26,9 @@ export async function apiRequest(path, options = {}) {
     if (response.status === 401 && hadToken() && !path.startsWith("/api/learn/auth/")) {
       loggedOut();
     }
-    throw new Error(friendlyError(response.status, data));
+    const err = new Error(friendlyError(response.status, data));
+    err.status = response.status;
+    throw err;
   }
 
   return data;

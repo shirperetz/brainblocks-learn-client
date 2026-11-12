@@ -11,6 +11,7 @@ import { getQuestions, submitSession } from "../services/learnApi";
 import { useProfile } from "../context/profileStore";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/play.css";
+import { cheer } from "../game/companion";
 
 const FEEDBACK_MS = 1300;
 
@@ -32,6 +33,11 @@ export default function PlayPage() {
 
   const answersRef = useRef([]);
   const streakRef = useRef(0);
+
+  // 2026-11-11: a new question on the screen -> the companion's "stuck?" timer starts again.
+  useEffect(() => {
+    if (questions.length) cheer("question");
+  }, [index, questions.length]);
   const helpUsedRef = useRef(false); // "לא הבנתי" opened on the current question
   const startRef = useRef(0); // set to the real start time in the effect below
 
@@ -62,6 +68,7 @@ export default function PlayPage() {
     const isCorrect = optionIndex === current.correctIndex;
     setSelected(optionIndex);
     setFeedback(isCorrect ? "correct" : "wrong");
+    cheer(isCorrect ? "correct" : "wrong");
 
     if (isCorrect) {
       streakRef.current += 1;

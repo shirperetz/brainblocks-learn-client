@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
+import { cheer } from "../game/companion";
 import BigButton from "../components/BigButton";
 import StarRating from "../components/StarRating";
 import Mascot from "../components/Mascot";
@@ -12,6 +14,10 @@ export default function SummaryPage() {
   const location = useLocation();
   const { profile } = useProfile();
   const summary = location.state?.summary;
+  // 2026-11-11: the companion celebrates (or encourages) once, when the summary appears.
+  useEffect(() => {
+    if (summary) cheer(summary.passed ? "levelPassed" : "levelFailed");
+  }, [summary]);
 
   // Reached directly (e.g. refresh) without a result — send back to the map.
   if (!summary) return <Navigate to={`/map/${topic}`} replace />;

@@ -4,6 +4,7 @@ import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
 import { buildIsland } from "../data/island";
 import { sfx } from "../game/audio";
+import { cheer } from "../game/companion";
 import { chooseIslandItem, getIsland, staffChildIsland, staffReport } from "../services/learnApi";
 import "../styles/pages/my-island.css";
 
@@ -34,7 +35,14 @@ export default function MyIslandPage() {
           return isl;
         })
       : getIsland(profile.id);
-    load.then((d) => alive && setServer(d)).catch((e) => alive && setError(e.message));
+    load
+      .then((d) => {
+        if (!alive) return;
+        setServer(d);
+        // 2026-11-11: the companion points at the gifts (the child's own island only).
+        if (!staffView && (d.earned ?? []).some((e) => !(d.choices ?? {})[e.spot])) setTimeout(() => cheer("gifts"), 600);
+      })
+      .catch((e) => alive && setError(e.message));
     return () => {
       alive = false;
     };
