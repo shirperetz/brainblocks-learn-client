@@ -1,96 +1,230 @@
-.stage-map {
+/* 2026-11-12 (Shir: "I really want them to see an island"): each topic's stages on an island in the sea. */
+
+.topic-island-shell {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 16px;
+  gap: 0.6rem;
 }
 
-.stage-map__header {
+.topic-island__top {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  text-align: center;
+  gap: 0.6rem;
 }
 
-.stage-map__stars {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
+.topic-island__stars {
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: var(--shadow-card);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.topic-island__stars small {
+  font-weight: 600;
   color: var(--ink-soft);
 }
 
-/* The winding path */
-.stage-path {
-  list-style: none;
+.topic-island__title {
   margin: 0;
-  padding: 0;
-  width: min(440px, 92vw);
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ink);
   display: flex;
-  flex-direction: column;
-  gap: 22px;
-}
-
-.stage-node-row {
-  display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 12px;
-}
-.stage-node-row--start {
-  justify-content: flex-start;
-}
-.stage-node-row--end {
-  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
-.stage-node {
-  display: flex;
-  flex-direction: column;
+.topic-island__flag {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: #fff;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  width: 6.875rem;
-  height: 6.875rem;
-  border-radius: 50%;
-  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 70%, black));
-  color: var(--white);
-  box-shadow: var(--shadow-soft);
-  border: 4px solid var(--white);
-  transition: transform 0.1s ease;
-}
-.stage-node:hover:not(.is-locked) {
-  transform: scale(1.06);
-}
-
-.stage-node.is-completed {
-  background: linear-gradient(180deg, var(--green), var(--green-dark));
-}
-
-.stage-node.is-locked {
-  background: #c9c6e0;
-  color: #fff;
-  cursor: not-allowed;
+  font-size: 1.4rem;
   box-shadow: var(--shadow-card);
 }
 
-.stage-node.is-nudging {
-  animation: wiggle 0.4s ease;
+.topic-island__won {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border-radius: 18px;
+  background: #fff6d6;
+  border: 2px solid #f5c542;
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.1rem;
 }
 
-.stage-node__num {
-  font-size: 2.4rem;
-  font-weight: 900;
+/* the sea with the island in it */
+.topic-island {
+  position: relative;
+  width: min(100%, 520px);
+  margin: 0 auto;
+  aspect-ratio: 9 / 15;
+  border-radius: 32px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 12%, rgba(255, 255, 255, 0.35) 0 8%, transparent 9%),
+    radial-gradient(circle at 85% 70%, rgba(255, 255, 255, 0.25) 0 6%, transparent 7%),
+    linear-gradient(180deg, #4cc3ec 0%, #2fa8de 55%, #1f8fd0 100%);
+  box-shadow: 0 18px 40px rgba(31, 100, 160, 0.25), inset 0 0 0 4px rgba(255, 255, 255, 0.6);
+}
+
+.topic-island__land {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.island-deco {
+  position: absolute;
+  font-size: clamp(1.4rem, 6vw, 2.2rem);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.15));
+}
+.island-deco--palm1 { left: 22%; top: 30%; }
+.island-deco--palm2 { left: 80%; top: 48%; font-size: clamp(1.6rem, 7vw, 2.5rem); }
+.island-deco--palm3 { left: 50%; top: 88%; }
+.island-deco--hut { left: 20%; top: 60%; }
+.island-deco--shell { left: 84%; top: 82%; font-size: clamp(1rem, 4vw, 1.4rem); }
+.island-deco--boat { left: 88%; top: 10%; animation: island-bob 4s ease-in-out infinite; }
+.island-deco--fish { left: 9%; top: 92%; animation: island-bob 5s ease-in-out infinite reverse; }
+
+@keyframes island-bob {
+  0%, 100% { transform: translate(-50%, -50%) rotate(-4deg); }
+  50% { transform: translate(-50%, -62%) rotate(4deg); }
+}
+
+/* a stop on the trail */
+.island-stop {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  z-index: 2;
+}
+
+.island-stone {
+  width: clamp(3.6rem, 17vw, 5rem);
+  height: clamp(3.6rem, 17vw, 5rem);
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: var(--accent, var(--purple));
+  color: #fff;
+  font: 800 clamp(1.4rem, 6vw, 2rem) var(--font);
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18), 0 10px 18px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.island-stone:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+}
+
+.island-stone.is-done {
+  background: linear-gradient(160deg, #ffd761 0%, #f5a623 100%);
+  color: #6b3d00;
+}
+
+.island-stone.is-locked {
+  background: #b9b4cf;
+  border-color: #e8e5f3;
+  font-size: clamp(1.1rem, 5vw, 1.5rem);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.12);
+}
+
+.island-stone.is-treasure:not(.is-locked) {
+  width: clamp(4.2rem, 20vw, 5.8rem);
+  height: clamp(4.2rem, 20vw, 5.8rem);
+}
+
+.island-stone.is-here {
+  animation: island-glow 1.6s ease-in-out infinite;
+}
+
+@keyframes island-glow {
+  0%, 100% { box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18), 0 0 0 0 rgba(255, 255, 255, 0.9); }
+  50% { box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18), 0 0 0 12px rgba(255, 255, 255, 0); }
+}
+
+.island-stone.is-nudging {
+  animation: island-shake 0.4s ease;
+}
+
+@keyframes island-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.island-stop__stars {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
   line-height: 1;
 }
 
-.stage-node__nudge {
-  background: var(--white);
+.island-stop__go {
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  background: #fff;
   color: var(--ink);
-  font-weight: 700;
-  font-size: 0.9rem;
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
-  animation: pop-in 0.2s ease;
+  font-weight: 800;
+  font-size: 0.95rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.island-stop__me {
+  position: absolute;
+  inset-inline-end: calc(100% - 0.6rem);
+  top: -0.6rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  animation: island-bob 2.4s ease-in-out infinite;
+}
+
+.island-stop__nudge {
+  position: absolute;
+  top: 100%;
+  white-space: nowrap;
+  padding: 0.3rem 0.7rem;
+  border-radius: 12px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .island-deco--boat,
+  .island-deco--fish,
+  .island-stone.is-here,
+  .island-stop__me {
+    animation: none;
+  }
 }
