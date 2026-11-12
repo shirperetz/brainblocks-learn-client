@@ -7,6 +7,7 @@ import { getCharacter } from "../data/characters";
 import { getStageMap } from "../services/learnApi";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import WeeklyTasks from "../components/WeeklyTasks";
+import "../styles/pages/room.css";
 import ClassBuilding from "../components/ClassBuilding";
 import "../styles/pages/island.css";
 
@@ -60,6 +61,7 @@ export default function IslandPage() {
       </header>
 
       <h1 className="island__title">🏝️ אי המספרים</h1>
+      <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>
       <WeeklyTasks profileId={profile.id} />
       <ClassBuilding profileId={profile.id} />
 

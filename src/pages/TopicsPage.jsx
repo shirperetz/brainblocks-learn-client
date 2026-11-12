@@ -5,6 +5,7 @@ import "../styles/pages/challenges.css";
 import OptionCard from "../components/OptionCard";
 import Mascot from "../components/Mascot";
 import WeeklyTasks from "../components/WeeklyTasks";
+import "../styles/pages/room.css";
 import ClassBuilding from "../components/ClassBuilding";
 import { TOPICS, isTopicAllowedForGrade } from "../data/topics";
 import { useRequireProfile } from "../hooks/useRequireProfile";
@@ -41,6 +42,8 @@ export default function TopicsPage() {
           <h1 className="screen-title">בחר נושא</h1>
         </div>
 
+        {/* 2026-11-12 (Shir: the room code inside the game's home page, not at the entrance) */}
+        <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>
         <WeeklyTasks profileId={profile.id} />
         <ClassBuilding profileId={profile.id} />
 

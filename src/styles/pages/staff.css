@@ -747,3 +747,6 @@
 .task__kids li.is-none {
   background: #fff0f2;
 }
+
+/* 2026-11-12: the live game room button */
+.staff__room-btn { display: block; margin: 0 auto 0.8rem; min-height: 48px; font-size: 1.05rem; }

@@ -265,3 +265,68 @@ export function getClassBuilding(profileId) {
 export function staffClassBuilding(classId) {
   return apiRequest(`/api/learn/staff/classes/${classId}/building`);
 }
+
+// ---- the live game room (2026-11-12) ----
+
+export function roomCreate({ classId, topics, minutes, grade }) {
+  return apiRequest("/api/learn/rooms", { method: "POST", body: JSON.stringify({ classId, topics, minutes, grade }) });
+}
+export function roomLive(id) {
+  return apiRequest(`/api/learn/rooms/${id}/live`);
+}
+export function roomBoard(id) {
+  return apiRequest(`/api/learn/rooms/${id}/board`);
+}
+export function roomDecide(id, playerId, approve) {
+  return apiRequest(`/api/learn/rooms/${id}/players/${playerId}/${approve ? "approve" : "reject"}`, { method: "POST" });
+}
+export function roomAction(id, action) {
+  return apiRequest(`/api/learn/rooms/${id}/${action}`, { method: "POST" }); // start | extend | end
+}
+export function myQuestions() {
+  return apiRequest("/api/learn/rooms/my-questions");
+}
+export function addMyQuestion(q) {
+  return apiRequest("/api/learn/rooms/my-questions", { method: "POST", body: JSON.stringify(q) });
+}
+export function setMyQuestionOff(id, off) {
+  return apiRequest(`/api/learn/rooms/my-questions/${id}/off`, { method: "POST", body: JSON.stringify({ off }) });
+}
+
+/** A child: logged in -> its own token; a guest -> the room's guest token (sessionStorage, this tab only). */
+const GUEST_KEY = (code) => `lc_room_guest_${code}`;
+export function guestToken(code) {
+  try {
+    return sessionStorage.getItem(GUEST_KEY(code));
+  } catch {
+    return null;
+  }
+}
+export function roomJoin(code) {
+  return apiRequest("/api/learn/rooms/join", { method: "POST", body: JSON.stringify({ code }) });
+}
+export async function roomJoinGuest(code, name) {
+  const r = await apiRequest("/api/learn/room-guest/join", { method: "POST", body: JSON.stringify({ code, name }) });
+  try {
+    sessionStorage.setItem(GUEST_KEY(r.code), r.guestToken);
+  } catch {
+    /* private mode: works until the page closes */
+  }
+  return r;
+}
+function roomPath(code, what) {
+  return guestToken(code) ? `/api/learn/room-guest/${code}/${what}` : `/api/learn/rooms/code/${code}/${what}`;
+}
+function guestHeaders(code) {
+  const t = guestToken(code);
+  return t ? { "X-Guest-Token": t } : {};
+}
+export function roomMe(code) {
+  return apiRequest(roomPath(code, "me"), { headers: guestHeaders(code) });
+}
+export function roomQuestion(code) {
+  return apiRequest(roomPath(code, "question"), { headers: guestHeaders(code) });
+}
+export function roomAnswer(code, answer) {
+  return apiRequest(roomPath(code, "answer"), { method: "POST", body: JSON.stringify({ answer }), headers: guestHeaders(code) });
+}

@@ -19,6 +19,11 @@ import SettingsPage from "./pages/SettingsPage";
 import MyIslandPage from "./pages/MyIslandPage";
 import ChildReportPage from "./pages/ChildReportPage";
 import ParentsPage from "./pages/ParentsPage";
+import StaffRoomNewPage from "./pages/StaffRoomNewPage";
+import StaffRoomPage from "./pages/StaffRoomPage";
+import RoomBoardPage from "./pages/RoomBoardPage";
+import RoomJoinPage from "./pages/RoomJoinPage";
+import RoomPlayPage from "./pages/RoomPlayPage";
 
 // All routes for עולם החשבון. Real pages replace the Placeholders milestone by milestone.
 export default function AppRouter() {
@@ -44,6 +49,12 @@ export default function AppRouter() {
       <Route path="/timed" element={<TimedPage />} />
       <Route path="/parent" element={<ParentsPage />} />
       <Route path="/staff" element={<StaffPage />} />
+      {/* 2026-11-12: the live game room */}
+      <Route path="/staff/room/new" element={<StaffRoomNewPage />} />
+      <Route path="/staff/room/:id" element={<StaffRoomPage />} />
+      <Route path="/staff/room/:id/board" element={<RoomBoardPage />} />
+      <Route path="/room" element={<RoomJoinPage />} />
+      <Route path="/room/:code" element={<RoomPlayPage />} />
       <Route path="/staff/child/:id" element={<ChildReportPage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />

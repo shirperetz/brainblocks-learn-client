@@ -85,6 +85,8 @@ export default function StaffPage() {
         )}
       </div>
       <h1 className="screen-title">{isAdmin ? "כל הילדים" : "הכיתות שלי"}</h1>
+      {/* 2026-11-12: the live game room */}
+      <button className="admin__btn staff__room-btn" onClick={() => navigate("/staff/room/new")}>🎮 פתיחת חדר משחק</button>
       <p className="screen-subtitle">
         שלום {profile.name} · {approvedRows.length} ילדים{classes.length ? ` · ${classes.length} כיתות` : ""}
       </p>
