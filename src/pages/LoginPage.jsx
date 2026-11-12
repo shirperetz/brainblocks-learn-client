@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
 import Mascot from "../components/Mascot";
 import { useProfile } from "../context/profileStore";
-import { startsOnIsland } from "../game/games";
 import "../styles/pages/onboarding.css";
 import "../styles/pages/admin.css";
 
@@ -32,15 +31,9 @@ export default function LoginPage() {
     try {
       const p = await loginProfile({ username: username.trim(), password });
       const staff = p.admin || p.teacher;
-      navigate(
-        next && staff && (next === "/admin" ? p.admin : next.startsWith("/staff"))
-          ? next
-          : p.teacher
-            ? "/staff"
-            : startsOnIsland(p.grade)
-              ? "/island"
-              : "/topics",
-      );
+      // 2026-11-12 (Shir: "when I log in I want the home screen first, not straight to the lessons"):
+      // everyone lands on the home screen; only a link that asked for a staff page goes back there.
+      navigate(next && staff && (next === "/admin" ? p.admin : next.startsWith("/staff")) ? next : "/");
     } catch (err) {
       setError(err.message);
       setSubmitting(false);
