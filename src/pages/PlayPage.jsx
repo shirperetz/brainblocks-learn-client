@@ -35,6 +35,11 @@ export default function PlayPage() {
 
   const answersRef = useRef([]);
   const streakRef = useRef(0);
+  // 2026-11-12: the up-to-date list (a wrong answer adds its exercise again) for advance() in a timeout.
+  const questionsRef = useRef([]);
+  useEffect(() => {
+    questionsRef.current = questions;
+  }, [questions]);
 
   // 2026-11-11: a new question on the screen -> the companion's "stuck?" timer starts again.
   useEffect(() => {
@@ -72,6 +77,22 @@ export default function PlayPage() {
     setFeedback(isCorrect ? "correct" : "wrong");
     cheer(isCorrect ? "correct" : "wrong");
 
+    // 2026-11-12 (Shir: "always different exercises, unless the child got it wrong - then the same one
+    // again, to check it was understood"): a wrong answer brings the same exercise back 3 questions
+    // later, options in another order. The second try doesn't count in points, stars or the saved
+    // round (the first answer did) - it only tells the child whether it got it now.
+    if (current.retry) {
+      setTimeout(advance, FEEDBACK_MS);
+      return;
+    }
+    if (!isCorrect) {
+      const again = retryOf(current);
+      setQuestions((qs) => {
+        const at = Math.min(index + 1 + RETRY_AFTER, qs.length);
+        return [...qs.slice(0, at), again, ...qs.slice(at)];
+      });
+    }
+
     if (isCorrect) {
       streakRef.current += 1;
       setPoints((p) => p + 10 + (streakRef.current >= 3 ? 5 : 0));
@@ -95,7 +116,7 @@ export default function PlayPage() {
 
   function advance() {
     helpUsedRef.current = false;
-    if (index + 1 < total) {
+    if (index + 1 < questionsRef.current.length) {
       setIndex((i) => i + 1);
       setSelected(null);
       setFeedback(null);
@@ -139,8 +160,9 @@ export default function PlayPage() {
     return "muted";
   }
 
-  const mascotMessage =
-    feedback === "correct" ? "כל הכבוד! תשובה נכונה!" : feedback === "wrong" ? "כמעט! ננסה שוב" : null;
+  const mascotMessage = current?.retry
+    ? feedback === "correct" ? "הבנת! 👍 כל הכבוד" : feedback === "wrong" ? "נתרגל את זה עוד פעם בחזרה" : "🔁 התרגיל מקודם - עוד ניסיון"
+    : feedback === "correct" ? "כל הכבוד! תשובה נכונה!" : feedback === "wrong" ? "כמעט! עוד מעט נחזור על התרגיל הזה" : null;
 
   return (
     <div className="app-shell">
@@ -202,4 +224,18 @@ export default function PlayPage() {
       </div>
     </div>
   );
+}
+
+/** How many questions after a wrong answer its exercise comes back. */
+const RETRY_AFTER = 2;
+
+/** The same exercise again, its options in another order (so the child can't just remember the place). */
+function retryOf(q) {
+  const right = q.options[q.correctIndex];
+  let options = [...q.options];
+  for (let tries = 0; tries < 5; tries++) {
+    options = [...q.options].sort(() => Math.random() - 0.5);
+    if (options.indexOf(right) !== q.correctIndex) break;
+  }
+  return { ...q, options, correctIndex: options.indexOf(right), retry: true };
 }
