@@ -14,7 +14,9 @@ try {
   if (code) {
     sessionStorage.setItem("lc_join_code", code.trim());
     url.searchParams.delete("code");
-    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+    // 2026-11-12 (Shir: "a link I can give a child to join"): a join link opens straight on sign-up.
+    const path = url.pathname === "/" ? "/who" : url.pathname;
+    window.history.replaceState(null, "", path + url.search + url.hash);
   }
 } catch {
   // storage blocked - the child types the code instead
