@@ -34,7 +34,7 @@ import { PatternRound, ShapeNameRound, SidesRound } from "../game/ShapesGames";
 import { ArraysRound, GroupsRound, ShareRound } from "../game/TimesGames";
 import { BiggerRound, LineRound, PlaceValueRound } from "../game/BigGames";
 import { speakUrl, submitIsleSession, submitSession } from "../services/learnApi";
-import { recentKeys, rememberKeys } from "../game/recent";
+import { lastWrong, recentKeys, rememberKeys, rememberWrong } from "../game/recent";
 import { cheer } from "../game/companion";
 import HelpButton from "../components/HelpButton";
 import { useProfile } from "../context/profileStore";
@@ -305,6 +305,7 @@ function GamePlay() {
     // 2026-11-12 (Shir: "if the child didn't know it, the exercise comes back at some point, to see the
     // progress"): only what was right the first time is kept out of the next runs - a mistake may return.
     if (correct && round?._key) rememberKeys(profile?.id, memoryKey, level, [round._key]);
+    if (!correct && round?._key) rememberWrong(profile?.id, `${memoryKey}:${round._key}`, chosen);
     cheer(correct ? "correct" : "wrong");
     answers.current.push({
       questionText: kind.text(round),
@@ -396,7 +397,12 @@ function GamePlay() {
             compact
             speak
             grade={profile.grade}
-            question={{ text: kind.text(round), correct: kind.answer(round), hint: kind.hint(round) }}
+            question={{
+              text: kind.text(round),
+              correct: kind.answer(round),
+              chosen: round._key ? lastWrong(profile?.id, `${memoryKey}:${round._key}`) : undefined,
+              hint: kind.hint(round),
+            }}
           />
         </div>
       )}

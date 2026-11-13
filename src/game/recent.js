@@ -25,3 +25,31 @@ export function rememberKeys(profileId, game, level, keys) {
     /* storage blocked - nothing to remember */
   }
 }
+
+/**
+ * 2026-11-13: the child's last wrong answer to an island exercise (by its key), kept on this device -
+ * when the exercise comes back, "לא הבנתי" explains that mistake. At most 200 kept.
+ */
+const WRONG = (profileId) => `lc_wrong_${profileId}`;
+
+export function rememberWrong(profileId, key, chosen) {
+  if (!profileId || !key || chosen == null) return;
+  try {
+    const m = JSON.parse(localStorage.getItem(WRONG(profileId)) || "{}");
+    delete m[key];
+    m[key] = String(chosen);
+    const keys = Object.keys(m);
+    for (const k of keys.slice(0, Math.max(0, keys.length - 200))) delete m[k];
+    localStorage.setItem(WRONG(profileId), JSON.stringify(m));
+  } catch {
+    /* storage blocked - no tailored sentence, the rest works */
+  }
+}
+
+export function lastWrong(profileId, key) {
+  try {
+    return JSON.parse(localStorage.getItem(WRONG(profileId)) || "{}")[key];
+  } catch {
+    return undefined;
+  }
+}

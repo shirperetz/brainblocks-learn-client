@@ -108,7 +108,7 @@ export default function PlayPage() {
       return;
     }
     if (!isCorrect) {
-      const again = retryOf(q);
+      const again = retryOf(q, q.options[optionIndex]);
       setQuestions((qs) => {
         const at = Math.min(index + 1 + RETRY_AFTER, qs.length);
         return [...qs.slice(0, at), again, ...qs.slice(at)];
@@ -231,7 +231,7 @@ export default function PlayPage() {
             {selected === null && (
               <HelpButton
                 key={`${index}-${current.text}`}
-                question={{ text: current.text, correct: current.options[current.correctIndex], hint: current.hint, bankId: current.bankId }}
+                question={{ text: current.text, correct: current.options[current.correctIndex], chosen: current.chosen, hint: current.hint, bankId: current.bankId }}
                 grade={profile.grade}
                 onUsed={() => (helpUsedRef.current = true)}
               />
@@ -260,12 +260,13 @@ export default function PlayPage() {
 const RETRY_AFTER = 2;
 
 /** The same exercise again, its options in another order (so the child can't just remember the place). */
-function retryOf(q) {
+function retryOf(q, chosen) {
   const right = q.options[q.correctIndex];
   let options = [...q.options];
   for (let tries = 0; tries < 5; tries++) {
     options = [...q.options].sort(() => Math.random() - 0.5);
     if (options.indexOf(right) !== q.correctIndex) break;
   }
-  return { ...q, options, correctIndex: options.indexOf(right), retry: true };
+  // 2026-11-13: what the child chose the first time - "לא הבנתי" then explains THAT mistake
+  return { ...q, options, correctIndex: options.indexOf(right), retry: true, chosen };
 }
