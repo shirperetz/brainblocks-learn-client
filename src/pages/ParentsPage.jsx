@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
+import ConsentBox from "../components/ConsentBox";
 import { useProfile } from "../context/profileStore";
 import "../styles/pages/onboarding.css";
 import "../styles/pages/staff.css";
@@ -14,14 +15,15 @@ export default function ParentsPage() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [consent, setConsent] = useState(false);
 
-  const ok = form.joinCode.trim() && form.name.trim() && form.username.length >= 3 && form.password.length >= 4 && !busy;
+  const ok = form.joinCode.trim() && form.name.trim() && form.username.length >= 3 && form.password.length >= 4 && consent && !busy;
 
   async function signUp() {
     setBusy(true);
     setError("");
     try {
-      const r = await createProfile({ ...form, name: form.name.trim(), avatar: "ROBOT" });
+      const r = await createProfile({ ...form, name: form.name.trim(), avatar: "ROBOT", parentConsent: consent });
       if (r?.pending) setSent(true);
       else navigate("/staff");
     } catch (e) {
@@ -73,6 +75,7 @@ export default function ParentsPage() {
                 {field("username", "שם משתמש", { maxLength: 20, autoCapitalize: "none", autoComplete: "username" })}
                 {field("password", "סיסמה (לפחות 4)", { type: "password", maxLength: 40, autoComplete: "new-password" })}
               </div>
+              <ConsentBox kind="teacher" checked={consent} onChange={setConsent} />
               {error && <p className="form-error">{error}</p>}
               <div className="onboarding__actions">
                 <BigButton variant="blue" onClick={signUp} disabled={!ok}>{busy ? "רגע..." : "הרשמה כמורה"}</BigButton>

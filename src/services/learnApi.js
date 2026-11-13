@@ -15,17 +15,33 @@ function botFields() {
   return { website: trap, formMs: String(formOpenedAt ? Date.now() - formOpenedAt : 99999) };
 }
 
-export function register({ joinCode, username, password, name, avatar, grade, difficulty }) {
+export function register({ joinCode, username, password, name, avatar, grade, difficulty, parentConsent }) {
   return apiRequest("/api/learn/auth/register", {
     method: "POST",
-    body: JSON.stringify({ joinCode, username, password, name, avatar, grade, difficulty, ...botFields() }),
+    // 2026-11-14: the parent's consent (the form refuses without it; the server too).
+    body: JSON.stringify({ joinCode, username, password, name, avatar, grade, difficulty, parentConsent: parentConsent ? "yes" : "no", ...botFields() }),
   });
 }
 
 /** 2026-11-12: a teacher signs up with no code - waits for the admin's approval. */
-export function registerTeacher({ username, password, name }) {
-  return apiRequest("/api/learn/auth/register-teacher", { method: "POST", body: JSON.stringify({ username, password, name, ...botFields() }) });
+export function registerTeacher({ username, password, name, privacyAccepted }) {
+  return apiRequest("/api/learn/auth/register-teacher", {
+    method: "POST", body: JSON.stringify({ username, password, name, privacyAccepted: privacyAccepted ? "yes" : "no", ...botFields() }),
+  });
 }
+
+// 2026-11-14 (privacy): deleting my account (waits for the admin), messages to the site's operator.
+export const getDeletionState = (id) => apiRequest(`/api/learn/profiles/${id}/delete-request`);
+export const requestDeletion = (id, password) =>
+  apiRequest(`/api/learn/profiles/${id}/delete-request`, { method: "POST", body: JSON.stringify({ password }) });
+export const cancelDeletion = (id) => apiRequest(`/api/learn/profiles/${id}/delete-request/cancel`, { method: "POST" });
+export const sendContact = ({ kind, name, reply, text }) =>
+  apiRequest("/api/learn/auth/contact", { method: "POST", body: JSON.stringify({ kind, name, reply, text, ...botFields() }) });
+export const adminPrivacy = () => apiRequest("/api/learn/admin/privacy");
+export const adminErase = (id) => apiRequest(`/api/learn/admin/profiles/${id}/erase`, { method: "POST" });
+export const adminKeep = (id) => apiRequest(`/api/learn/admin/profiles/${id}/keep`, { method: "POST" });
+export const adminMessageDone = (id, done) =>
+  apiRequest(`/api/learn/admin/messages/${id}/done`, { method: "POST", body: JSON.stringify({ done }) });
 
 export function login({ username, password }) {
   return apiRequest("/api/learn/auth/login", {

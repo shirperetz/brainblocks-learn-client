@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DolphinPerch from "../components/DolphinPerch";
+import DeleteAccountCard from "../components/DeleteAccountCard";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { CHARACTERS } from "../data/characters";
@@ -10,6 +11,7 @@ import { isMuted, setMuted, sfx } from "../game/audio";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/staff.css";
 import "../styles/pages/settings.css";
+import "../styles/pages/legal.css";
 
 // 2026-11-11 (was an empty placeholder): the child's own settings - sound, character, grade,
 // password, log out. Big buttons, few words; nothing here deletes anything.
@@ -193,9 +195,15 @@ export default function SettingsPage() {
         </button>
       </section>
 
+      <DeleteAccountCard profile={profile} />
+
       <button className="text-link staff__logout" onClick={() => { resetProfile(); navigate("/login"); }}>
         יציאה מהמשתמש
       </button>
+      <nav className="site-footer" aria-label="מידע על האתר">
+        <a href="/privacy">מדיניות פרטיות</a>
+        <a href="/accessibility">הצהרת נגישות</a>
+      </nav>
     </div>
   );
 }

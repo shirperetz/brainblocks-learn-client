@@ -4,6 +4,7 @@ import Mascot from "../components/Mascot";
 import { lastUsername, useProfile } from "../context/profileStore";
 import { startsOnIsland } from "../game/games";
 import "../styles/pages/landing.css";
+import "../styles/pages/legal.css";
 
 // Screen 1 — the warm welcome. One clear action: start playing.
 export default function LandingPage() {
@@ -110,6 +111,12 @@ export default function LandingPage() {
         <button className="text-link landing__parents" onClick={() => navigate("/parent")}>
           להורים ולמורים
         </button>
+        {/* 2026-11-14 (privacy / accessibility, before going public) */}
+        <nav className="site-footer" aria-label="מידע על האתר">
+          <a href="/privacy">מדיניות פרטיות</a>
+          <a href="/accessibility">הצהרת נגישות</a>
+          <a href="/privacy#contact">צור קשר</a>
+        </nav>
       </div>
     </div>
   );

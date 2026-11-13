@@ -1,0 +1,32 @@
+/* 2026-11-14: privacy policy / accessibility statement / contact form / consent checkbox */
+.legal__body { max-width: 760px; margin: 0 auto; padding: 1rem 0.2rem 5rem; line-height: 1.7; color: var(--ink); }
+.legal__body h1 { font-size: 1.9rem; margin: 0.4rem 0 0.2rem; }
+.legal__body h2 { font-size: 1.25rem; margin: 1.6rem 0 0.4rem; }
+.legal__body ul { padding-inline-start: 1.3rem; margin: 0.4rem 0; }
+.legal__body li { margin-bottom: 0.35rem; }
+.legal__body a { color: #4b2fd6; font-weight: 700; }
+.legal__updated { color: #5d5677; font-size: 0.95rem; margin: 0 0 1rem; }
+.legal__links { margin-top: 2rem; text-align: center; }
+
+.legal-form { display: grid; gap: 0.35rem; background: #fff; border-radius: 18px; padding: 1rem; box-shadow: var(--shadow-card); }
+.legal-form label { font-weight: 700; margin-top: 0.4rem; }
+.legal-form input, .legal-form select, .legal-form textarea {
+  font: 1rem var(--font); padding: 0.6rem 0.7rem; border: 2px solid #d9d2f5; border-radius: 12px; background: #fff; color: var(--ink);
+}
+.legal-form textarea { resize: vertical; }
+.legal-form__send {
+  margin-top: 0.8rem; min-height: 48px; border: none; border-radius: 14px; background: var(--purple); color: #fff;
+  font: 800 1.05rem var(--font); cursor: pointer;
+}
+.legal-form__send:disabled { opacity: 0.55; cursor: default; }
+.legal-sent { background: #e7f8ef; color: #1e6b45; border-radius: 14px; padding: 1rem; font-weight: 700; }
+
+.consent-box {
+  display: flex; gap: 0.6rem; align-items: flex-start; margin: 1rem 0 0.4rem; padding: 0.8rem 0.9rem;
+  background: #fff8e6; border: 2px solid #ffd77a; border-radius: 14px; line-height: 1.5; font-size: 0.98rem; text-align: start;
+}
+.consent-box input { width: 1.4rem; height: 1.4rem; flex: none; margin-top: 0.1rem; accent-color: var(--purple); }
+.consent-box a { color: #4b2fd6; font-weight: 700; }
+
+.site-footer { display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap; margin: 1.4rem 0 0.6rem; font-size: 0.95rem; }
+.site-footer a { color: #4b2fd6; font-weight: 600; }

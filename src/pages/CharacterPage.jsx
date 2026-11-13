@@ -8,6 +8,7 @@ import { startsOnIsland } from "../game/games";
 import { preload, say } from "../game/audio";
 import "../styles/pages/onboarding.css";
 import BotTrap from "../components/BotTrap";
+import ConsentBox from "../components/ConsentBox";
 
 // Screen 3 — pick the companion character and type a name. Creates the profile with the grade
 // chosen on the screen before (passed in navigation state); without one, back to the grade.
@@ -31,10 +32,11 @@ export default function CharacterPage() {
     }
   });
   const [submitting, setSubmitting] = useState(false);
+  const [consent, setConsent] = useState(false); // 2026-11-14: a parent agrees (privacy)
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false); // signed up, waiting for the admin's approval
 
-  const canConfirm = selected && name.trim().length > 0 && username.trim().length >= 3 && password.length >= 4 && joinCode.trim().length > 0 && !submitting;
+  const canConfirm = selected && name.trim().length > 0 && username.trim().length >= 3 && password.length >= 4 && joinCode.trim().length > 0 && consent && !submitting;
 
   useEffect(() => {
     if (!young) return;
@@ -71,7 +73,7 @@ export default function CharacterPage() {
     setError("");
     try {
       const made = await createProfile({ name: name.trim(), avatar: selected, grade: chosen.grade, difficulty: chosen.difficulty,
-        username: username.trim(), password, joinCode: joinCode.trim() });
+        username: username.trim(), password, joinCode: joinCode.trim(), parentConsent: consent });
       if (made?.pending) {
         setPending(true);
         setSubmitting(false);
@@ -179,6 +181,8 @@ export default function CharacterPage() {
           </div>
           <p className="account-box__hint">כדאי שמבוגר ירשום את הסיסמה במקום בטוח</p>
         </div>
+
+        <ConsentBox kind="parent" checked={consent} onChange={setConsent} />
 
         {error && <p className="form-error">{error}</p>}
 

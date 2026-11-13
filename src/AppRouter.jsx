@@ -24,6 +24,8 @@ import MyIslandPage from "./pages/MyIslandPage";
 const Island3DPage = lazy(() => import("./pages/Island3DPage"));
 import ChildReportPage from "./pages/ChildReportPage";
 import ParentsPage from "./pages/ParentsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import AccessibilityPage from "./pages/AccessibilityPage";
 import StaffRoomNewPage from "./pages/StaffRoomNewPage";
 import StaffRoomPage from "./pages/StaffRoomPage";
 import RoomBoardPage from "./pages/RoomBoardPage";
@@ -61,6 +63,8 @@ export default function AppRouter() {
       <Route path="/daily" element={<DailyPage />} />
       <Route path="/timed" element={<TimedPage />} />
       <Route path="/parent" element={<ParentsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/accessibility" element={<AccessibilityPage />} />
       <Route path="/staff" element={<StaffPage />} />
       {/* 2026-11-12: the live game room */}
       <Route path="/staff/room/new" element={<StaffRoomNewPage />} />

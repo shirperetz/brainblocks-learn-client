@@ -4,7 +4,7 @@ import "../styles/components/star-rating.css";
 // When `animate` is on, earned stars pop in one after another.
 export default function StarRating({ value = 0, max = 3, size = "md", animate = false }) {
   return (
-    <div className={`star-rating star-rating--${size}`} aria-label={`${value} מתוך ${max} כוכבים`}>
+    <div className={`star-rating star-rating--${size}`} role="img" aria-label={`${value} מתוך ${max} כוכבים`}>
       {Array.from({ length: max }).map((_, i) => {
         const earned = i < value;
         return (

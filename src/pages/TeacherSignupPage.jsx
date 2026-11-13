@@ -4,6 +4,7 @@ import BigButton from "../components/BigButton";
 import { registerTeacher } from "../services/learnApi";
 import "../styles/pages/room.css";
 import BotTrap from "../components/BotTrap";
+import ConsentBox from "../components/ConsentBox";
 
 // 2026-11-12 (Shir chose: no teachers' code - her approval is enough): a teacher signs up and waits.
 export default function TeacherSignupPage() {
@@ -15,14 +16,15 @@ export default function TeacherSignupPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [consent, setConsent] = useState(false);
 
-  const ok = name.trim().length > 0 && username.trim().length >= 3 && password.length >= 6 && password === again;
+  const ok = name.trim().length > 0 && username.trim().length >= 3 && password.length >= 6 && password === again && consent;
 
   async function send() {
     setBusy(true);
     setError("");
     try {
-      await registerTeacher({ name: name.trim(), username: username.trim(), password });
+      await registerTeacher({ name: name.trim(), username: username.trim(), password, privacyAccepted: consent });
       setSent(true);
     } catch (e) {
       setError(e.message);
@@ -54,6 +56,7 @@ export default function TeacherSignupPage() {
           <label htmlFor="t-pass2">שוב את הסיסמה</label>
           <input id="t-pass2" className="admin__input" type="password" value={again} onChange={(e) => setAgain(e.target.value)} autoComplete="new-password" />
           {again && password !== again && <p className="form-error">הסיסמאות לא זהות</p>}
+          <ConsentBox kind="teacher" checked={consent} onChange={setConsent} />
           {error && <p className="form-error">{error}</p>}
           <BigButton variant="green" onClick={send} disabled={!ok || busy}>הרשמה</BigButton>
         </section>
