@@ -131,3 +131,6 @@ body.on-island3d .sound-toggle {
 .i3-isle-chip:focus-visible { outline: 3px solid #1f2a44; outline-offset: 2px; }
 .i3-new-isle { display: flex; flex-direction: column; gap: 6px; align-items: center; text-align: center; padding: 10px; border-radius: 16px; background: #f3f0ff; border: 2px solid #d9cffc; }
 .i3-new-isle span { font-size: 13px; color: #5a6680; }
+.i3-progress { display: flex; flex-direction: column; gap: 6px; width: 100%; text-align: center; font-size: 14px; color: #3a4560; }
+.i3-progress__bar { display: block; height: 10px; border-radius: 5px; background: #e8edf6; overflow: hidden; }
+.i3-progress__bar > span { display: block; height: 100%; border-radius: 5px; background: linear-gradient(90deg, #4fd66a, #23a743); }

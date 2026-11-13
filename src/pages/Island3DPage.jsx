@@ -184,6 +184,13 @@ export default function Island3DPage() {
             {st && slot == null && (
               <div className="i3-intro">
                 <p className="i3-hint">לוחצים על עיגול לבן על האי כדי לבנות, או על מבנה כדי לשדרג.</p>
+                {/* 2026-11-13 (Shir: "until the whole island is built, another doesn't open") */}
+                {!st.nextIsle && isle === (st.isles?.length ?? 1) - 1 && (
+                  <div className="i3-progress" aria-label={`בנית ${st.lastIsleBuilt} מתוך ${st.maxSlots} מקומות`}>
+                    <span>🏝️ בנית <b>{st.lastIsleBuilt ?? 0}</b> מתוך {st.maxSlots} מקומות. כשכל האי בנוי - נפתח אי חדש!</span>
+                    <span className="i3-progress__bar"><span style={{ width: `${Math.min(100, ((st.lastIsleBuilt ?? 0) / st.maxSlots) * 100)}%` }} /></span>
+                  </div>
+                )}
                 {st.nextIsle && (
                   <div className="i3-new-isle">
                     <b>{SEASON_ICON[st.nextIsle.season]} האי מלא! אפשר לקנות אי חדש: {st.nextIsle.name}</b>
