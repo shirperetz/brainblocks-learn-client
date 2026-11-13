@@ -82,6 +82,7 @@ export class IslandScene {
     scene.add(this.world, this.builds);
     this.makeIsland(seed);
     this.mills = [];
+    this.anims = []; // 2026-11-13: (t) => void - fountains, fire, lanterns, animals
     this.selected = null;
 
     // a tap (not a drag) picks the nearest place on the island
@@ -99,6 +100,7 @@ export class IslandScene {
       const t = clock.getElapsedTime();
       if (!this.reduce) {
         this.mills.forEach((m) => (m.rotation.z = t * 1.2));
+        this.anims.forEach((f) => f(t));
         if (this.water) this.water.position.y = 0.35 + Math.sin(t * 0.8) * 0.06;
         if (this.marker) this.marker.position.y = this.marker.userData.y + Math.sin(t * 3) * 0.25;
       }
@@ -194,6 +196,7 @@ export class IslandScene {
   setBuildings(builds, open) {
     this.builds.clear();
     this.mills = [];
+    this.anims = [];
     this.marker = null;
     const bySlot = new Map(builds.map((b) => [b.slot, b]));
     this.spots.forEach((s, i) => {
@@ -255,7 +258,23 @@ export class IslandScene {
     };
     const light = mat(0xffd36e, { emissive: 0x6a4a00 });
     if (kind === "house") {
-      if (level >= 4) {
+      if (level >= 5) {
+        // the golden palace: white walls, a golden dome, golden towers, waving flags
+        const wall = mat(0xfaf6ee), gold = mat(0xf4c542, { metalness: 0.4, roughness: 0.35, emissive: 0x5a3c00, emissiveIntensity: 0.25 });
+        add(new THREE.BoxGeometry(5.2, 0.8, 5.2), mat(0xe8dcc4), 0, 0.4, 0);
+        add(new THREE.BoxGeometry(3.4, 3.6, 3.4), wall, 0, 2.6, 0);
+        add(new THREE.SphereGeometry(1.7, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), gold, 0, 4.4, 0);
+        add(new THREE.ConeGeometry(0.25, 1, 8), gold, 0, 6.5, 0);
+        for (const [x, z] of [[-2.3, -2.3], [2.3, -2.3], [-2.3, 2.3], [2.3, 2.3]]) {
+          add(new THREE.CylinderGeometry(0.6, 0.7, 4.2, 12), wall, x, 2.5, z);
+          add(new THREE.SphereGeometry(0.7, 12, 8), gold, x, 4.9, z);
+          add(new THREE.CylinderGeometry(0.03, 0.03, 1, 4), mat(0x5c3a17), x, 5.9, z);
+          const flag = add(new THREE.BoxGeometry(0.05, 0.4, 0.7), mat(0x6f4fd8), x, 6.15, z + 0.35);
+          this.anims.push((t) => (flag.rotation.y = Math.sin(t * 3 + x) * 0.35));
+        }
+        add(new THREE.BoxGeometry(1.1, 1.8, 0.1), gold, 0, 1.7, 1.71);
+        for (const x of [-1.1, 1.1]) add(new THREE.BoxGeometry(0.5, 0.7, 0.1), light, x, 3, 1.71);
+      } else if (level >= 4) {
         // the castle: a keep, four towers with pointed roofs, walls and flags
         const stone = mat(0xd9d4c7), dark = mat(0xb9b2a2), roof = mat(0x6f4fd8);
         add(new THREE.BoxGeometry(4.6, 0.9, 4.6), dark, 0, 0.45, 0);
@@ -356,6 +375,17 @@ export class IslandScene {
       }
     } else if (kind === "tree" || kind === "palm") {
       this.tree(g, 0, 0, 0, kind === "palm");
+      if (kind === "tree" && level >= 3) {
+        // the giant: a second, wider crown and a swing
+        add(new THREE.ConeGeometry(1.8, 2.6, 8), mat(C.leaf), 0, 3.2, 0);
+        add(new THREE.CylinderGeometry(0.02, 0.02, 1.2, 4), mat(0x5c3a17), 0.9, 1.6, 0.3);
+        add(new THREE.CylinderGeometry(0.02, 0.02, 1.2, 4), mat(0x5c3a17), 0.9, 1.6, -0.3);
+        add(new THREE.BoxGeometry(0.3, 0.06, 0.7), mat(0xc98b4c), 0.9, 1.0, 0);
+      }
+      if (kind === "palm" && level >= 2) {
+        for (let k = 0; k < 3; k++) add(new THREE.SphereGeometry(0.18, 6, 5), mat(0x6b4423), Math.cos(k * 2.1) * 0.3, 2.25, Math.sin(k * 2.1) * 0.3);
+        add(new THREE.BoxGeometry(1.4, 0.06, 0.5), mat(0xff7a3a), 1.2, 0.6, 0);
+      }
       if (kind === "tree" && level >= 2) {
         for (let k = 0; k < 6; k++) add(new THREE.SphereGeometry(0.16, 6, 5), mat(0xe2483a), Math.cos(k) * 0.75, 1.5 + (k % 3) * 0.35, Math.sin(k) * 0.75);
       }
@@ -383,6 +413,256 @@ export class IslandScene {
       add(new THREE.CylinderGeometry(0.07, 0.07, 3.4, 6), mat(0x8a5a2b), 0, 2.2, 0);
       const sail = add(new THREE.ConeGeometry(1.2, 2.6, 3), mat(0x7cc3ff), 0.5, 2.3, 0);
       sail.scale.z = 0.12;
+      if (level >= 2) {
+        // fishing boat: a net and a few fish in it (level 2)
+        add(new THREE.BoxGeometry(1.2, 0.05, 1.0), mat(0xd9cfb0, { transparent: true, opacity: 0.8 }), -1, 0.95, 0);
+        for (let k = 0; k < 3; k++) add(new THREE.SphereGeometry(0.15, 6, 4), mat(0xff9a3a), -1.3 + k * 0.3, 1.05, 0.1 * k);
+      }
+    } else {
+      this.extra(kind, level, g, add, light);
+    }
+  }
+
+  /** 2026-11-13: the new things (school, well, fountain, playground, pond, animals, season things). */
+  extra(kind, level, g, add, light) {
+    const wood = mat(0xc98b4c), dark = mat(0x5c3a17);
+    const fence = (w, d) => {
+      for (let k = 0; k <= 6; k++) {
+        const x = -w / 2 + (w * k) / 6;
+        add(new THREE.BoxGeometry(0.08, 0.5, 0.08), wood, x, 0.25, -d / 2);
+        add(new THREE.BoxGeometry(0.08, 0.5, 0.08), wood, x, 0.25, d / 2);
+      }
+      add(new THREE.BoxGeometry(w, 0.06, 0.06), wood, 0, 0.4, -d / 2);
+      add(new THREE.BoxGeometry(w, 0.06, 0.06), wood, 0, 0.4, d / 2);
+    };
+    const quad = (x, z, body, head, scale = 1, dz = 0) => {
+      const a = new THREE.Group();
+      a.position.set(x, 0, z);
+      a.scale.setScalar(scale);
+      g.add(a);
+      const part = (geo, m, px, py, pz) => {
+        const o = new THREE.Mesh(geo, m);
+        o.position.set(px, py, pz);
+        o.castShadow = true;
+        a.add(o);
+        return o;
+      };
+      part(new THREE.BoxGeometry(1, 0.55, 0.5), body, 0, 0.6, 0);
+      part(new THREE.BoxGeometry(0.4, 0.4, 0.38), head, 0.65, 0.85, 0);
+      for (const [lx, lz] of [[-0.35, -0.18], [0.35, -0.18], [-0.35, 0.18], [0.35, 0.18]]) part(new THREE.BoxGeometry(0.12, 0.35, 0.12), head, lx, 0.18, lz);
+      this.anims.push((t) => (a.position.y = Math.abs(Math.sin(t * 1.6 + x + z + dz)) * 0.08));
+      return part;
+    };
+    if (kind === "school") {
+      add(new THREE.BoxGeometry(4, 2, 2.4), mat(0xffe3a3), 0, 1, 0);
+      add(new THREE.ConeGeometry(3, 1.2, 4), mat(0x3a6fd8), 0, 2.6, 0).rotation.y = Math.PI / 4;
+      for (const x of [-1.3, 0, 1.3]) add(new THREE.BoxGeometry(0.6, 0.6, 0.1), light, x, 1.2, 1.21);
+      add(new THREE.BoxGeometry(0.7, 1, 0.1), mat(0x8a5a2b), 0, 0.5, 1.22);
+      if (level >= 2) {
+        add(new THREE.BoxGeometry(0.9, 1.6, 0.9), mat(0xffe3a3), 0, 3.6, 0);
+        add(new THREE.ConeGeometry(0.8, 0.9, 4), mat(0x3a6fd8), 0, 4.85, 0).rotation.y = Math.PI / 4;
+        const bell = add(new THREE.ConeGeometry(0.25, 0.4, 10), mat(0xf4c542, { metalness: 0.5 }), 0, 3.6, 0.46);
+        this.anims.push((t) => (bell.rotation.z = Math.sin(t * 2) * 0.25));
+        add(new THREE.BoxGeometry(2.4, 0.05, 1.6), mat(0x4fae3c), 3.2, 0.06, 0);
+        add(new THREE.BoxGeometry(0.06, 0.9, 0.9), mat(0xffffff), 4.3, 0.5, 0);
+      }
+    } else if (kind === "well") {
+      add(new THREE.CylinderGeometry(0.9, 0.9, 0.8, 14), mat(0x9a9488), 0, 0.4, 0);
+      add(new THREE.CylinderGeometry(0.7, 0.7, 0.05, 14), mat(0x1e9fe0), 0, 0.75, 0);
+      add(new THREE.BoxGeometry(0.1, 1.4, 0.1), wood, -0.8, 1.3, 0);
+      add(new THREE.BoxGeometry(0.1, 1.4, 0.1), wood, 0.8, 1.3, 0);
+      add(new THREE.ConeGeometry(1.3, 0.7, 4), mat(0xc4553d), 0, 2.3, 0).rotation.y = Math.PI / 4;
+      add(new THREE.CylinderGeometry(0.15, 0.12, 0.25, 8), wood, 0, 1.2, 0);
+    } else if (kind === "fountain") {
+      add(new THREE.CylinderGeometry(1.6, 1.7, 0.5, 20), mat(0xe8e2d4), 0, 0.25, 0);
+      add(new THREE.CylinderGeometry(1.4, 1.4, 0.05, 20), mat(0x58c3ff, { transparent: true, opacity: 0.85 }), 0, 0.5, 0);
+      add(new THREE.CylinderGeometry(0.2, 0.25, 1.4, 10), mat(0xe8e2d4), 0, 1, 0);
+      if (level >= 2) {
+        add(new THREE.CylinderGeometry(0.8, 0.6, 0.25, 16), mat(0xe8e2d4), 0, 1.7, 0);
+        add(new THREE.CylinderGeometry(0.15, 0.2, 0.8, 10), mat(0xe8e2d4), 0, 2.2, 0);
+      }
+      const top = level >= 2 ? 2.7 : 1.8;
+      for (let k = 0; k < 6; k++) {
+        const drop = add(new THREE.SphereGeometry(0.12, 6, 4), mat(0x8fd6ff, { emissive: 0x2a7fbf, emissiveIntensity: 0.3 }), 0, top, 0);
+        const a = (k / 6) * Math.PI * 2;
+        this.anims.push((t) => {
+          const f = (t * 0.9 + k / 6) % 1;
+          drop.position.set(Math.cos(a) * f * 1.2, top + Math.sin(f * Math.PI) * 0.8 - f * (top - 0.6), Math.sin(a) * f * 1.2);
+        });
+      }
+    } else if (kind === "playground") {
+      add(new THREE.BoxGeometry(3.6, 0.06, 2.8), mat(0xf3d79a), 0, 0.05, 0);
+      add(new THREE.BoxGeometry(0.8, 1.6, 0.8), mat(0xff6f6f), -1, 0.8, 0);
+      const slide = add(new THREE.BoxGeometry(0.6, 0.08, 2), mat(0xffd36e), -1, 0.9, 1.1);
+      slide.rotation.x = 0.6;
+      for (const x of [0.6, 1.6]) add(new THREE.BoxGeometry(0.08, 1.6, 0.08), mat(0x3a6fd8), x, 0.8, -0.6);
+      add(new THREE.BoxGeometry(1.1, 0.08, 0.08), mat(0x3a6fd8), 1.1, 1.6, -0.6);
+      const seat = add(new THREE.BoxGeometry(0.5, 0.06, 0.3), mat(0x5fc24a), 1.1, 0.5, -0.6);
+      this.anims.push((t) => (seat.position.z = -0.6 + Math.sin(t * 2) * 0.2));
+    } else if (kind === "pond") {
+      add(new THREE.CylinderGeometry(1.7, 1.7, 0.1, 20), mat(0x9a9488), 0, 0.05, 0);
+      add(new THREE.CylinderGeometry(1.5, 1.5, 0.06, 20), mat(0x2aa8e0, { transparent: true, opacity: 0.9 }), 0, 0.12, 0);
+      for (let k = 0; k < 3; k++) {
+        const fish = add(new THREE.SphereGeometry(0.14, 6, 4), mat(0xff8a2a), 0, 0.12, 0);
+        this.anims.push((t) => fish.position.set(Math.cos(t * 0.8 + k * 2.1) * 0.9, 0.12, Math.sin(t * 0.8 + k * 2.1) * 0.9));
+      }
+      if (level >= 2) {
+        for (let k = 0; k < 2; k++) {
+          const duck = new THREE.Group();
+          g.add(duck);
+          const b = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 6), mat(0xffffff));
+          const h = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 6), mat(0xffffff));
+          const beak = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.05, 0.08), mat(0xff9a3a));
+          h.position.set(0.22, 0.2, 0);
+          beak.position.set(0.36, 0.2, 0);
+          duck.add(b, h, beak);
+          this.anims.push((t) => {
+            const a = -t * 0.4 + k * Math.PI;
+            duck.position.set(Math.cos(a) * 0.6, 0.25, Math.sin(a) * 0.6);
+            duck.rotation.y = -a + Math.PI;
+          });
+        }
+      }
+    } else if (kind === "sheep") {
+      const wool = mat(0xf7f5ee), face = mat(0x3a3a3a);
+      const n = level >= 2 ? 4 : 2;
+      for (let k = 0; k < n; k++) quad(-1 + (k % 2) * 1.6, -0.6 + Math.floor(k / 2) * 1.2, wool, face, 0.9, k);
+      if (level >= 2) fence(4, 3.2);
+    } else if (kind === "cow") {
+      const spot = mat(0xffffff), black = mat(0x2a2a2a);
+      const part = quad(0, 0.6, spot, black, 1.2);
+      part(new THREE.BoxGeometry(0.3, 0.3, 0.52), black, -0.1, 0.65, 0);
+      if (level >= 2) {
+        quad(0.4, -0.9, mat(0x8a5a2b), black, 1.1, 2);
+        add(new THREE.BoxGeometry(2, 1.6, 1.5), mat(0xc4553d), -2.4, 0.8, 0);
+        add(new THREE.ConeGeometry(1.5, 0.9, 4), mat(0x7a3a2a), -2.4, 2.05, 0).rotation.y = Math.PI / 4;
+      }
+    } else if (kind === "horse") {
+      const brown = mat(0x8a5a2b), mane = mat(0x3a2410);
+      const part = quad(0, 0, brown, brown, 1.35);
+      part(new THREE.BoxGeometry(0.1, 0.3, 0.4), mane, 0.5, 1.1, 0);
+      if (level >= 2) {
+        add(new THREE.BoxGeometry(2.2, 1.7, 1.6), mat(0xa46a33), -2.4, 0.85, 0);
+        add(new THREE.BoxGeometry(2.4, 0.15, 1.8), mat(0x6b4423), -2.4, 1.78, 0);
+        fence(3, 2.6);
+      }
+    } else if (kind === "snowman") {
+      const snow = mat(0xffffff), coal = mat(0x222222);
+      const one = (x, z, sc) => {
+        add(new THREE.SphereGeometry(0.6 * sc, 12, 10), snow, x, 0.55 * sc, z);
+        add(new THREE.SphereGeometry(0.42 * sc, 12, 10), snow, x, 1.4 * sc, z);
+        add(new THREE.SphereGeometry(0.3 * sc, 12, 10), snow, x, 2.0 * sc, z);
+        add(new THREE.ConeGeometry(0.07 * sc, 0.35 * sc, 6), mat(0xff8a2a), x + 0.3 * sc, 2.0 * sc, z).rotation.z = -Math.PI / 2;
+        add(new THREE.CylinderGeometry(0.22 * sc, 0.22 * sc, 0.35 * sc, 10), coal, x, 2.4 * sc, z);
+      };
+      one(0, 0, 1);
+      if (level >= 2) {
+        one(-1.2, 0.6, 0.75);
+        one(1.1, 0.7, 0.6);
+      }
+    } else if (kind === "igloo") {
+      add(new THREE.SphereGeometry(1.6, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xeef6ff), 0, 0, 0);
+      add(new THREE.CylinderGeometry(0.6, 0.6, 1.2, 12, 1, false, 0, Math.PI), mat(0xeef6ff), 0, 0.3, 1.5).rotation.x = Math.PI / 2;
+      add(new THREE.BoxGeometry(0.6, 0.6, 0.1), mat(0x1f2a44), 0, 0.3, 2.05);
+    } else if (kind === "penguin") {
+      for (let k = 0; k < 3; k++) {
+        const p = new THREE.Group();
+        p.position.set(-0.8 + k * 0.8, 0, (k % 2) * 0.5);
+        g.add(p);
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.35, 10, 8), mat(0x1f2433));
+        body.scale.y = 1.4;
+        body.position.y = 0.5;
+        const belly = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8), mat(0xffffff));
+        belly.scale.y = 1.3;
+        belly.position.set(0, 0.45, 0.12);
+        const beak = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.18, 6), mat(0xff9a3a));
+        beak.rotation.x = Math.PI / 2;
+        beak.position.set(0, 0.85, 0.32);
+        p.add(body, belly, beak);
+        this.anims.push((t) => (p.rotation.z = Math.sin(t * 4 + k) * 0.12));
+      }
+    } else if (kind === "cactus") {
+      const green = mat(0x3f9a4a);
+      add(new THREE.CylinderGeometry(0.3, 0.35, 2.2, 8), green, 0, 1.1, 0);
+      add(new THREE.CylinderGeometry(0.18, 0.2, 0.8, 8), green, 0.5, 1.3, 0).rotation.z = Math.PI / 2;
+      add(new THREE.CylinderGeometry(0.18, 0.2, 0.7, 8), green, 0.75, 1.6, 0);
+      add(new THREE.CylinderGeometry(0.18, 0.2, 0.6, 8), green, -0.45, 1.0, 0).rotation.z = Math.PI / 2;
+      add(new THREE.CylinderGeometry(0.18, 0.2, 0.6, 8), green, -0.65, 1.3, 0);
+      if (level >= 2) for (const [x, y] of [[0, 2.3], [0.75, 2.0], [-0.65, 1.65]]) add(new THREE.SphereGeometry(0.17, 8, 6), mat(0xff6fa0), x, y, 0);
+    } else if (kind === "camel") {
+      const sand = mat(0xd9a65a);
+      const part = quad(0, 0, sand, sand, 1.4);
+      part(new THREE.SphereGeometry(0.28, 8, 6), sand, -0.2, 1.0, 0);
+      part(new THREE.SphereGeometry(0.28, 8, 6), sand, 0.25, 1.0, 0);
+      part(new THREE.BoxGeometry(0.18, 0.5, 0.18), sand, 0.6, 1.1, 0);
+    } else if (kind === "pyramid") {
+      const p = add(new THREE.ConeGeometry(3, 3.6, 4), mat(0xf0c27a), 0, 1.8, 0);
+      p.rotation.y = Math.PI / 4;
+      const cap = add(new THREE.ConeGeometry(0.5, 0.6, 4), mat(0xf4c542, { metalness: 0.5, emissive: 0x5a3c00, emissiveIntensity: 0.4 }), 0, 3.35, 0);
+      cap.rotation.y = Math.PI / 4;
+    } else if (kind === "lantern") {
+      const n = level >= 2 ? 6 : 2;
+      for (let k = 0; k < n; k++) {
+        const x = -1.5 + (k % 3) * 1.5, z = k < 3 ? -0.7 : 0.7;
+        add(new THREE.CylinderGeometry(0.06, 0.08, 2, 6), dark, x, 1, z);
+        const lamp = add(new THREE.BoxGeometry(0.35, 0.4, 0.35), mat(0xffd36e, { emissive: 0xffa000, emissiveIntensity: 1 }), x, 2.15, z);
+        this.anims.push((t) => (lamp.material.emissiveIntensity = 0.8 + Math.sin(t * 2 + k) * 0.25));
+      }
+    } else if (kind === "balloon") {
+      // a hot-air balloon floating up and down above its place
+      const b = new THREE.Group();
+      g.add(b);
+      const piece = (geo, m, px, py, pz) => {
+        const o = new THREE.Mesh(geo, m);
+        o.position.set(px, py, pz);
+        o.castShadow = true;
+        b.add(o);
+        return o;
+      };
+      const big = level >= 2 ? 1.3 : 1;
+      const colors = [0xe2483a, 0xffd36e, 0x3a6fd8, 0x5fc24a];
+      for (let k = 0; k < 8; k++) {
+        const seg = piece(new THREE.SphereGeometry(1.6 * big, 4, 12, (k * Math.PI) / 4, Math.PI / 4), mat(colors[k % (level >= 2 ? 4 : 2)]), 0, 5 * big, 0);
+        seg.scale.y = 1.15;
+      }
+      piece(new THREE.BoxGeometry(0.8 * big, 0.6 * big, 0.8 * big), mat(0x8a5a2b), 0, 2.6 * big, 0);
+      for (const [x, z] of [[-0.35, -0.35], [0.35, -0.35], [-0.35, 0.35], [0.35, 0.35]]) piece(new THREE.CylinderGeometry(0.02, 0.02, 1.4 * big, 4), mat(0x5c3a17), x * big, 3.4 * big, z * big);
+      this.anims.push((t) => {
+        b.position.y = 1 + Math.sin(t * 0.7) * 0.6;
+        b.rotation.y = t * 0.15;
+      });
+    } else if (kind === "rocket") {
+      const r = new THREE.Group();
+      g.add(r);
+      const piece = (geo, m, px, py, pz) => {
+        const o = new THREE.Mesh(geo, m);
+        o.position.set(px, py, pz);
+        o.castShadow = true;
+        r.add(o);
+        return o;
+      };
+      piece(new THREE.BoxGeometry(3, 0.3, 3), mat(0x8d94a6), 0, 0.15, 0);
+      piece(new THREE.CylinderGeometry(0.7, 0.8, 3.6, 16), mat(0xf5f5f5), 0, 2.2, 0);
+      piece(new THREE.ConeGeometry(0.7, 1.4, 16), mat(0xe2483a), 0, 4.7, 0);
+      piece(new THREE.CylinderGeometry(0.35, 0.35, 0.1, 16), mat(0x58c3ff, { emissive: 0x2a7fbf, emissiveIntensity: 0.5 }), 0, 3, 0.72).rotation.x = Math.PI / 2;
+      for (let k = 0; k < 3; k++) {
+        const fin = piece(new THREE.BoxGeometry(0.1, 1.1, 0.8), mat(0xe2483a), Math.cos((k * 2 * Math.PI) / 3) * 0.8, 0.95, Math.sin((k * 2 * Math.PI) / 3) * 0.8);
+        fin.rotation.y = -(k * 2 * Math.PI) / 3;
+      }
+      const flame = piece(new THREE.ConeGeometry(0.4, 0.8, 10), mat(0xffa000, { emissive: 0xff6000, emissiveIntensity: 1 }), 0, 0.15, 0);
+      flame.rotation.x = Math.PI;
+      this.anims.push((t) => (flame.scale.y = 0.7 + Math.abs(Math.sin(t * 12)) * 0.5));
+    } else if (kind === "campfire") {
+      for (let k = 0; k < 5; k++) add(new THREE.SphereGeometry(0.22, 6, 4), mat(0x8d94a6), Math.cos(k * 1.26) * 0.6, 0.1, Math.sin(k * 1.26) * 0.6);
+      add(new THREE.BoxGeometry(1, 0.15, 0.15), dark, 0, 0.15, 0).rotation.y = 0.6;
+      add(new THREE.BoxGeometry(1, 0.15, 0.15), dark, 0, 0.15, 0).rotation.y = -0.6;
+      const fire = add(new THREE.ConeGeometry(0.35, 0.9, 7), mat(0xff7a1a, { emissive: 0xff4000, emissiveIntensity: 1 }), 0, 0.6, 0);
+      const fire2 = add(new THREE.ConeGeometry(0.2, 0.6, 7), mat(0xffd36e, { emissive: 0xffa000, emissiveIntensity: 1 }), 0, 0.55, 0);
+      this.anims.push((t) => {
+        fire.scale.y = 1 + Math.sin(t * 9) * 0.15;
+        fire2.scale.y = 1 + Math.cos(t * 11) * 0.2;
+      });
+      for (const z of [-1.4, 1.4]) add(new THREE.BoxGeometry(1.6, 0.3, 0.4), wood, 0, 0.15, z);
     }
   }
 

@@ -17,13 +17,19 @@ const CATEGORIES = [
   { key: "food", name: "אוכל" },
   { key: "production", name: "ייצור" },
   { key: "decor", name: "קישוט" },
+  { key: "animals", name: "חיות" },
   { key: "transport", name: "ספינות" },
 ];
 
 /** A picture for each thing in the shop (the island draws it in 3D after it is built). */
 const SEASON_ICON = { summer: "☀️", snow: "❄️", desert: "🏜️", sunset: "🌅" };
 
-const ICON = { house: "🏠", farm: "🌾", stall: "🍉", mill: "🌬️", lighthouse: "🗼", tree: "🌳", palm: "🌴", flowers: "🌷", boat: "⛵", ship: "🚢" };
+const ICON = {
+  house: "🏠", farm: "🌾", stall: "🍉", mill: "🌬️", lighthouse: "🗼", tree: "🌳", palm: "🌴", flowers: "🌷", boat: "⛵", ship: "🚢",
+  // 2026-11-13: the new things
+  school: "🏫", well: "🪣", fountain: "⛲", playground: "🛝", pond: "🦆", sheep: "🐑", cow: "🐄", horse: "🐎",
+  balloon: "🎈", rocket: "🚀", snowman: "⛄", igloo: "🧊", penguin: "🐧", cactus: "🌵", camel: "🐫", pyramid: "🔺", lantern: "🏮", campfire: "🔥",
+};
 
 function Coin({ size = 20 }) {
   return <span className="i3-coin" style={{ width: size, height: size }} aria-hidden="true" />;
@@ -97,6 +103,9 @@ export default function Island3DPage() {
   const kindOf = (k) => st?.catalog.find((c) => c.kind === k);
   const locked = st && slot != null && slot >= st.openSlots;
   const bk = built ? kindOf(built.kind) : null;
+  // 2026-11-13 (Shir: "on every island new things"): new here = opens on this island; and a peek at the next
+  const isNew = (c) => (isle > 0 && (c.fromIsle ?? 0) === isle ? 1 : 0);
+  const soon = (st?.catalog ?? []).filter((c) => !c.season && (c.fromIsle ?? 0) === isle + 1);
 
   async function act(what, body, done) {
     if (busy) return;
@@ -248,10 +257,17 @@ export default function Island3DPage() {
                   ))}
                 </div>
                 <div className="i3-items">
-                  {st.catalog.filter((c) => cat === "all" || c.category === cat).map((c) => (
+                  {st.catalog
+                    .filter((c) => (!c.season || c.season === st.season) && (c.fromIsle ?? 0) <= isle
+                      && (cat === "all" || c.category === cat))
+                    .sort((a, b) => isNew(b) - isNew(a))
+                    .map((c) => (
                     <div key={c.kind} className="i3-item">
                       <span className="i3-item__icon" aria-hidden="true">{ICON[c.kind] ?? "🏗️"}</span>
-                      <b>{c.names[0]}</b>
+                      <b>
+                        {c.names[0]}
+                        {isNew(c) ? <span className="i3-only"> · חדש!</span> : c.season && <span className="i3-only"> · רק כאן!</span>}
+                      </b>
                       <span>{c.perks[0]}</span>
                       <button className="i3-btn i3-btn--green i3-btn--small" disabled={busy || st.coins < c.costs[0]}
                         onClick={() => act("build", { slot, kind: c.kind }, () => `בנית ${c.names[0]}!`)}>
@@ -260,6 +276,9 @@ export default function Island3DPage() {
                     </div>
                   ))}
                 </div>
+                {soon.length > 0 && (
+                  <p className="i3-soon">🔒 באי הבא: {soon.map((c) => `${ICON[c.kind] ?? ""} ${c.names[0]}`).join(" · ")}</p>
+                )}
               </div>
             )}
           </div>
