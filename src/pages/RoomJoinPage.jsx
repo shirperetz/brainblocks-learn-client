@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
 import { useProfile } from "../context/profileStore";
@@ -14,19 +14,39 @@ export default function RoomJoinPage() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [waiting, setWaiting] = useState(false);
+  const stop = useRef(false);
+  useEffect(() => () => {
+    stop.current = true; // leaving the page stops the waiting
+  }, []);
   if (loading) return null;
   const child = profile && !profile.admin && !profile.teacher;
   const clean = code.replace(/\D/g, "");
 
+  // 2026-11-13 (Shir: "a child can't get into the room I opened"): the child typed the code 23 seconds
+  // before the room existed, saw "not found" and gave up. A code with no room yet now keeps trying
+  // every 3 seconds for 2 minutes, with a clear message, until the teacher opens it.
   async function join() {
     setBusy(true);
     setError("");
-    try {
-      const r = child ? await roomJoin(clean) : await roomJoinGuest(clean, name.trim());
-      navigate(`/room/${r.code}`);
-    } catch (e) {
-      setError(e.message);
-      setBusy(false);
+    setWaiting(false);
+    const until = Date.now() + 120_000;
+    for (;;) {
+      try {
+        const r = child ? await roomJoin(clean) : await roomJoinGuest(clean, name.trim());
+        navigate(`/room/${r.code}`);
+        return;
+      } catch (e) {
+        if (e.status === 404 && Date.now() < until && !stop.current) {
+          setWaiting(true);
+          await new Promise((ok) => setTimeout(ok, 3000));
+          continue;
+        }
+        setWaiting(false);
+        setError(e.status === 404 ? "אין חדר עם הקוד הזה. בדקו את הקוד על הלוח ונסו שוב." : e.message);
+        setBusy(false);
+        return;
+      }
     }
   }
 
@@ -45,6 +65,7 @@ export default function RoomJoinPage() {
             <p className="room-note">בלי משתמש: המורה צריכה לאשר אותך, והתוצאות לא נשמרות.</p>
           </>
         )}
+        {waiting && <p className="room-note" role="status">⏳ עוד אין חדר עם הקוד הזה. מחכים שהמורה תפתח אותו...</p>}
         {error && <p className="form-error">{error}</p>}
         <BigButton variant="green" onClick={join} disabled={busy || clean.length !== 6 || (!child && name.trim().length === 0)}>
           כניסה
