@@ -203,6 +203,7 @@ export default function SettingsPage() {
       <nav className="site-footer" aria-label="מידע על האתר">
         <a href="/privacy">מדיניות פרטיות</a>
         <a href="/accessibility">הצהרת נגישות</a>
+        <a href="/contact?kind=problem&from=/settings">🐞 דיווח על בעיה</a>
       </nav>
     </div>
   );

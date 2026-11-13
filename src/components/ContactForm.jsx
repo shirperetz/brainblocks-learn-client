@@ -6,7 +6,7 @@ import { markFormOpened, sendContact } from "../services/learnApi";
  * 2026-11-14 (privacy / accessibility): a message to the site's operator - no account needed (a parent
  * writes too). It reaches the admin's screen and her phone. Name and a way to answer are optional.
  */
-export default function ContactForm({ kind: initialKind = "privacy" }) {
+export default function ContactForm({ kind: initialKind = "privacy", from = "" }) {
   const [kind, setKind] = useState(initialKind);
   const [name, setName] = useState("");
   const [reply, setReply] = useState("");
@@ -21,7 +21,7 @@ export default function ContactForm({ kind: initialKind = "privacy" }) {
     setState("busy");
     setError("");
     try {
-      await sendContact({ kind, name, reply, text });
+      await sendContact({ kind, name, reply, text: from ? `${text}\n(נשלח מהדף: ${from})` : text });
       setState("sent");
     } catch (err) {
       setError(err.message);

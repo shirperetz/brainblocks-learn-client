@@ -25,6 +25,8 @@ const Island3DPage = lazy(() => import("./pages/Island3DPage"));
 import ChildReportPage from "./pages/ChildReportPage";
 import ParentsPage from "./pages/ParentsPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import ContactPage from "./pages/ContactPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import AccessibilityPage from "./pages/AccessibilityPage";
 import StaffRoomNewPage from "./pages/StaffRoomNewPage";
 import StaffRoomPage from "./pages/StaffRoomPage";
@@ -65,6 +67,7 @@ export default function AppRouter() {
       <Route path="/parent" element={<ParentsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/accessibility" element={<AccessibilityPage />} />
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/staff" element={<StaffPage />} />
       {/* 2026-11-12: the live game room */}
       <Route path="/staff/room/new" element={<StaffRoomNewPage />} />
@@ -77,7 +80,7 @@ export default function AppRouter() {
       <Route path="/room/:code" element={<RoomPlayPage />} />
       <Route path="/staff/child/:id" element={<ChildReportPage />} />
       <Route path="/settings" element={<SettingsPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

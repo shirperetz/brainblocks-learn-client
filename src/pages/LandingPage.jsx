@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
 import Mascot from "../components/Mascot";
+import GuestIntro from "../components/GuestIntro";
 import { lastUsername, useProfile } from "../context/profileStore";
 import { startsOnIsland } from "../game/games";
 import "../styles/pages/landing.css";
@@ -111,11 +112,13 @@ export default function LandingPage() {
         <button className="text-link landing__parents" onClick={() => navigate("/parent")}>
           להורים ולמורים
         </button>
+        {!hasProfile && !loading && <GuestIntro />}
         {/* 2026-11-14 (privacy / accessibility, before going public) */}
         <nav className="site-footer" aria-label="מידע על האתר">
           <a href="/privacy">מדיניות פרטיות</a>
           <a href="/accessibility">הצהרת נגישות</a>
-          <a href="/privacy#contact">צור קשר</a>
+          <a href="/contact?kind=other">צור קשר</a>
+          <a href="/contact?kind=problem&from=/">🐞 דיווח על בעיה</a>
         </nav>
       </div>
     </div>

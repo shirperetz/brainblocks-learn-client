@@ -1,0 +1,9 @@
+# 2026-11-14: Google may show the home page and the public information pages - not the screens of
+# children, teachers or the admin, and not the API.
+User-agent: *
+Allow: /$
+Allow: /privacy
+Allow: /accessibility
+Allow: /parent
+Allow: /contact
+Disallow: /

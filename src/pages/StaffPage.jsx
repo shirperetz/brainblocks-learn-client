@@ -11,6 +11,7 @@ import StaffWeeklyTasks from "../components/StaffWeeklyTasks";
 import ClassBuilding from "../components/ClassBuilding";
 import "../styles/pages/staff.css";
 import { ask, askText } from "../components/dialog";
+import "../styles/pages/legal.css";
 
 // 2026-11-11 (Shir: "teachers look at their students, I look at mine, and I oversee everything"):
 // the teachers' / admin's home. A teacher sees only her classes (the server enforces it); the admin
@@ -550,6 +551,12 @@ export default function StaffPage() {
       <button className="text-link staff__logout" onClick={() => { resetProfile(); navigate("/login"); }}>
         יציאה מהמשתמש
       </button>
+      {/* 2026-11-14 (Shir: "a 'report a problem' button for teachers") */}
+      <nav className="site-footer" aria-label="מידע על האתר">
+        <a href="/contact?kind=problem&from=/staff">🐞 דיווח על בעיה</a>
+        <a href="/privacy">מדיניות פרטיות</a>
+        <a href="/accessibility">הצהרת נגישות</a>
+      </nav>
     </div>
   );
 }

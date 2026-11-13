@@ -30,3 +30,23 @@
 
 .site-footer { display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap; margin: 1.4rem 0 0.6rem; font-size: 0.95rem; }
 .site-footer a { color: #4b2fd6; font-weight: 600; }
+
+/* 2026-11-14: the visitor's introduction on the home page (only when not logged in) */
+.guest-intro { width: min(820px, 100%); margin: 2rem auto 1rem; text-align: start; }
+.guest-intro__title { text-align: center; font-size: 1.5rem; margin: 1.6rem 0 0.9rem; color: var(--ink); }
+.guest-intro__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; }
+.guest-intro__grid--two { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 0.9rem; }
+@media (max-width: 640px) { .guest-intro__grid, .guest-intro__grid--two { grid-template-columns: minmax(0, 1fr); } }
+.guest-intro__card { background: #fff; border-radius: 18px; padding: 1rem 1.1rem; box-shadow: var(--shadow-card); }
+.guest-intro__card--adult { background: #f6f3ff; }
+.guest-intro__card h3 { margin: 0.3rem 0 0.25rem; font-size: 1.15rem; }
+.guest-intro__card p { margin: 0; line-height: 1.55; color: #3b4a72; }
+.guest-intro__icon { font-size: 2rem; }
+.guest-intro__steps { background: #fff; border-radius: 18px; padding: 1rem 2.2rem 1rem 1rem; box-shadow: var(--shadow-card); line-height: 1.8; margin: 0; }
+.guest-intro__actions { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem; }
+.guest-intro__btn { min-height: 48px; padding: 0 1.4rem; border: none; border-radius: 14px; background: var(--purple); color: #fff; font: 800 1.05rem var(--font); cursor: pointer; }
+.guest-intro__btn--ghost { background: #fff; color: #4b2fd6; border: 2px solid #d9d2f5; }
+
+/* 2026-11-14: the friendly 404 */
+.not-found { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; min-height: 80vh; text-align: center; }
+.not-found__actions { display: grid; gap: 0.8rem; width: min(340px, 90vw); }
