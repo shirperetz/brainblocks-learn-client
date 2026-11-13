@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getGrade } from "../data/grades";
 import { getCharacter } from "../data/characters";
-import { adminMoveClass, adminSetTeacher, adminTree, staffCreateClass, staffDeleteClass, staffMoveChild } from "../services/learnApi";
+import { adminMoveClass, adminSetTeacher, adminTree, staffCreateClass, staffDeleteClass, staffMoveChild, staffSetTeacherMax, staffUpdateClass } from "../services/learnApi";
 import { GRADES } from "../data/grades";
-import { ask } from "./dialog";
+import { ask, askText } from "./dialog";
 
 function ago(iso) {
   if (!iso) return "עוד לא שיחק/ה";
@@ -128,6 +128,29 @@ export default function SchoolTree() {
     }
   }
 
+  // 2026-11-13 (Shir: "the number of students for each teacher, so I know how many there are")
+  async function setMax(kind, item, count) {
+    const who = kind === "teacher" ? `ל${item.name}` : `בכיתה ${item.name}`;
+    const extra = kind === "teacher" ? "בכל הכיתות שלה יחד. " : "";
+    const v = await askText(`כמה תלמידים לכל היותר ${who}?\n${extra}יש עכשיו ${count}. ריק = בלי הגבלה. ילד נוסף לא יוכל להירשם.`,
+      item.maxStudents ?? "", { inputMode: "numeric" });
+    if (v === null) return;
+    const n = v.trim() === "" ? 0 : Number(v.trim());
+    if (!Number.isInteger(n) || n < 0) {
+      setError("צריך מספר שלם");
+      return;
+    }
+    try {
+      if (kind === "teacher") await staffSetTeacherMax(item.id, n);
+      else await staffUpdateClass(item.id, { maxStudents: n });
+      setMessage(n ? `${item.name}: עד ${n} תלמידים` : `${item.name}: בלי הגבלה`);
+      setError("");
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   async function createClass() {
     if (!newClass?.name?.trim()) return;
     try {
@@ -182,7 +205,8 @@ export default function SchoolTree() {
                 {!t.admin && !t.approved && <small className="tree-tag tree-tag--wait">ממתינה לאישור</small>}
               </span>
               <span className="tree-teacher__count">
-                {t.classes.length} כיתות · {t.childCount} תלמידים
+                {t.classes.length} כיתות · {t.maxStudents ? `${t.childCount}/${t.maxStudents}` : t.childCount} תלמידים
+                {t.maxStudents && t.childCount >= t.maxStudents ? " · מלא" : ""}
               </span>
               <span className="tree-teacher__chev" aria-hidden="true">{isOpen ? "▲" : "▼"}</span>
             </button>
@@ -194,7 +218,12 @@ export default function SchoolTree() {
                     <div className="tree-class__head">
                       <strong>🏫 {cls.name}</strong>
                       {cls.grade && <span className="tree-tag">{getGrade(cls.grade)?.label}</span>}
-                      <span className="tree-class__count">{cls.children.length} תלמידים</span>
+                      <span className="tree-class__count">
+                        {cls.maxStudents ? `${cls.children.length}/${cls.maxStudents}` : cls.children.length} תלמידים
+                      </span>
+                      <button type="button" className="admin__btn admin__btn--ghost" onClick={() => setMax("class", cls, cls.children.length)}>
+                        👥 {cls.maxStudents ? `עד ${cls.maxStudents} בכיתה` : "מקסימום לכיתה"}
+                      </button>
                       <label className="tree-class__move">
                         <span>להעביר ל:</span>
                         <select value={t.id} onChange={(e) => moveClass(cls, e.target.value)}>
@@ -218,6 +247,11 @@ export default function SchoolTree() {
                     )}
                   </div>
                 ))}
+                {!t.admin && (
+                  <button type="button" className="admin__btn tree-max" onClick={() => setMax("teacher", t, t.childCount)}>
+                    👥 {t.maxStudents ? `${t.name}: עד ${t.maxStudents} תלמידים (יש ${t.childCount})` : `מקסימום תלמידים ל${t.name}`}
+                  </button>
+                )}
                 {newClass?.teacherId === t.id ? (
                   <div className="tree-newclass">
                     <input
