@@ -60,8 +60,12 @@ export function timeText(h, m) {
 
 const wrapHour = (h) => ((h - 1 + 12) % 12) + 1;
 
-export function clockRound(level, rand = Math.random) {
-  const cfg = CLOCK[level] ?? CLOCK[1];
+/** 2026-11-13 (infinite islands): every 5 minutes on island 1, then any minute from level 4. */
+const FIVES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+const ANY_MINUTE = Array.from({ length: 60 }, (_, i) => i);
+
+export function clockRound(level, rand = Math.random, tier = 0) {
+  const cfg = tier > 0 ? { minutes: tier >= 2 && level >= 4 ? ANY_MINUTE : FIVES } : CLOCK[level] ?? CLOCK[1];
   const h = between(rand, 1, 12);
   const m = pick(rand, cfg.minutes);
   const answer = timeText(h, m);
@@ -88,8 +92,8 @@ export function clockRound(level, rand = Math.random) {
   return { h, m, answer, mode, options: shuffle([...set], rand) };
 }
 
-export function clockRounds(level, rand = Math.random, avoid = new Set()) {
-  return series(CLOCK_ROUNDS, (r) => clockRound(level, r), (x) => `${x.mode}${x.answer}`, rand, avoid);
+export function clockRounds(level, rand = Math.random, avoid = new Set(), tier = 0) {
+  return series(CLOCK_ROUNDS, (r) => clockRound(level, r, tier), (x) => `${x.mode}${x.answer}`, rand, avoid);
 }
 
 /** The angles of the hands, in degrees from 12 o'clock clockwise. */
@@ -123,16 +127,20 @@ const SHOP = {
 
 export const SHOP_ROUNDS = 6;
 
-export function shopRound(level, rand = Math.random) {
-  const cfg = SHOP[level] ?? SHOP[1];
+export function shopRound(level, rand = Math.random, tier = 0) {
+  const base = SHOP[level] ?? SHOP[1];
+  // 2026-11-13: generated islands - higher prices (up to 200), all coins and bills, no running total.
+  const cfg = tier > 0
+    ? { ...base, price: [base.price[0] * (1 + tier), Math.min(200, base.price[1] * (1 + tier))], coins: [1, 2, 5, 10, 20, 50], showTotal: false }
+    : base;
   const items = shuffle(ITEMS, rand).slice(0, cfg.two ? 2 : 1);
   const prices = items.map(() => between(rand, cfg.price[0], cfg.price[1]));
   const price = prices.reduce((a, b) => a + b, 0);
   return { items, prices, price, coins: cfg.coins, showTotal: cfg.showTotal, two: Boolean(cfg.two) };
 }
 
-export function shopRounds(level, rand = Math.random, avoid = new Set()) {
-  return series(SHOP_ROUNDS, (r) => shopRound(level, r), (x) => `${x.items.join("")}${x.price}`, rand, avoid);
+export function shopRounds(level, rand = Math.random, avoid = new Set(), tier = 0) {
+  return series(SHOP_ROUNDS, (r) => shopRound(level, r, tier), (x) => `${x.items.join("")}${x.price}`, rand, avoid);
 }
 
 /** "more" (not enough yet) | "less" (too much) | "ok". */
@@ -178,11 +186,15 @@ export function moneyOptions(answer, rand = Math.random, max = 100) {
   return shuffle([...set], rand);
 }
 
-export function coinsRound(level, rand = Math.random) {
-  const cfg = COINS[level] ?? COINS[1];
+export function coinsRound(level, rand = Math.random, tier = 0) {
+  const base = COINS[level] ?? COINS[1];
+  // 2026-11-13: generated islands - more coins and bills, bigger amounts, change from up to 200.
+  const cfg = tier > 0 && !base.change
+    ? { coins: [1, 2, 5, 10, 20, 50], count: [base.count[0] + 1, base.count[1] + Math.min(tier, 4)], max: Math.min(300, base.max * (1 + tier)) }
+    : base;
   if (cfg.change) {
     // "You had 10 / 20 shekels and bought something for X - how much is left?"
-    const had = pick(rand, [10, 20, 50, 100]);
+    const had = pick(rand, tier > 0 ? [50, 100, 200] : [10, 20, 50, 100]);
     const price = between(rand, Math.ceil(had * 0.3), had - 1);
     const answer = had - price;
     return { change: true, had, price, item: pick(rand, ITEMS), money: [had], answer, options: moneyOptions(answer, rand, had) };
@@ -194,9 +206,9 @@ export function coinsRound(level, rand = Math.random) {
   } while (cfg.max && money.reduce((a, b) => a + b, 0) > cfg.max && guard++ < 50);
   money.sort((a, b) => b - a); // big first: that's how we count money
   const answer = money.reduce((a, b) => a + b, 0);
-  return { change: false, money, answer, options: moneyOptions(answer, rand) };
+  return { change: false, money, answer, options: moneyOptions(answer, rand, tier > 0 ? 400 : 100) };
 }
 
-export function coinsRounds(level, rand = Math.random, avoid = new Set()) {
-  return series(COINS_ROUNDS, (r) => coinsRound(level, r), (x) => `${x.change ? x.had + "-" + x.price : x.money.join("+")}`, rand, avoid);
+export function coinsRounds(level, rand = Math.random, avoid = new Set(), tier = 0) {
+  return series(COINS_ROUNDS, (r) => coinsRound(level, r, tier), (x) => `${x.change ? x.had + "-" + x.price : x.money.join("+")}`, rand, avoid);
 }

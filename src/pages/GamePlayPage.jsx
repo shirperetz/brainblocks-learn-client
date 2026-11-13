@@ -15,7 +15,8 @@ import {
   trainSpeech,
   trainText,
 } from "../game/levels";
-import { preload, say, sfx, stopVoice } from "../game/audio";
+import { preload, say, sayUrl, sfx, stopVoice } from "../game/audio";
+import CLIPS from "../game/clips.json";
 import DragonRound from "../game/DragonRound";
 import BalloonRound from "../game/BalloonRound";
 import BridgeRound from "../game/BridgeRound";
@@ -25,7 +26,7 @@ import ShopRound from "../game/ShopRound";
 import CoinsRound from "../game/CoinsRound";
 import { clockRounds, coinsRounds, fewestCoins, shopRounds } from "../game/levelsClock";
 import "../styles/pages/clock-isle.css";
-import { submitSession } from "../services/learnApi";
+import { speakUrl, submitIsleSession, submitSession } from "../services/learnApi";
 import { recentKeys, rememberKeys } from "../game/recent";
 import { cheer } from "../game/companion";
 import HelpButton from "../components/HelpButton";
@@ -118,13 +119,33 @@ const KINDS = {
 
 /** Remounts per level, so "next level" starts clean. */
 export default function GamePlayPage() {
-  const { game, level } = useParams();
-  return <GamePlay key={`${game}-${level}`} />;
+  const { game, level, isleKey } = useParams();
+  return <GamePlay key={`${isleKey ?? ""}-${game}-${level}`} />;
+}
+
+/** 2026-11-13: "gen-3" -> 3 (a generated island's tier); a base island -> 0. */
+function tierOf(isleKey) {
+  const m = /^gen-(\d+)$/.exec(isleKey ?? "");
+  return m ? Number(m[1]) : 0;
+}
+
+/**
+ * Says a round's question: the recorded clips when every number has one (0-20 and the tens), else
+ * the round's text in the computer's voice (bigger numbers on the generated islands).
+ */
+function speakRound(kind, round, before = []) {
+  const keys = [...before, ...kind.speech(round)];
+  if (keys.every((k) => CLIPS[k])) return say(...keys);
+  return speakUrl(kind.text(round)).then((url) => (url ? sayUrl(url) : say(...before)));
 }
 
 /** Plays one level of an island game, then sends the result to the server for stars. */
 function GamePlay() {
-  const { game: gameKey, level: levelParam } = useParams();
+  const { game: gameKey, level: levelParam, isleKey } = useParams();
+  const tier = tierOf(isleKey);
+  // Where this level lives: a generated island's page, or the base island's game map.
+  const back = tier ? `/sea/${isleKey}` : null;
+  const memoryKey = tier ? `${gameKey}@${isleKey}` : gameKey;
   const game = getGame(gameKey);
   const kind = KINDS[gameKey];
   const level = Math.min(Math.max(Number(levelParam) || 1, 1), LEVELS_PER_GAME);
@@ -135,7 +156,7 @@ function GamePlay() {
   const [runId, setRunId] = useState(0); // bump to play the level again with new rounds
   // 2026-11-12 (Shir: "no repeating questions"): avoid what this child played lately on this device.
   const rounds = useMemo(
-    () => (kind ? kind.rounds(level, Math.random, recentKeys(profile?.id, gameKey, level)) : []),
+    () => (kind ? kind.rounds(level, Math.random, recentKeys(profile?.id, memoryKey, level), tier) : []),
     [kind, level, runId, profile?.id], // eslint-disable-line react-hooks/exhaustive-deps
   );
   const [index, setIndex] = useState(0);
@@ -149,7 +170,7 @@ function GamePlay() {
   useEffect(() => {
     if (!kind) return;
     const keys = new Set(["good1", "good2", "good3", "try", "hint", "level_done", "level_retry", game.intro]);
-    rounds.forEach((r) => kind.speech(r).forEach((k) => keys.add(k)));
+    rounds.forEach((r) => kind.speech(r).forEach((k) => CLIPS[k] && keys.add(k)));
     if (gameKey === "dragon") ["dragon_more", "dragon_less", "dragon_yum"].forEach((k) => keys.add(k));
     if (gameKey === "bridge") keys.add("bridge_done");
     if (gameKey === "train") keys.add("train_go");
@@ -162,9 +183,9 @@ function GamePlay() {
     if (!ready || !round || result) return;
     if (index === 0) {
       startedAt.current = Date.now();
-      say(game.intro, kind.speech(round));
+      speakRound(kind, round, [game.intro]);
     } else {
-      say(kind.speech(round));
+      speakRound(kind, round);
     }
   }, [ready, round, index, result, game, kind]);
 
@@ -181,7 +202,7 @@ function GamePlay() {
   function onRoundDone({ correct, chosen, hintUsed }) {
     // 2026-11-12 (Shir: "if the child didn't know it, the exercise comes back at some point, to see the
     // progress"): only what was right the first time is kept out of the next runs - a mistake may return.
-    if (correct && round?._key) rememberKeys(profile?.id, gameKey, level, [round._key]);
+    if (correct && round?._key) rememberKeys(profile?.id, memoryKey, level, [round._key]);
     cheer(correct ? "correct" : "wrong");
     answers.current.push({
       questionText: kind.text(round),
@@ -196,14 +217,27 @@ function GamePlay() {
       setIndex(index + 1);
       return;
     }
-    submitSession({
-      profileId: profile.id,
-      topic: game.topic,
-      stage: level,
-      mode: "STAGE",
-      durationMs: Date.now() - startedAt.current,
-      answers: answers.current,
-    })
+    const sent = tier
+      ? // 2026-11-13: a generated island keeps its own stages (and every answer) on the server.
+        submitIsleSession(profile.id, isleKey, {
+          topic: game.topic,
+          stage: level,
+          durationMs: Date.now() - startedAt.current,
+          answers: answers.current,
+        }).then((s) => ({
+          ...s,
+          correct: answers.current.filter((a) => a.correct).length,
+          total: answers.current.length,
+        }))
+      : submitSession({
+          profileId: profile.id,
+          topic: game.topic,
+          stage: level,
+          mode: "STAGE",
+          durationMs: Date.now() - startedAt.current,
+          answers: answers.current,
+        });
+    sent
       .then((summary) => {
         refreshProfile();
         setResult(summary);
@@ -234,7 +268,7 @@ function GamePlay() {
           className="round-btn"
           onClick={() => {
             stopVoice();
-            navigate(`/island/${game.key}`);
+            navigate(back ?? `/island/${game.key}`);
           }}
           aria-label="יציאה"
         >
@@ -245,7 +279,7 @@ function GamePlay() {
             <span key={i} className={i < index || result ? "is-done" : i === index ? "is-now" : ""} />
           ))}
         </div>
-        <button className="round-btn" onClick={() => round && say(kind.speech(round))} aria-label="לשמוע שוב">
+        <button className="round-btn" onClick={() => round && speakRound(kind, round)} aria-label="לשמוע שוב">
           🔊
         </button>
       </header>
@@ -265,6 +299,7 @@ function GamePlay() {
         </div>
       )}
 
+      {tier > 0 && !result && <p className="game-tier">{`אי ${tier} · שלב ${level}`}</p>}
       {round && !result && <Round key={`${runId}-${index}`} round={round} onDone={onRoundDone} />}
 
       {result && (
@@ -279,7 +314,8 @@ function GamePlay() {
           <p className="result__score" dir="ltr">
             {result.correct} / {result.total}
           </p>
-          {result.passed && (
+          {result.newIsleOpened && <p className="result__new-isle">🏝️ נפתח אי חדש!</p>}
+          {result.passed && !tier && (
             <button className="result__gift" onClick={() => navigate("/my-island")}>
               🎁 חלק חדש לאי שלי!
             </button>
@@ -291,13 +327,13 @@ function GamePlay() {
             {result.passed && level < LEVELS_PER_GAME && (
               <button
                 className="round-btn round-btn--big round-btn--go"
-                onClick={() => navigate(`/island/${game.key}/${level + 1}`)}
+                onClick={() => navigate(tier ? `/sea/${isleKey}/${game.key}/${level + 1}` : `/island/${game.key}/${level + 1}`)}
                 aria-label="לשלב הבא"
               >
                 ◀
               </button>
             )}
-            <button className="round-btn round-btn--big" onClick={() => navigate(`/isle/${game.isle}`)} aria-label="לאי">
+            <button className="round-btn round-btn--big" onClick={() => navigate(back ?? `/isle/${game.isle}`)} aria-label="לאי">
               🏝️
             </button>
           </div>

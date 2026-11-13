@@ -34,9 +34,11 @@ export default function BridgeRound({ round, onDone }) {
     say(next.length >= 2 ? ["try", "hint"] : ["try"]);
   }
 
+  // 2026-11-13: generated islands go to 50 / 100 / 1,000 - too many planks to draw; the numbers stay.
+  const drawn = round.target <= 20;
   const perRow = round.target === 20 ? 10 : round.target;
   const rows = [];
-  for (let start = 0; start < round.target; start += perRow) {
+  for (let start = 0; drawn && start < round.target; start += perRow) {
     rows.push(Array.from({ length: Math.min(perRow, round.target - start) }, (_, i) => start + i));
   }
   let missingNo = 0;
@@ -59,7 +61,7 @@ export default function BridgeRound({ round, onDone }) {
         )}
       </div>
 
-      <div className={`river ${solved ? "is-solved" : ""}`} aria-hidden="true">
+      <div className={`river ${solved ? "is-solved" : ""} ${drawn ? "" : "river--numbers"}`} aria-hidden="true">
         <span className="river__bank river__bank--start">🌳</span>
         <div className="bridge">
           {rows.map((row, r) => (

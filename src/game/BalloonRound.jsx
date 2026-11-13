@@ -58,6 +58,8 @@ export default function BalloonRound({ round, onDone }) {
         </span>
       </div>
 
+      {/* 2026-11-13: generated islands go past 20 - no apples to count then, the numbers stay. */}
+      {Math.max(round.a, round.op === "+" ? round.a + round.b : 0) <= 20 && (
       <div className={`pictures ${round.a + round.b > 10 ? "pictures--small" : ""}`} dir="ltr" aria-hidden="true">
         {pics.map((p) =>
           p.sep ? (
@@ -70,6 +72,7 @@ export default function BalloonRound({ round, onDone }) {
           ),
         )}
       </div>
+      )}
 
       <div className="sky">
         {round.options.map((v, i) => (

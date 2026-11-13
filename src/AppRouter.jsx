@@ -12,6 +12,7 @@ import SummaryPage from "./pages/SummaryPage";
 import IslandPage from "./pages/IslandPage";
 import GameLevelsPage from "./pages/GameLevelsPage";
 import GamePlayPage from "./pages/GamePlayPage";
+import GenIslePage from "./pages/GenIslePage";
 import DailyPage from "./pages/DailyPage";
 import TimedPage from "./pages/TimedPage";
 import ReviewPage from "./pages/ReviewPage";
@@ -45,6 +46,9 @@ export default function AppRouter() {
       <Route path="/isle/:isle" element={<IslandPage />} />
       <Route path="/island/:game" element={<GameLevelsPage />} />
       <Route path="/island/:game/:level" element={<GamePlayPage />} />
+      {/* 2026-11-13: generated islands (gen-N): the same games at a higher tier */}
+      <Route path="/sea/:isleKey" element={<GenIslePage />} />
+      <Route path="/sea/:isleKey/:game/:level" element={<GamePlayPage />} />
       <Route path="/review" element={<ReviewPage />} />
       <Route path="/rewards" element={<Navigate to="/my-island" replace />} />
       <Route path="/my-island" element={<MyIslandPage />} />

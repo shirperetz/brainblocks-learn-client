@@ -35,6 +35,16 @@ export function updateProfile(id, changes) {
   });
 }
 
+/** 2026-11-13: the endless sea - every open island + the next locked one (docs/plan-infinite-islands.md). */
+export function getIsles(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/isles`);
+}
+
+/** A finished round on a generated island ("gen-3"): kept on the server with every answer. */
+export function submitIsleSession(profileId, isleKey, payload) {
+  return apiRequest(`/api/learn/profiles/${profileId}/isles/${isleKey}/sessions`, { method: "POST", body: JSON.stringify(payload) });
+}
+
 export function getStageMap(profileId, topic) {
   return apiRequest(`/api/learn/profiles/${profileId}/map?topic=${topic}`);
 }

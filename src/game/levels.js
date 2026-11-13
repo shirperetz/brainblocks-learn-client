@@ -52,8 +52,20 @@ const DRAGON = {
 
 export const DRAGON_ROUNDS = 6;
 
-export function dragonRounds(level, rand = Math.random, avoid = new Set()) {
-  const cfg = DRAGON[level] ?? DRAGON[1];
+/**
+ * 2026-11-13 (infinite islands): `tier` = which generated island (0 = the base island). The dragon
+ * stays within 20 (the berries must fit on the screen) but gets harder: the level above, no
+ * ten-frames from tier 2, and "count on" from a plate that already has berries.
+ */
+function dragonCfg(level, tier) {
+  const base = DRAGON[level] ?? DRAGON[1];
+  if (!tier) return base;
+  const up = DRAGON[Math.min(6, level + 1 + Math.floor(tier / 2))];
+  return { want: up.want, start: level % 2 === 0 || tier >= 3 ? "on" : up.start, frame: tier < 2 ? up.frame : false };
+}
+
+export function dragonRounds(level, rand = Math.random, avoid = new Set(), tier = 0) {
+  const cfg = dragonCfg(level, tier);
   return series(
     DRAGON_ROUNDS,
     (r) => {
@@ -86,10 +98,30 @@ const BALLOONS = {
 
 export const BALLOON_ROUNDS = 8;
 
-export function balloonRound(level, rand = Math.random) {
+/** The biggest number on generated island `tier`: 100 for the first four, then 1,000. */
+export function tierCap(tier) {
+  return tier <= 4 ? 100 : 1000;
+}
+
+export function balloonRound(level, rand = Math.random, tier = 0) {
   const cfg = BALLOONS[level] ?? BALLOONS[1];
   const op = cfg.ops[Math.floor(rand() * cfg.ops.length)];
   let a, b;
+  if (tier > 0) {
+    // 2026-11-13 (infinite islands): the same kinds, bigger numbers - growing with every island
+    // up to 100 (then 1,000).
+    const max = Math.min(tierCap(tier), Math.round(Math.max(cfg.max, 10) * (1 + tier)));
+    if (op === "+") {
+      const sum = between(rand, Math.max(3, Math.floor(max / 3)), max);
+      a = between(rand, 1, sum - 1);
+      b = sum - a;
+    } else {
+      a = between(rand, Math.max(3, Math.floor(max / 3)), max);
+      b = between(rand, 1, a - 1);
+    }
+    const answer = op === "+" ? a + b : a - b;
+    return { a, op, b, answer, options: options(answer, rand, tierCap(tier)) };
+  }
   if (op === "+") {
     if (cfg.bridge) {
       a = between(rand, 5, 10);
@@ -107,20 +139,24 @@ export function balloonRound(level, rand = Math.random) {
   return { a, op, b, answer, options: options(answer, rand) };
 }
 
-/** The answer + 3 different nearby numbers in 0..20, shuffled. */
-export function options(answer, rand = Math.random) {
+/**
+ * The answer + 3 different nearby numbers in 0..max, shuffled. Above 20 the mistakes are the real
+ * ones of bigger numbers too: a forgotten carry (±10), one off (±1).
+ */
+export function options(answer, rand = Math.random, max = 20) {
   const set = new Set([answer]);
-  const near = shuffle([-1, 1, -2, 2, 3, -3, 4, -4], rand);
+  const near = shuffle(answer > 20 ? [-1, 1, -10, 10, 2, -2, 11, -9, 100, -100] : [-1, 1, -2, 2, 3, -3, 4, -4], rand);
   for (const d of near) {
     const v = answer + d;
-    if (v >= 0 && v <= 20) set.add(v);
+    if (v >= 0 && v <= max) set.add(v);
     if (set.size === 4) break;
   }
+  for (let d = 5; set.size < 4; d++) set.add(answer + d <= max ? answer + d : Math.max(0, answer - d));
   return shuffle([...set], rand);
 }
 
-export function balloonRounds(level, rand = Math.random, avoid = new Set()) {
-  return series(BALLOON_ROUNDS, (r) => balloonRound(level, r), (x) => `${x.a}${x.op}${x.b}`, rand, avoid);
+export function balloonRounds(level, rand = Math.random, avoid = new Set(), tier = 0) {
+  return series(BALLOON_ROUNDS, (r) => balloonRound(level, r, tier), (x) => `${x.a}${x.op}${x.b}`, rand, avoid);
 }
 
 /** Clip keys for "כמה זה 3 ועוד 2". */
@@ -147,7 +183,24 @@ const BRIDGE = {
 
 export const BRIDGE_ROUNDS = 8;
 
-export function bridgeRound(level, rand = Math.random) {
+/** 2026-11-13: generated islands complete to round tens, then 100, then hundreds up to 1,000. */
+function bridgeTargets(level, tier) {
+  if (tier <= 1) return [20, 30, 40, 50];
+  if (tier <= 3) return level <= 3 ? [50, 60, 70, 80, 90] : [100];
+  if (tier <= 5) return [100];
+  return level <= 3 ? [100, 200, 500] : [1000];
+}
+
+export function bridgeRound(level, rand = Math.random, tier = 0) {
+  if (tier > 0) {
+    const targets = bridgeTargets(level, tier);
+    const target = targets[Math.floor(rand() * targets.length)];
+    // A higher level = less already on the bridge = a bigger missing part.
+    const lo = Math.max(1, Math.round(target * (0.75 - level * 0.1)));
+    const have = between(rand, lo, target - 1);
+    const answer = target - have;
+    return { target, have, answer, eq: true, options: options(answer, rand, target) };
+  }
   const cfg = BRIDGE[level] ?? BRIDGE[1];
   const target = cfg.target[Math.floor(rand() * cfg.target.length)];
   const [lo, hi] = cfg.have ?? (target === 20 ? [10, 19] : [1, 9]);
@@ -156,8 +209,8 @@ export function bridgeRound(level, rand = Math.random) {
   return { target, have, answer, eq: Boolean(cfg.eq), options: options(answer, rand) };
 }
 
-export function bridgeRounds(level, rand = Math.random, avoid = new Set()) {
-  return series(BRIDGE_ROUNDS, (r) => bridgeRound(level, r), (x) => `${x.have}/${x.target}`, rand, avoid);
+export function bridgeRounds(level, rand = Math.random, avoid = new Set(), tier = 0) {
+  return series(BRIDGE_ROUNDS, (r) => bridgeRound(level, r, tier), (x) => `${x.have}/${x.target}`, rand, avoid);
 }
 
 /** "על הגשר יש שבעה קרשים. כמה חסרים עד עשר?" */
@@ -182,7 +235,26 @@ const TRAIN = {
 
 export const TRAIN_ROUNDS = 8;
 
-export function trainRound(level, rand = Math.random) {
+/** 2026-11-13: generated islands - bigger steps, counting down, bigger numbers. */
+function trainTierCfg(level, tier) {
+  // Only numbers on the wagons (no pictures), so the train goes higher than the others: 200, then 1,000.
+  const steps = tier <= 1 ? [2, 5, 10, -2, -5, 10] : tier <= 4 ? [3, 4, 5, 10, -5, 20] : [25, 50, 100, -10, -25, 11];
+  const step = steps[(level - 1) % steps.length];
+  const max = tier <= 1 ? 200 : 1000;
+  const top = Math.max(1, max - Math.abs(step) * 4); // the whole train stays within max
+  return { step, len: 5, gap: level <= 2 ? "middle" : "any", max, from: [Math.min(top, Math.floor(max / 5)), top] };
+}
+
+export function trainRound(level, rand = Math.random, tier = 0) {
+  if (tier > 0) {
+    const cfg = trainTierCfg(level, tier);
+    let start = between(rand, cfg.from[0], cfg.from[1]);
+    if (cfg.step < 0) start += Math.abs(cfg.step) * (cfg.len - 1); // counting down stays at 0 or above
+    const wagons = Array.from({ length: cfg.len }, (_, i) => start + i * cfg.step);
+    const gap = cfg.gap === "middle" ? between(rand, 1, cfg.len - 2) : between(rand, 0, cfg.len - 1);
+    const answer = wagons[gap];
+    return { wagons, gap, answer, step: cfg.step, options: trainOptions(answer, cfg, rand) };
+  }
   const cfg = TRAIN[level] ?? TRAIN[1];
   let start = between(rand, cfg.from[0], cfg.from[1]);
   if (cfg.even) start -= start % 2;
@@ -203,6 +275,7 @@ function trainOptions(answer, cfg, rand) {
     if (v >= 0 && v <= cfg.max) set.add(v);
     if (set.size === 4) break;
   }
+  for (let d = 4; set.size < 4; d++) set.add(answer + d <= cfg.max ? answer + d : Math.max(0, answer - d));
   return shuffle([...set], rand);
 }
 
@@ -216,8 +289,8 @@ function tensOptions(answer, rand) {
   return shuffle([...set], rand);
 }
 
-export function trainRounds(level, rand = Math.random, avoid = new Set()) {
-  return series(TRAIN_ROUNDS, (r) => trainRound(level, r), (x) => x.wagons.join(","), rand, avoid);
+export function trainRounds(level, rand = Math.random, avoid = new Set(), tier = 0) {
+  return series(TRAIN_ROUNDS, (r) => trainRound(level, r, tier), (x) => x.wagons.join(","), rand, avoid);
 }
 
 /** "איזה מספר חסר ברכבת?" - then the wagons are read, the missing one as "מה?". */

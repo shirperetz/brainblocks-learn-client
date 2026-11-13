@@ -1,66 +1,50 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DolphinPerch from "../components/DolphinPerch";
 import WeeklyTasks from "../components/WeeklyTasks";
 import ClassBuilding from "../components/ClassBuilding";
-import { GAMES, ISLES } from "../game/games";
-import { LEVELS_PER_GAME } from "../game/levels";
+import { ISLES } from "../game/games";
 import { preload, say, sfx } from "../game/audio";
 import { getGrade } from "../data/grades";
-import { getStageMap } from "../services/learnApi";
+import { getIsles } from "../services/learnApi";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/room.css";
 import "../styles/pages/island.css";
 import "../styles/pages/sea.css";
 
-const WIDE_QUERY = "(min-width: 760px)";
-function subscribeWide(cb) {
-  const mq = window.matchMedia(WIDE_QUERY);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-}
-const isWide = () => window.matchMedia(WIDE_QUERY).matches;
-
 /**
- * 2026-11-12 (Shir: "more islands for grades 1-3", "a sea map with all the islands"): the islands
- * float on one sea; tap an island -> its games. An island not built yet says "בקרוב"; a child whose
- * grade is locked by the teacher sees another grade's island closed.
+ * 2026-11-13 (Shir: "an island for everything, endless"; design A - a path on the sea - with C's big
+ * card for the island being played). The islands come from the server in order: the base islands,
+ * then generated ones forever; the next one opens at 2/3 of the one before, and there is always one
+ * more, locked, waiting at the end of the path. docs/plan-infinite-islands.md.
  */
 export default function SeaPage() {
   const navigate = useNavigate();
   const { profile, ready } = useRequireProfile();
-  const [stars, setStars] = useState({}); // isle key -> stars
+  const [isles, setIsles] = useState(null);
+  const [error, setError] = useState("");
   const [nudge, setNudge] = useState(null);
-  const wide = useSyncExternalStore(subscribeWide, isWide, () => false);
 
   useEffect(() => {
     if (!ready) return;
     preload(["sea_intro", "isle_locked"]);
     say("sea_intro");
-    let active = true;
-    GAMES.filter((g) => g.ready).forEach((g) =>
-      getStageMap(profile.id, g.topic)
-        .then((m) => active && setStars((s) => ({ ...s, [g.isle]: (s[g.isle] ?? 0) + m.totalStars })))
-        .catch(() => {}),
-    );
-    return () => {
-      active = false;
-    };
+    getIsles(profile.id)
+      .then((sea) => setIsles(sea.isles))
+      .catch((e) => setError(e.message));
   }, [ready, profile]);
 
   if (!ready) return null;
 
-  function closedFor(isle) {
-    if (!isle.ready) return "בקרוב";
-    if (profile.gradeLocked && profile.grade && !isle.grades.includes(profile.grade)) {
-      return `לכיתה ${isle.grades.map((g) => getGrade(g)?.letter ?? "").join("-")}`;
-    }
-    return null;
+  /** A base island of another grade, when the teacher locked the child's grade. */
+  function gradeLock(isle) {
+    const base = ISLES.find((b) => b.key === isle.key);
+    if (!base || !profile.gradeLocked || !profile.grade || base.grades.includes(profile.grade)) return null;
+    return `לכיתה ${base.grades.map((g) => getGrade(g)?.letter ?? "").join("-")}`;
   }
 
   function open(isle) {
-    const closed = closedFor(isle);
-    if (closed) {
+    if (!isle.open || gradeLock(isle)) {
       sfx.wrong();
       say("isle_locked");
       setNudge(isle.key);
@@ -68,44 +52,73 @@ export default function SeaPage() {
       return;
     }
     sfx.tap();
-    navigate(`/isle/${isle.key}`);
+    navigate(isle.generated ? `/sea/${isle.key}` : `/isle/${isle.key}`);
   }
+
+  const list = isles ?? [];
+  const openIsles = list.filter((i) => i.open);
+  const current = openIsles[openIsles.length - 1];
 
   return (
     <div className="app-shell island-shell sea-shell">
       <button className="back-button" onClick={() => navigate("/")}>← בית</button>
       <h1 className="island__title">🌊 ים האיים</h1>
       <DolphinPerch message="לאן מפליגים היום?" />
+      {error && <p className="form-error">{error}</p>}
 
-      <div className={`sea ${wide ? "sea--wide" : ""}`}>
-        <span className="sea__deco sea__deco--boat" aria-hidden="true">⛵</span>
-        <span className="sea__deco sea__deco--whale" aria-hidden="true">🐳</span>
-        <span className="sea__deco sea__deco--fish" aria-hidden="true">🐠</span>
-        {ISLES.map((isle, i) => {
-          const [x, y] = wide ? isle.wide : isle.tall;
-          const closed = closedFor(isle);
-          const games = GAMES.filter((g) => g.isle === isle.key && g.ready).length;
-          return (
-            <button
-              key={isle.key}
-              className={`isle${closed ? " is-closed" : ""}${nudge === isle.key ? " is-nudging" : ""}`}
-              style={{ left: `${x}%`, top: `${y}%`, "--isle": isle.color, "--d": `${i * 0.5}s` }}
-              onClick={() => open(isle)}
-              aria-label={`${isle.name}${closed ? ` - ${closed}` : ""}`}
-            >
-              <span className="isle__land" aria-hidden="true">
-                <span className="isle__emoji">{isle.emoji}</span>
-              </span>
-              <span className="isle__name">{isle.name}</span>
-              {closed ? (
-                <span className="isle__lock">🔒 {closed}</span>
-              ) : (
-                <span className="isle__stars">⭐ {stars[isle.key] ?? 0}/{games * LEVELS_PER_GAME * 3}</span>
-              )}
+      {current && (
+        <section className="isle-card" style={{ "--isle": current.color }} aria-label="האי שלך עכשיו">
+          <div className="isle-card__art" aria-hidden="true">
+            <span className="isle-card__land">{current.mark}</span>
+          </div>
+          <div className="isle-card__body">
+            <h2 className="isle-card__name">{current.name}</h2>
+            <div className="isle-card__bar" role="img" aria-label={`${current.passed} מתוך ${current.total} שלבים`}>
+              <span style={{ width: `${Math.round((current.passed / current.total) * 100)}%` }} />
+            </div>
+            <p className="isle-card__info">
+              {current.passed} מתוך {current.total} שלבים
+              {current.passed < current.needed ? ` · עוד ${current.needed - current.passed} והאי הבא נפתח` : " · האי הבא פתוח!"}
+            </p>
+            <button className="isle-card__play" onClick={() => open(current)}>
+              שחקו!
             </button>
+          </div>
+        </section>
+      )}
+
+      <ol className="sea-path" aria-label="כל האיים">
+        {list.map((isle, i) => {
+          const lock = gradeLock(isle);
+          const prev = i > 0 ? list[i - 1] : null;
+          const closed = !isle.open || lock;
+          return (
+            <li key={isle.key} className={`sea-path__stop ${i % 2 ? "is-left" : "is-right"}`}>
+              <button
+                className={`path-isle${closed ? " is-closed" : ""}${nudge === isle.key ? " is-nudging" : ""}${isle === current ? " is-current" : ""}`}
+                style={{ "--isle": isle.color, "--d": `${(i % 6) * 0.4}s` }}
+                onClick={() => open(isle)}
+                aria-label={`${isle.name}${closed ? " - נעול" : ""}`}
+              >
+                <span className="path-isle__land" aria-hidden="true">{closed ? "🔒" : isle.mark}</span>
+                <span className="path-isle__name">{isle.name}</span>
+                <span className="path-isle__sub">
+                  {lock
+                    ? `🔒 ${lock}`
+                    : !isle.open
+                      ? prev
+                        ? `עוד ${Math.max(0, prev.needed - prev.passed)} שלבים ב${prev.name}`
+                        : "נעול"
+                      : isle.passed >= isle.total
+                        ? `⭐ ${isle.stars} · הושלם`
+                        : `⭐ ${isle.stars} · ${isle.passed}/${isle.total}`}
+                </span>
+              </button>
+            </li>
           );
         })}
-      </div>
+        {isles && <li className="sea-path__more" aria-hidden="true">🌊 ועוד איים מחכים...</li>}
+      </ol>
 
       <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>
       <WeeklyTasks profileId={profile.id} />
