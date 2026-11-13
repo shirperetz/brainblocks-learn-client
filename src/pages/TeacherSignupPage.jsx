@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
 import { registerTeacher } from "../services/learnApi";
 import "../styles/pages/room.css";
+import BotTrap from "../components/BotTrap";
 
 // 2026-11-12 (Shir chose: no teachers' code - her approval is enough): a teacher signs up and waits.
 export default function TeacherSignupPage() {
@@ -32,6 +33,7 @@ export default function TeacherSignupPage() {
 
   return (
     <div className="app-shell room-child who">
+      <BotTrap />
       <button className="back-button" onClick={() => navigate("/who")}>← חזרה</button>
       <div className="who__body">
       {sent ? (

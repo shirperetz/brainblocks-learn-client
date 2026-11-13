@@ -5,16 +5,26 @@ import { API_BASE_URL, apiRequest, tokenHeader } from "./apiClient";
 
 // 2026-11-11: children's accounts - a profile is made with a username + password, and every
 // device logs in with them. Both return { token, profile }.
+// 2026-11-13 (security, against sign-up bots): how long the form was open + the hidden trap field
+let formOpenedAt = 0;
+export function markFormOpened() {
+  formOpenedAt = Date.now();
+}
+function botFields() {
+  const trap = document.querySelector('input[name="website"]')?.value ?? "";
+  return { website: trap, formMs: String(formOpenedAt ? Date.now() - formOpenedAt : 99999) };
+}
+
 export function register({ joinCode, username, password, name, avatar, grade, difficulty }) {
   return apiRequest("/api/learn/auth/register", {
     method: "POST",
-    body: JSON.stringify({ joinCode, username, password, name, avatar, grade, difficulty }),
+    body: JSON.stringify({ joinCode, username, password, name, avatar, grade, difficulty, ...botFields() }),
   });
 }
 
 /** 2026-11-12: a teacher signs up with no code - waits for the admin's approval. */
 export function registerTeacher({ username, password, name }) {
-  return apiRequest("/api/learn/auth/register-teacher", { method: "POST", body: JSON.stringify({ username, password, name }) });
+  return apiRequest("/api/learn/auth/register-teacher", { method: "POST", body: JSON.stringify({ username, password, name, ...botFields() }) });
 }
 
 export function login({ username, password }) {

@@ -7,6 +7,7 @@ import { useProfile } from "../context/profileStore";
 import { startsOnIsland } from "../game/games";
 import { preload, say } from "../game/audio";
 import "../styles/pages/onboarding.css";
+import BotTrap from "../components/BotTrap";
 
 // Screen 3 — pick the companion character and type a name. Creates the profile with the grade
 // chosen on the screen before (passed in navigation state); without one, back to the grade.
@@ -85,6 +86,7 @@ export default function CharacterPage() {
 
   return (
     <div className="app-shell">
+      <BotTrap />
       <button className="back-button" onClick={() => navigate("/grade")}>
         ← חזרה
       </button>
