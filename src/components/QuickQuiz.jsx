@@ -5,7 +5,8 @@ import ReadAloud from "./ReadAloud";
 import { readAloudDefault } from "../game/readAloud";
 import MathText from "./MathText";
 import { cheer } from "../game/companion";
-import { answerQuestion } from "../services/learnApi";
+import { answerQuestion, getHelp } from "../services/learnApi";
+import HelpVisual from "./HelpVisual";
 import "../styles/pages/play.css";
 
 const FEEDBACK_MS = 900;
@@ -21,6 +22,7 @@ const FEEDBACK_MS = 900;
 export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = true, feedbackMs = FEEDBACK_MS }) {
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState(null);
+  const [wrongHelp, setWrongHelp] = useState(null); // after a mistake: { text, visual, right } | "loading"
   // 2026-11-12 (stage 2): a bank question comes without its answer - the server checks it.
   const [checked, setChecked] = useState(null); // { index, correctIndex, explanation }
   const [busy, setBusy] = useState(false);
@@ -77,12 +79,25 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
       },
       q,
     );
-    timer.current = setTimeout(() => {
-      helpUsed.current = false;
-      setSelected(null);
-      if (index + 1 < questions.length) setIndex(index + 1);
-      else onDone?.();
-    }, feedbackMs);
+    // 2026-11-13 (Shir: "the explanation after a mistake"): not in the 60-second race (help=false) - there
+    // the next question comes at once; elsewhere a wrong answer waits on the explanation card.
+    if (!correct && help) {
+      const right = q.options[correctIndex];
+      setWrongHelp("loading");
+      getHelp({ questionText: q.text, correctAnswer: right, chosenAnswer: q.options[j], grade, attempt: 0, fallbackHint: q.hint, bankId: q.bankId })
+        .then((h) => setWrongHelp({ ...h, right }))
+        .catch(() => setWrongHelp({ text: explanation || q.hint || "", right }));
+      return;
+    }
+    timer.current = setTimeout(next, feedbackMs);
+  }
+
+  function next() {
+    setWrongHelp(null);
+    helpUsed.current = false;
+    setSelected(null);
+    if (index + 1 < questions.length) setIndex(index + 1);
+    else onDone?.();
   }
 
   function state(j) {
@@ -117,6 +132,20 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
         ))}
       </div>
       {checkError && <p className="form-error">{checkError}</p>}
+      {wrongHelp && (
+        <div className="mistake-card" role="status">
+          {wrongHelp === "loading" ? (
+            <p>רגע, מסבירים... 🦉</p>
+          ) : (
+            <>
+              <p className="mistake-card__right">✔ התשובה הנכונה: <b><MathText text={String(wrongHelp.right)} /></b></p>
+              {wrongHelp.text && <p className="mistake-card__text">{wrongHelp.text}</p>}
+              <HelpVisual visual={wrongHelp.visual} />
+              <button type="button" className="mistake-card__go" onClick={next} autoFocus>הבנתי, ממשיכים ←</button>
+            </>
+          )}
+        </div>
+      )}
     </>
   );
 }

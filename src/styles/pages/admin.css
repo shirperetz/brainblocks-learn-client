@@ -178,3 +178,9 @@
 /* 2026-11-13: students / teachers tabs inside the users card */
 .admin-tabs--small { margin: 0 0 0.8rem; }
 .admin-tabs--small .admin-tabs__tab { font-size: 1rem; padding: 0.55rem 0.9rem; }
+/* 2026-11-13: the activity log */
+.audit-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.audit-row { display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.7rem; padding: 0.55rem 0.8rem; border-radius: 12px; background: #f6f3ff; }
+.audit-row__when { grid-row: span 2; font-size: 0.85rem; color: #5a6680; font-variant-numeric: tabular-nums; align-self: center; }
+.audit-row__who { font-weight: 800; }
+.audit-row__what { color: #3a4560; }

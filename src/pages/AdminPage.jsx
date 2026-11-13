@@ -8,6 +8,7 @@ import * as learnApi from "../services/learnApi";
 import SchoolTree from "../components/SchoolTree";
 import "../styles/pages/admin.css";
 import { ask } from "../components/dialog";
+import AuditLog from "../components/AuditLog";
 
 // 2026-11-11: Shir's admin screen - every child, reset a password (or give an old profile a
 // username), block / unblock, and the join code. The server checks the admin flag on every call;
@@ -133,9 +134,12 @@ export default function AdminPage() {
         <button type="button" role="tab" aria-selected={tab === "school"} className={`admin-tabs__tab ${tab === "school" ? "is-on" : ""}`} onClick={() => setTab("school")}>
           👩‍🏫 מורים וכיתות
         </button>
+        <button type="button" role="tab" aria-selected={tab === "audit"} className={`admin-tabs__tab ${tab === "audit" ? "is-on" : ""}`} onClick={() => setTab("audit")}>
+          📜 יומן
+        </button>
       </div>
 
-      {tab === "school" ? <SchoolTree /> : (<>
+      {tab === "audit" ? <AuditLog /> : tab === "school" ? <SchoolTree /> : (<>
       {message && <p className="admin__message" role="status">{message}</p>}
       {error && <p className="form-error">{error}</p>}
 
