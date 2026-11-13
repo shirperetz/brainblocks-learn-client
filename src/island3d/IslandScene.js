@@ -247,7 +247,22 @@ export class IslandScene {
     };
     const light = mat(0xffd36e, { emissive: 0x6a4a00 });
     if (kind === "house") {
-      if (level === 1) {
+      if (level >= 4) {
+        // the castle: a keep, four towers with pointed roofs, walls and flags
+        const stone = mat(0xd9d4c7), dark = mat(0xb9b2a2), roof = mat(0x6f4fd8);
+        add(new THREE.BoxGeometry(4.6, 0.9, 4.6), dark, 0, 0.45, 0);
+        add(new THREE.BoxGeometry(2.6, 4.2, 2.6), stone, 0, 2.1, 0);
+        add(new THREE.ConeGeometry(2.1, 1.8, 4), roof, 0, 5.1, 0).rotation.y = Math.PI / 4;
+        for (const [x, z] of [[-2, -2], [2, -2], [-2, 2], [2, 2]]) {
+          add(new THREE.CylinderGeometry(0.75, 0.85, 3.4, 10), stone, x, 1.7, z);
+          add(new THREE.ConeGeometry(0.95, 1.5, 10), roof, x, 4.15, z);
+          add(new THREE.CylinderGeometry(0.03, 0.03, 0.9, 4), mat(0x5c3a17), x, 5.3, z);
+          add(new THREE.BoxGeometry(0.05, 0.35, 0.55), mat(0xe2483a), x, 5.55, z + 0.28);
+        }
+        add(new THREE.BoxGeometry(0.9, 1.4, 0.1), mat(0x8a5a2b), 0, 0.7, 2.31);
+        add(new THREE.BoxGeometry(0.5, 0.5, 0.1), light, -0.6, 2.8, 1.31);
+        add(new THREE.BoxGeometry(0.5, 0.5, 0.1), light, 0.6, 2.8, 1.31);
+      } else if (level === 1) {
         add(new THREE.ConeGeometry(1.8, 2.4, 4), mat(0xf0a030), 0, 1.2, 0).rotation.y = Math.PI / 4;
         add(new THREE.BoxGeometry(0.7, 1.1, 0.1), mat(0x8a5a2b), 0, 0.55, 1.05);
       } else {
