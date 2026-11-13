@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import DolphinPerch from "../components/DolphinPerch";
 import { GAMES } from "../game/games";
+import { getTopic } from "../data/topics";
 import { sfx } from "../game/audio";
 import { getIsles } from "../services/learnApi";
 import { useRequireProfile } from "../hooks/useRequireProfile";
@@ -51,7 +52,9 @@ export default function GenIslePage() {
           {!isle.open && <p className="gen-isle__locked">🔒 עוד נעול: צריך לעבור עוד שלבים באי הקודם.</p>}
           <div className="gen-isle__games">
             {isle.games.map((g) => {
-              const game = GAMES.find((x) => x.topic === g.topic);
+              // 2026-11-13: an island game, or a topic of the question screen (ד׳-ו׳ and the topic islands)
+              const t = getTopic(g.topic);
+              const game = GAMES.find((x) => x.topic === g.topic) ?? (t && { key: null, emoji: t.icon ?? t.emoji ?? "📘", name: t.name ?? t.title ?? g.topic, color: t.color ?? "#4aa8ff" });
               if (!game) return null;
               return (
                 <section key={g.topic} className="gen-game" style={{ "--hut": game.color }}>
@@ -67,7 +70,7 @@ export default function GenIslePage() {
                         aria-label={`שלב ${s.stage}${s.status === "LOCKED" ? " - נעול" : ""}`}
                         onClick={() => {
                           sfx.tap();
-                          navigate(`/sea/${isle.key}/${game.key}/${s.stage}`);
+                          navigate(game.key ? `/sea/${isle.key}/${game.key}/${s.stage}` : `/sea/${isle.key}/q/${g.topic}/${s.stage}`);
                         }}
                       >
                         <span className="gen-stage__n">{s.status === "LOCKED" ? "🔒" : s.stage}</span>

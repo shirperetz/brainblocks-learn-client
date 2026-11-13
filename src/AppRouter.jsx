@@ -48,6 +48,7 @@ export default function AppRouter() {
       <Route path="/island/:game/:level" element={<GamePlayPage />} />
       {/* 2026-11-13: generated islands (gen-N): the same games at a higher tier */}
       <Route path="/sea/:isleKey" element={<GenIslePage />} />
+      <Route path="/sea/:isleKey/q/:topic/:stage" element={<PlayPage />} />
       <Route path="/sea/:isleKey/:game/:level" element={<GamePlayPage />} />
       <Route path="/review" element={<ReviewPage />} />
       <Route path="/rewards" element={<Navigate to="/my-island" replace />} />

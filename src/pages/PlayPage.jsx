@@ -9,7 +9,7 @@ import { readAloudDefault } from "../game/readAloud";
 import QuestionPicture from "../components/QuestionPicture";
 import MathText from "../components/MathText";
 import { getTopic } from "../data/topics";
-import { getQuestions, submitSession, answerQuestion } from "../services/learnApi";
+import { getQuestions, submitSession, submitIsleSession, answerQuestion } from "../services/learnApi";
 import { useProfile } from "../context/profileStore";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/play.css";
@@ -19,7 +19,9 @@ const FEEDBACK_MS = 1300;
 
 // Screen 6 — answer 10 questions. Correct = green + sparkle; wrong = gentle shake.
 export default function PlayPage() {
-  const { topic, stage } = useParams();
+  const { topic, stage, isleKey } = useParams();
+  // 2026-11-13: played on a generated island ("gen-3") - harder questions, results kept on the island
+  const tier = Number(/^gen-(\d+)$/.exec(isleKey ?? "")?.[1] ?? 0);
   const navigate = useNavigate();
   const { profile, ready } = useRequireProfile();
   const { refreshProfile } = useProfile();
@@ -55,7 +57,7 @@ export default function PlayPage() {
     answersRef.current = [];
     startRef.current = Date.now();
     // 2026-11-12 (stage 2): secure - the right answer stays on the server until the child answers.
-    getQuestions({ profileId: profile.id, topic, stage, count: 10, secure: true })
+    getQuestions({ profileId: profile.id, topic, stage, count: 10, secure: true, tier })
       .then((data) => {
         if (!active) return;
         if (!data || data.length === 0) setError("לא הצלחנו להכין שאלות. נסו שוב.");
@@ -65,7 +67,7 @@ export default function PlayPage() {
     return () => {
       active = false;
     };
-  }, [ready, profile, topic, stage, topicInfo]);
+  }, [ready, profile, topic, stage, topicInfo, tier]);
 
   if (!ready) return null;
 
@@ -149,17 +151,26 @@ export default function PlayPage() {
     setSubmitting(true);
     // eslint-disable-next-line react-hooks/purity -- end-of-run timing; this runs from a timeout, not during render
     const durationMs = Date.now() - startRef.current;
-    submitSession({
-      profileId: profile.id,
-      topic,
-      stage: Number(stage),
-      mode: "STAGE",
-      durationMs,
-      answers: answersRef.current,
-    })
+    const sent = tier
+      ? submitIsleSession(profile.id, isleKey, { topic, stage: Number(stage), durationMs, answers: answersRef.current }).then((s) => ({
+          ...s,
+          correct: Math.round((s.scorePct * answersRef.current.length) / 100),
+          total: answersRef.current.length,
+          encouragement: s.passed ? "כל הכבוד! עברתם את השלב 🎉" : "כמעט! עוד ניסיון ותצליחו 💪",
+          nextStageUnlocked: false,
+        }))
+      : submitSession({
+          profileId: profile.id,
+          topic,
+          stage: Number(stage),
+          mode: "STAGE",
+          durationMs,
+          answers: answersRef.current,
+        });
+    sent
       .then((summary) => {
         refreshProfile();
-        navigate(`/summary/${topic}/${stage}`, { state: { summary } });
+        navigate(`/summary/${topic}/${stage}`, { state: { summary, back: tier ? `/sea/${isleKey}` : null } });
       })
       .catch((err) => {
         setError(err.message);
@@ -169,7 +180,7 @@ export default function PlayPage() {
 
   function handleExit() {
     if (window.confirm("לצאת מהשלב? ההתקדמות בשלב הזה לא תישמר.")) {
-      navigate(`/map/${topic}`);
+      navigate(tier ? `/sea/${isleKey}` : `/map/${topic}`);
     }
   }
 

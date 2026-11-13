@@ -111,8 +111,8 @@ export function getIsle(key) {
 }
 
 /** Grades א׳-ג׳ have the islands (ג׳ also has the topic list). */
-export function hasIslands(grade) {
-  return !grade || grade === "G1" || grade === "G2" || grade === "G3";
+export function hasIslands() {
+  return true; // 2026-11-13 (Shir): every grade has an endless sea - ד׳-ו׳ an island per topic
 }
 
 export function getGame(key) {

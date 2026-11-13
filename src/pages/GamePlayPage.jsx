@@ -214,6 +214,9 @@ export default function GamePlayPage() {
   return <GamePlay key={`${isleKey ?? ""}-${game}-${level}`} />;
 }
 
+/** The biggest island tier for each grade's games (higher islands repeat this level with fresh rounds). */
+const TIER_CAP = { G1: 2, G2: 3, G3: 6 };
+
 /** 2026-11-13: "gen-3" -> 3 (a generated island's tier); a base island -> 0. */
 function tierOf(isleKey) {
   const m = /^gen-(\d+)$/.exec(isleKey ?? "");
@@ -233,7 +236,9 @@ function speakRound(kind, round, before = []) {
 /** Plays one level of an island game, then sends the result to the server for stars. */
 function GamePlay() {
   const { game: gameKey, level: levelParam, isleKey } = useParams();
-  const tier = tierOf(isleKey);
+  const { profile: me } = useProfile();
+  // 2026-11-13: numbers grow island after island, but never past the child's grade (א׳ stays small)
+  const tier = Math.min(tierOf(isleKey), TIER_CAP[me?.grade] ?? 99);
   // Where this level lives: a generated island's page, or the base island's game map.
   const back = tier ? `/sea/${isleKey}` : null;
   const memoryKey = tier ? `${gameKey}@${isleKey}` : gameKey;
@@ -390,7 +395,7 @@ function GamePlay() {
         </div>
       )}
 
-      {tier > 0 && !result && <p className="game-tier">{`אי ${tier} · שלב ${level}`}</p>}
+      {tier > 0 && !result && <p className="game-tier">{`אי ${tierOf(isleKey)} · שלב ${level}`}</p>}
       {round && !result && <Round key={`${runId}-${index}`} round={round} onDone={onRoundDone} />}
 
       {result && (

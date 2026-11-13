@@ -49,8 +49,8 @@ export function getStageMap(profileId, topic) {
   return apiRequest(`/api/learn/profiles/${profileId}/map?topic=${topic}`);
 }
 
-export function getQuestions({ profileId, topic, stage, count = 10, secure = false }) {
-  const params = new URLSearchParams({ profileId, topic, stage, count, ...(secure ? { secure: "true" } : {}) });
+export function getQuestions({ profileId, topic, stage, count = 10, secure = false, tier = 0 }) {
+  const params = new URLSearchParams({ profileId, topic, stage, count, ...(secure ? { secure: "true" } : {}), ...(tier ? { tier } : {}) });
   return apiRequest(`/api/learn/questions?${params.toString()}`);
 }
 

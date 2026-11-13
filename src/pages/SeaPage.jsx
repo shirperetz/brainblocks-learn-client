@@ -52,7 +52,9 @@ export default function SeaPage() {
       return;
     }
     sfx.tap();
-    navigate(isle.generated ? `/sea/${isle.key}` : `/isle/${isle.key}`);
+    // 2026-11-13: a topic island ("t-fractions") is that topic's own stage map
+    if (isle.key.startsWith("t-")) navigate(`/map/${isle.key.slice(2).toUpperCase()}`);
+    else navigate(isle.generated ? `/sea/${isle.key}` : `/isle/${isle.key}`);
   }
 
   const list = isles ?? [];

@@ -12,6 +12,8 @@ export default function SummaryPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const summary = location.state?.summary;
+  // 2026-11-13: a round on a generated island goes back to that island
+  const back = location.state?.back ?? null;
   // 2026-11-11: the companion celebrates (or encourages) once, when the summary appears.
   useEffect(() => {
     if (summary) cheer(summary.passed ? "levelPassed" : "levelFailed");
@@ -49,12 +51,17 @@ export default function SummaryPage() {
               🎁 קיבלת חלק חדש לאי שלך!
             </BigButton>
           )}
+          {back && summary.passed && Number(stage) < 6 && (
+            <BigButton variant="green" onClick={() => navigate(`${back}/q/${topic}/${Number(stage) + 1}`)}>
+              לשלב הבא ←
+            </BigButton>
+          )}
           {summary.nextStageUnlocked && (
             <BigButton variant="green" onClick={() => navigate(`/play/${topic}/${summary.nextStage}`)}>
               עבור לשלב הבא ←
             </BigButton>
           )}
-          <BigButton variant="blue" onClick={() => navigate(`/play/${topic}/${stage}`)}>
+          <BigButton variant="blue" onClick={() => navigate(back ? `${back}/q/${topic}/${stage}` : `/play/${topic}/${stage}`)}>
             נסה שוב
           </BigButton>
           {hasMistakes && (
@@ -62,8 +69,8 @@ export default function SummaryPage() {
               בוא נחזור על מה שהיה קשה
             </BigButton>
           )}
-          <BigButton variant="ghost" onClick={() => navigate(`/map/${topic}`)}>
-            חזרה למפה
+          <BigButton variant="ghost" onClick={() => navigate(back ?? `/map/${topic}`)}>
+            {back ? "חזרה לאי" : "חזרה למפה"}
           </BigButton>
         </div>
       </div>
