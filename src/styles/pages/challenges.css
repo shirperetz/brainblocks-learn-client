@@ -184,3 +184,13 @@
   color: var(--ink-soft);
   text-align: center;
 }
+
+/* 2026-11-13: the daily task card in the sea of islands */
+.daily-card { display: flex; align-items: center; gap: 0.8rem; width: min(100%, 30rem); margin: 0.6rem auto; padding: 0.8rem 1rem; border: 0; border-radius: 20px; background: linear-gradient(135deg, #ff9a5a, #ff6a3a); box-shadow: 0 5px 0 #c94a1f; color: #fff; font-family: var(--font); text-align: start; cursor: pointer; }
+.daily-card.is-done { background: linear-gradient(135deg, #7ad08a, #3fae5a); box-shadow: 0 5px 0 #2a8a43; }
+.daily-card:focus-visible { outline: 3px solid #1f2a44; outline-offset: 3px; }
+.daily-card__icon { font-size: 2.2rem; line-height: 1; }
+.daily-card__body { display: flex; flex-direction: column; }
+.daily-card__body b { font-size: 1.15rem; }
+.daily-card__body span { font-size: 0.95rem; font-weight: 700; }
+.challenge__coins { font-weight: 800; color: #a8740e; }

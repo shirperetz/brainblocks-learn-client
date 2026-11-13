@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DolphinPerch from "../components/DolphinPerch";
+import DailyCard from "../components/DailyCard";
 import WeeklyTasks from "../components/WeeklyTasks";
 import ClassBuilding from "../components/ClassBuilding";
 import { ISLES } from "../game/games";
@@ -129,6 +130,7 @@ export default function SeaPage() {
       </ol>
 
       <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>
+      <DailyCard profileId={profile.id} back="/island" />
       <WeeklyTasks profileId={profile.id} />
       <ClassBuilding profileId={profile.id} />
       <button className="text-link island__grown" onClick={() => navigate("/topics")}>

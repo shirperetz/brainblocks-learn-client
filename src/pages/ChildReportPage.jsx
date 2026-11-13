@@ -5,7 +5,7 @@ import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
 import { GRADES, getGrade } from "../data/grades";
 import { LEVELS, LEVEL_ORDER, TREND, levelOf, timeAgo, topicInfo } from "../data/progress";
-import { staffMe, staffMoveChild, staffReport, staffSetGrade, staffSetPassword } from "../services/learnApi";
+import { staffCancelAssignment, staffGivePractice, staffMe, staffMoveChild, staffPractice, staffReport, staffSetGrade, staffSetPassword } from "../services/learnApi";
 import "../styles/pages/staff.css";
 
 // 2026-11-11 (Shir: "the children's results - what she finds hard and what she doesn't - really
@@ -219,6 +219,67 @@ function GradeLock({ child, onSaved }) {
   );
 }
 
+/**
+ * 2026-11-13 (Shir chose "practice from the report"): the topics this child gets wrong, each with a
+ * "give practice" button - 2 rounds in 3 days, only this child sees it ("just for you").
+ */
+function PracticeBox({ report }) {
+  const childId = report.child.id;
+  const [list, setList] = useState(null);
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    staffPractice(childId).then(setList).catch(() => setList([]));
+  }, [childId]);
+  const topics = [...new Set([
+    ...(report.patterns ?? []).map((p) => p.topic),
+    ...(report.hard ?? []).map((s) => s.topic),
+    report.recommendation?.topic,
+  ].filter(Boolean))];
+  if (!list || (topics.length === 0 && list.length === 0)) return null;
+  const open = list.filter((a) => a.active);
+
+  async function run(fn, text) {
+    setBusy(true);
+    try {
+      await fn();
+      setMsg(text);
+      setList(await staffPractice(childId));
+    } catch (e) {
+      setMsg(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="staff-card practice-box">
+      <h2>🎯 תרגול אישי</h2>
+      <p className="staff-card__hint">2 סבבים ב-3 ימים, רק ל{report.child.name}. הוא/היא רואה את זה כ"משימה רק בשבילך".</p>
+      {open.length > 0 && (
+        <ul className="practice-box__list">
+          {open.map((a) => (
+            <li key={a.id}>
+              <span>{topicInfo(a.topic).emoji} {topicInfo(a.topic).name}: {a.done} מתוך {a.rounds} · עוד {a.daysLeft} ימים</span>
+              <button className="admin__btn admin__btn--ghost" disabled={busy}
+                onClick={() => run(() => staffCancelAssignment(a.id), "התרגול בוטל")}>ביטול</button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="practice-box__give">
+        {topics.filter((t) => !open.some((a) => a.topic === t)).map((t) => (
+          <button key={t} className="admin__btn" disabled={busy}
+            onClick={() => run(() => staffGivePractice(childId, t), `נשלח ל${report.child.name}: תרגול ב${topicInfo(t).name}`)}>
+            ➕ תרגול ב{topicInfo(t).emoji} {topicInfo(t).name}
+          </button>
+        ))}
+      </div>
+      {msg && <p className="admin__message" role="status">{msg}</p>}
+    </section>
+  );
+}
+
 function Report({ report, openTopic, setOpenTopic }) {
   const c = report.child;
   const me = getCharacter(c.avatar);
@@ -279,6 +340,8 @@ function Report({ report, openTopic, setOpenTopic }) {
           </div>
         </section>
       )}
+
+      <PracticeBox report={report} />
 
       {/* ---- 2026-11-12 stage 2/B: where the mistakes come from ---- */}
       {report.patterns?.length > 0 && (

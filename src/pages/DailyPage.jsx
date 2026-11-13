@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import DolphinPerch from "../components/DolphinPerch";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
 import QuickQuiz from "../components/QuickQuiz";
 import { getQuestions, getStats, submitSession } from "../services/learnApi";
@@ -16,6 +16,9 @@ export default function DailyPage() {
   const { profile, ready } = useRequireProfile();
   const { refreshProfile } = useProfile();
   const [stats, setStats] = useState(null);
+  // 2026-11-13: back to where the child came from (the sea of islands or the topics)
+  const back = useLocation().state?.back ?? "/topics";
+  const [doneBefore, setDoneBefore] = useState(null);
   const [questions, setQuestions] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
@@ -30,6 +33,7 @@ export default function DailyPage() {
   if (!ready) return null;
 
   function start() {
+    setDoneBefore(Boolean(stats?.dailyDone)); // the coins are only for the first time each day
     answers.current = [];
     setResult(null);
     getQuestions({ profileId: profile.id, topic: "MIXED", stage: 3, count: COUNT, secure: true })
@@ -60,7 +64,7 @@ export default function DailyPage() {
 
   return (
     <div className="app-shell">
-      <button className="back-button" onClick={() => navigate("/topics")}>
+      <button className="back-button" onClick={() => navigate(back)}>
         ← חזרה
       </button>
       <div className="challenge">
@@ -73,6 +77,7 @@ export default function DailyPage() {
             <p className="challenge__big">
               {stats.dailyStreak > 0 ? `🔥 ${stats.dailyStreak} ${stats.dailyStreak === 1 ? "יום" : "ימים"} ברצף` : "מתחילים רצף חדש!"}
             </p>
+            {!stats.dailyDone && <p>כל יום = 5 מטבעות לאי. כל יום שלישי ברצף = עוד 10!</p>}
             <BigButton variant="green" onClick={start}>
               {stats.dailyDone ? "לשחק שוב" : "יאללה, מתחילים!"}
             </BigButton>
@@ -94,8 +99,14 @@ export default function DailyPage() {
               {result.correct} / {result.total} נכונות
             </p>
             <p>{stats?.dailyStreak > 0 ? `🔥 רצף של ${stats.dailyStreak} ${stats.dailyStreak === 1 ? "יום" : "ימים"}! נתראה מחר.` : ""}</p>
-            <BigButton variant="blue" onClick={() => navigate("/topics")}>
-              חזרה לנושאים
+            {doneBefore === false && (
+              <p className="challenge__coins">
+                🪙 +{5 + (stats?.dailyStreak > 0 && stats.dailyStreak % 3 === 0 ? 10 : 0)} מטבעות לאי שלך
+                {stats?.dailyStreak > 0 && stats.dailyStreak % 3 === 0 ? " (בונוס רצף!)" : ""}
+              </p>
+            )}
+            <BigButton variant="blue" onClick={() => navigate(back)}>
+              חזרה
             </BigButton>
           </div>
         )}

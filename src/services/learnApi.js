@@ -282,6 +282,15 @@ export function staffCreateAssignment(classId, { topic, rounds, days }) {
   });
 }
 
+// 2026-11-13 (Shir: "practice from the report"): a short task for one child
+export function staffPractice(childId) {
+  return apiRequest(`/api/learn/staff/children/${childId}/practice`);
+}
+
+export function staffGivePractice(childId, topic) {
+  return apiRequest(`/api/learn/staff/children/${childId}/practice`, { method: "POST", body: JSON.stringify({ topic }) });
+}
+
 export function staffCancelAssignment(id) {
   return apiRequest(`/api/learn/staff/assignments/${id}/cancel`, { method: "POST" });
 }
@@ -388,4 +397,25 @@ export function getMyIsland(profileId, isle = 0) {
 
 export function islandAction(profileId, what, body = {}) {
   return apiRequest(`/api/learn/profiles/${profileId}/my-island/${what}`, { method: "POST", body: JSON.stringify(body) });
+}
+
+// ---- 2026-11-13: a child with an account joins a class with its code; the teacher accepts ----
+export function getJoinClass(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/join-class`);
+}
+
+export function askJoinClass(profileId, code) {
+  return apiRequest(`/api/learn/profiles/${profileId}/join-class`, { method: "POST", body: JSON.stringify({ code }) });
+}
+
+export function cancelJoinClass(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/join-class/cancel`, { method: "POST" });
+}
+
+export function staffClassRequests() {
+  return apiRequest(`/api/learn/staff/class-requests`);
+}
+
+export function staffAnswerClassRequest(childId, accept) {
+  return apiRequest(`/api/learn/staff/class-requests/${childId}/${accept ? "accept" : "decline"}`, { method: "POST" });
 }

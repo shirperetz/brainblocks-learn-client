@@ -42,6 +42,7 @@ export default function WeeklyTasks({ profileId }) {
             <span className="weekly__icon" aria-hidden="true">{info.emoji}</span>
             <span className="weekly__body">
               <span className="weekly__name">
+                {t.personal && "🎯 רק בשבילך: "}
                 {t.rounds} {t.rounds === 1 ? "סבב" : "סבבים"} של {info.name}
               </span>
               <ProgressBar current={t.done} total={t.rounds} />

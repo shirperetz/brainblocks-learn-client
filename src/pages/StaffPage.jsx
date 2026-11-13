@@ -21,6 +21,7 @@ export default function StaffPage() {
   const [tab, setTab] = useState("all"); // "all" | classId | 0 (no class, admin)
   const [overview, setOverview] = useState(null);
   const [waiting, setWaiting] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [teacherCode, setTeacherCode] = useState("");
   const [newClass, setNewClass] = useState("");
@@ -49,6 +50,10 @@ export default function StaffPage() {
         setTeacherCode(d.teacherCode);
       })
       .catch((e) => alive && setError(e.message));
+    // 2026-11-13: children with an account who asked to join one of the classes
+    api.staffClassRequests()
+      .then((r) => alive && setRequests(r.filter((x) => classId == null || x.toClassId === classId)))
+      .catch((e) => alive && setError(e.message));
     return () => {
       alive = false;
     };
@@ -76,6 +81,30 @@ export default function StaffPage() {
   const attention = approvedRows.filter((r) => r.attention.length > 0);
   const classes = me?.classes ?? [];
   const waitingTeachers = teachers.filter((t) => !t.approved && !t.disabled);
+  const has = (r, word) => r.attention.some((a) => a.includes(word));
+  const inactive = attention.filter((r) => has(r, "לא נכנס")).length;
+  const repeating = attention.filter((r) => has(r, "טעות חוזרת")).length;
+  const struggling = attention.filter((r) => has(r, "מתקשה")).length;
+  const jump = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  // "approve everyone" - one by one, stops at the first refusal (a full class says so)
+  async function approveAll() {
+    let n = 0;
+    for (const c of waiting) {
+      try {
+        await api.staffApprove(c.id);
+        n++;
+      } catch (e) {
+        setError(`${n} אושרו. ${c.name}: ${e.message}`);
+        setMessage("");
+        load();
+        return;
+      }
+    }
+    setError("");
+    setMessage(`${n} ילדים אושרו`);
+    load();
+  }
 
   return (
     <div className="app-shell staff">
@@ -96,6 +125,44 @@ export default function StaffPage() {
       {message && <p className="admin__message" role="status">{message}</p>}
       {error && <p className="form-error">{error}</p>}
 
+      {/* 2026-11-13 (Shir chose "who needs me today"): one look, without opening reports */}
+      {overview && (
+        <section className="staff-card staff-today" aria-label="מה מחכה לך היום">
+          <h2>📋 מה מחכה לך היום</h2>
+          {waiting.length + attention.length + requests.length === 0 ? (
+            <p className="staff-today__ok">✅ הכל בסדר. אין מי שמחכה לך עכשיו.</p>
+          ) : (
+            <div className="staff-today__chips">
+              {waiting.length > 0 && (
+                <button className="staff-today__chip staff-today__chip--wait" onClick={() => jump("staff-waiting")}>
+                  ⏳ <b>{waiting.length}</b> מחכים לאישור
+                </button>
+              )}
+              {requests.length > 0 && (
+                <button className="staff-today__chip staff-today__chip--wait" onClick={() => jump("staff-requests")}>
+                  🏫 <b>{requests.length}</b> מבקשים להצטרף לכיתה
+                </button>
+              )}
+              {inactive > 0 && (
+                <button className="staff-today__chip" onClick={() => jump("staff-attention")}>
+                  😴 <b>{inactive}</b> לא נכנסו כמה ימים
+                </button>
+              )}
+              {repeating > 0 && (
+                <button className="staff-today__chip" onClick={() => jump("staff-attention")}>
+                  🔁 <b>{repeating}</b> עם טעות חוזרת
+                </button>
+              )}
+              {struggling > 0 && (
+                <button className="staff-today__chip" onClick={() => jump("staff-attention")}>
+                  🧗 <b>{struggling}</b> מתקשים בנושא
+                </button>
+              )}
+            </div>
+          )}
+        </section>
+      )}
+
       {/* ---- tabs ---- */}
       <nav className="tabs" aria-label="כיתות">
         <button className={tab === "all" ? "is-on" : ""} onClick={() => setTab("all")}>הכל</button>
@@ -112,9 +179,14 @@ export default function StaffPage() {
 
       {/* ---- waiting children ---- */}
       {waiting.length > 0 && (
-        <section className="staff-card staff-card--waiting">
+        <section className="staff-card staff-card--waiting" id="staff-waiting">
           <h2>⏳ ממתינים לאישור ({waiting.length})</h2>
           <p className="staff-card__hint">נרשמו עם קוד של כיתה. רק אחרי אישור הם יכולים להיכנס.</p>
+          {waiting.length > 1 && (
+            <button className="admin__btn" onClick={() => window.confirm(`לאשר את כל ${waiting.length} הילדים?`) && approveAll()}>
+              ✓ אישור לכולם ({waiting.length})
+            </button>
+          )}
           <ul className="people">
             {waiting.map((c) => (
               <li key={c.id} className="person">
@@ -145,6 +217,36 @@ export default function StaffPage() {
         </section>
       )}
 
+      {/* ---- 2026-11-13: children with an account asking to join a class ---- */}
+      {requests.length > 0 && (
+        <section className="staff-card staff-card--waiting" id="staff-requests">
+          <h2>🏫 בקשות הצטרפות לכיתה ({requests.length})</h2>
+          <p className="staff-card__hint">ילדים שכבר יש להם משתמש והקלידו את קוד הכיתה.</p>
+          <ul className="people">
+            {requests.map((c) => (
+              <li key={c.id} className="person">
+                <span className="person__avatar" aria-hidden="true">{getCharacter(c.avatar).emoji}</span>
+                <div className="person__who">
+                  <strong>{c.name}</strong>
+                  <small>
+                    {getGrade(c.grade)?.label ?? "—"} · רוצה להצטרף ל{c.toClassName}
+                    {c.fromClassName ? ` (עכשיו ב${c.fromClassName})` : ""}
+                  </small>
+                </div>
+                <div className="person__actions">
+                  <button className="admin__btn" onClick={() => act(() => api.staffAnswerClassRequest(c.id, true), `${c.name} הצטרף/ה ל${c.toClassName}`)}>
+                    ✓ אישור
+                  </button>
+                  <button className="admin__btn admin__btn--ghost" onClick={() => act(() => api.staffAnswerClassRequest(c.id, false), "הבקשה נדחתה")}>
+                    ✗ לא
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* ---- the weekly task of the class on the tab (idea #5) ---- */}
       {typeof tab === "number" && tab !== 0 && classes.find((c) => c.id === tab) && (
         <>
@@ -158,7 +260,7 @@ export default function StaffPage() {
 
       {/* ---- needs attention ---- */}
       {attention.length > 0 && (
-        <section className="staff-card staff-card--attention">
+        <section className="staff-card staff-card--attention" id="staff-attention">
           <h2>⚠️ צריך תשומת לב</h2>
           <ul className="people">
             {attention.map((r) => (

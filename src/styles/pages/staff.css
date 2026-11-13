@@ -804,3 +804,15 @@
   color: #b42340;
   border-color: #f2b8c4;
 }
+
+/* 2026-11-13: "what's waiting for you today" */
+.staff-today h2 { margin-bottom: 0.5rem; }
+.staff-today__ok { margin: 0; font-weight: 700; color: #1f7a3a; }
+.staff-today__chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.staff-today__chip { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 44px; padding: 0.5rem 0.9rem; border-radius: 999px; border: 2px solid #e3e8f2; background: #f5f8ff; font: inherit; font-weight: 700; color: #1f2a44; cursor: pointer; }
+.staff-today__chip b { font-size: 1.15em; }
+.staff-today__chip--wait { background: #fff7e2; border-color: #f0d38b; }
+.staff-today__chip:focus-visible { outline: 3px solid #1f2a44; outline-offset: 2px; }
+.practice-box__list { list-style: none; margin: 0 0 0.6rem; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.practice-box__list li { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; padding: 0.5rem 0.7rem; border-radius: 12px; background: #f3f0ff; font-weight: 700; }
+.practice-box__give { display: flex; flex-wrap: wrap; gap: 0.5rem; }

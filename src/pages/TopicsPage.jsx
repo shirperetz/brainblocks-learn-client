@@ -55,7 +55,7 @@ export default function TopicsPage() {
         <ClassBuilding profileId={profile.id} />
 
         <div className="challenge-row" role="group" aria-label="אתגרים">
-          <button className="challenge-card" onClick={() => navigate("/daily")}>
+          <button className="challenge-card" onClick={() => navigate("/daily", { state: { back: "/topics" } })}>
             <span className="challenge-card__icon">🔥</span>
             <span className="challenge-card__title">אתגר יומי</span>
             <span className="challenge-card__sub">

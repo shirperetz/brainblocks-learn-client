@@ -55,6 +55,10 @@ export default function LandingPage() {
                   <BigButton variant="blue" onClick={() => navigate("/my-island")}>
                     🏝️ האי שלי
                   </BigButton>
+                  {/* 2026-11-13: joining a teacher's class with an account she already has */}
+                  <BigButton variant="ghost" onClick={() => navigate("/join-class")}>
+                    🏫 הצטרפות לכיתה עם קוד
+                  </BigButton>
                   <BigButton variant="ghost" onClick={() => navigate("/settings")}>
                     ⚙️ הגדרות
                   </BigButton>
