@@ -44,7 +44,7 @@ export default function TopicsPage() {
       <button className="back-button" onClick={() => navigate("/")}>
         ← בית
       </button>
-      <div className="onboarding">
+      <div className="onboarding onboarding--game-home">
         <div className="onboarding__header">
           <div className="steps" aria-hidden="true">
             <span className="steps__dot is-active" />
@@ -55,16 +55,7 @@ export default function TopicsPage() {
           <DolphinPerch message="במה נתרגל היום?" />
         </div>
 
-        {/* 2026-11-12 (Shir: the room code inside the game's home page, not at the entrance) */}
-        <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>
-        {/* 2026-11-12 (Shir): ג׳ sees the islands too (א׳-ב׳ start there) */}
-        {hasIslands(profile.grade) && (
-          <button className="room-entry room-entry--sea" onClick={() => navigate("/island")}>🌊 לים האיים - משחקים</button>
-        )}
-        <MyIslandButton profileId={profile.id} />
-        <WeeklyTasks profileId={profile.id} />
-        <ClassBuilding profileId={profile.id} />
-
+        {/* 2026-11-14 (Shir): the three quick challenges right under the dolphin */}
         <div className="challenge-row" role="group" aria-label="אתגרים">
           <button className="challenge-card" onClick={() => navigate("/daily", { state: { back: "/topics" } })}>
             <span className="challenge-card__icon">🔥</span>
@@ -84,6 +75,17 @@ export default function TopicsPage() {
             <span className="challenge-card__sub">{stats?.openMistakes ? `${stats.openMistakes} לתרגל` : "על מה שהיה קשה"}</span>
           </button>
         </div>
+
+        {/* 2026-11-12 (Shir: the room code inside the game's home page, not at the entrance) */}
+        <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>
+        {/* 2026-11-12 (Shir): ג׳ sees the islands too (א׳-ב׳ start there) */}
+        {hasIslands(profile.grade) && (
+          <button className="room-entry room-entry--sea" onClick={() => navigate("/island")}>🌊 לים האיים - משחקים</button>
+        )}
+        <MyIslandButton profileId={profile.id} />
+        <WeeklyTasks profileId={profile.id} />
+        <ClassBuilding profileId={profile.id} />
+
 
         {/* Grades without islands have only the topics - nothing to fold there. */}
         {hasIslands(profile.grade) && (

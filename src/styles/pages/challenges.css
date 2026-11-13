@@ -203,3 +203,6 @@
 }
 .topics-toggle__sub { font-size: 0.9rem; font-weight: 600; color: #7a7396; }
 .topics-toggle[aria-expanded="true"] { border-color: var(--purple); }
+/* room under the floating sound button, so the last button is never hidden behind it */
+.onboarding--game-home { padding-bottom: 6rem; }
+.onboarding--game-home .challenge-row { margin-bottom: 1rem; }
