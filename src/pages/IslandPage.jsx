@@ -59,7 +59,8 @@ export default function IslandPage() {
       <DolphinPerch message="לאיזה משחק הולכים?" />
 
       <div className="island__grid">
-        {games.map((g) => (
+        {/* 2026-11-14 (Shir): ready games first, "בקרוב" ones last */}
+        {[...games].sort((a, b) => Number(!a.ready) - Number(!b.ready)).map((g) => (
           <button
             key={g.key}
             className={`hut ${g.ready ? "" : "is-locked"}`}

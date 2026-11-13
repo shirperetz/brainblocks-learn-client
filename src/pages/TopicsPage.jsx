@@ -96,7 +96,10 @@ export default function TopicsPage() {
         )}
         {(showTopics || !hasIslands(profile.grade)) && (
         <div className="option-grid option-grid--wide" role="group" aria-label="נושאים">
-          {TOPICS.map((t) => {
+          {/* 2026-11-14 (Shir: "everything open on top, everything locked at the bottom" - every grade) */}
+          {[...TOPICS]
+            .sort((a, b) => Number(!isTopicAllowedForGrade(a.key, profile.grade)) - Number(!isTopicAllowedForGrade(b.key, profile.grade)))
+            .map((t) => {
             const allowed = isTopicAllowedForGrade(t.key, profile.grade);
             return (
               <OptionCard
