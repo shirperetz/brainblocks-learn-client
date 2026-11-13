@@ -348,7 +348,8 @@ export function patternRound(level, rand = Math.random, tier = 0) {
     token(right.kind, pick(rand, COLORS.filter((c) => c !== right.fill)), right.rot, right.size),
     token(pick(rand, P_KINDS.filter((k) => k !== right.kind)), right.fill, 0, right.size),
     right.kind === "triangle" ? token(right.kind, right.fill, (right.rot + 90) % 360, right.size) : null,
-    token(right.kind, right.fill, right.rot, right.size === 1 ? 0.55 : 1),
+    // another size only when the pattern itself is about size (in a row every item looks small)
+    new Set(seq.map((t) => t.size)).size > 1 ? token(right.kind, right.fill, right.rot, right.size === 1 ? 0.55 : 1) : null,
   ];
   const pool = new Map([[tokenId(right), right]]);
   for (const t of shuffle([...cands, ...mutate], rand)) {
@@ -361,6 +362,7 @@ export function patternRound(level, rand = Math.random, tier = 0) {
   let guard = 0;
   while (pool.size < 4 && guard++ < 50) {
     const t = token(pick(rand, P_KINDS), pick(rand, COLORS), 0, right.size);
+    if (t.kind === right.kind && t.fill === right.fill) continue;
     pool.set(tokenId(t), t);
   }
   const list = shuffle([...pool.values()], rand);

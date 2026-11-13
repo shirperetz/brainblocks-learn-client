@@ -165,7 +165,7 @@ export function lineRound(level, rand = Math.random, tier = 0) {
     options = fill4(answer, [at + cfg.tick, at - cfg.tick, from + i * wrongTick, to - i * cfg.tick, from + i * cfg.tick * 2, at + 2 * cfg.tick, at - 2 * cfg.tick, at + 3 * cfg.tick, at - 3 * cfg.tick], rand, (v) => v >= from && v <= to && v !== from && v !== to);
   }
   const labels = cfg.labels === "ends-mid" ? [from, from + span / 2, to] : [from, to];
-  return { from, to, tick: cfg.tick, labels: labels.filter((v) => v !== at), at, answer, options, estimate: Boolean(cfg.estimate) };
+  return { from, to, tick: cfg.tick, marks: labels.filter((v) => v !== at), at, answer, options, estimate: Boolean(cfg.estimate) };
 }
 
 export function lineRounds(level, rand = Math.random, avoid = new Set(), tier = 0) {

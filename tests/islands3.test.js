@@ -78,3 +78,16 @@ test("a generated island asks for bigger numbers", () => {
   assert.ok(avg(big(placeValueRounds, (r) => r.value, 3)) > avg(big(placeValueRounds, (r) => r.value, 0)));
   assert.ok(avg(big(lineRounds, (r) => r.to, 3)) > avg(big(lineRounds, (r) => r.to, 0)));
 });
+
+test("a pattern never offers the right shape in another size unless the pattern is about size", () => {
+  for (let i = 0; i < 300; i++) {
+    for (let level = 1; level <= 6; level++) {
+      for (const r of patternRounds(level, Math.random, new Set(), i % 4)) {
+        const sizes = new Set(r.seq.map((t) => t.size));
+        const right = r.look[r.answer];
+        const twins = Object.values(r.look).filter((t) => t.kind === right.kind && t.fill === right.fill && t.rot === right.rot);
+        if (sizes.size === 1) assert.equal(twins.length, 1, `level ${level}: ${r.options}`);
+      }
+    }
+  }
+});

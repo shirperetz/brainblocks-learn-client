@@ -26,6 +26,13 @@ import ShopRound from "../game/ShopRound";
 import CoinsRound from "../game/CoinsRound";
 import { clockRounds, coinsRounds, fewestCoins, shopRounds } from "../game/levelsClock";
 import "../styles/pages/clock-isle.css";
+import "../styles/pages/islands3.css";
+import { patternRounds, patternText, shapeNameRounds, shapeNameSpeech, shapeNameText, sidesRounds, sidesSpeech, sidesText, SHAPE_NAMES } from "../game/levelsShapes";
+import { arraysRounds, arraysText, groupsRounds, groupsText, remLabel, shareRounds, shareText } from "../game/levelsTimes";
+import { biggerRounds, biggerText, fmt, lineRounds, lineText, placeValueRounds, placeValueText } from "../game/levelsBig";
+import { PatternRound, ShapeNameRound, SidesRound } from "../game/ShapesGames";
+import { ArraysRound, GroupsRound, ShareRound } from "../game/TimesGames";
+import { BiggerRound, LineRound, PlaceValueRound } from "../game/BigGames";
 import { speakUrl, submitIsleSession, submitSession } from "../services/learnApi";
 import { recentKeys, rememberKeys } from "../game/recent";
 import { cheer } from "../game/companion";
@@ -114,6 +121,90 @@ const KINDS = {
         ? "מתחילים מהמחיר וסופרים קדימה עד הכסף שהיה, או מורידים את המחיר מהכסף שהיה."
         : "מתחילים מהמטבע הגדול, ומוסיפים כל פעם את המטבע הבא, וסופרים בקול.",
     Round: CoinsRound,
+  },
+  // 2026-11-13: 🔷 אי הצורות
+  shapename: {
+    rounds: shapeNameRounds,
+    speech: shapeNameSpeech,
+    text: shapeNameText,
+    answer: (r) => SHAPE_NAMES[r.target],
+    explain: (r) => `זה ה${SHAPE_NAMES[r.target]}`,
+    hint: (r) => (r.mode === "like" ? "חושבים על הצורה של הדבר: עגול מכל הצדדים? יש לו פינות? יש לו חוד?" : "סופרים לכל צורה כמה צלעות ופינות יש לה."),
+    Round: ShapeNameRound,
+  },
+  sides: {
+    rounds: sidesRounds,
+    speech: sidesSpeech,
+    text: sidesText,
+    answer: (r) => (r.mode === "find" ? `${r.n} צלעות` : String(r.answer)),
+    explain: (r) => (r.mode === "find" ? `לצורה הזאת ${r.n} צלעות` : `סופרים אחת-אחת: ${r.answer}`),
+    hint: () => "שמים אצבע על פינה אחת, וסופרים כל פינה או צלע עד שחוזרים להתחלה.",
+    Round: SidesRound,
+  },
+  pattern: {
+    rounds: patternRounds,
+    speech: () => ["pattern_q"],
+    text: patternText,
+    answer: (r) => r.labels[r.answer],
+    explain: (r) => `הדבר שחוזר: ${r.labels[r.answer]}`,
+    hint: () => "מחפשים איזה חלק חוזר שוב ושוב, וממשיכים אותו.",
+    Round: PatternRound,
+  },
+  // ✖️ אי הכפל והחילוק
+  groups: {
+    rounds: groupsRounds,
+    speech: () => ["groups_q"],
+    text: groupsText,
+    answer: (r) => String(r.answer),
+    explain: (r) => `${r.n} × ${r.k} = ${r.answer}`,
+    hint: (r) => `סופרים סל אחרי סל: ${r.k}, ${r.k * 2}, ${r.k * 3} וכך הלאה.`,
+    Round: GroupsRound,
+  },
+  share: {
+    rounds: shareRounds,
+    speech: (r) => [r.mode === "kids" ? "share_kids_q" : r.mode === "rem" ? "share_rem_q" : "share_q"],
+    text: shareText,
+    answer: (r) => (r.mode === "rem" ? remLabel(r.answer) : String(r.answer)),
+    explain: (r) => (r.mode === "kids" ? `${r.total} : ${r.each} = ${r.kids}` : r.mode === "rem" ? `${r.total} : ${r.kids} = ${r.each} ושארית ${r.rem}` : `${r.total} : ${r.kids} = ${r.each}`),
+    hint: () => "מחלקים עוגייה אחת לכל ילד, שוב ושוב, עד שנגמרות.",
+    Round: ShareRound,
+  },
+  arrays: {
+    rounds: arraysRounds,
+    speech: (r) => [r.mode === "which" ? "arrays_which" : r.mode === "floors" ? "arrays_floors" : "arrays_q"],
+    text: arraysText,
+    answer: (r) => String(r.answer),
+    explain: (r) => `${r.rows} × ${r.cols} = ${r.total}`,
+    hint: () => "סופרים כמה חלונות יש בקומה אחת, וכמה קומות - ואז כופלים.",
+    Round: ArraysRound,
+  },
+  // 🏰 אי המספרים הגדולים
+  placevalue: {
+    rounds: placeValueRounds,
+    speech: (r) => [r.mode === "digit" ? "pv_digit" : r.mode === "build" ? "pv_which" : "pv_q"],
+    text: placeValueText,
+    answer: (r) => (r.mode === "build" ? fmt(r.value) : fmt(r.answer)),
+    explain: (r) => (r.mode === "digit" ? `הספרה ${r.digit} שווה ${fmt(r.answer)}` : `${fmt(r.value)}`),
+    hint: () => "לוח גדול הוא מאה, מקל הוא עשר, וקובייה קטנה היא אחד.",
+    Round: PlaceValueRound,
+  },
+  numline: {
+    rounds: lineRounds,
+    speech: (r) => [r.estimate ? "nl_est" : "nl_q"],
+    text: lineText,
+    answer: (r) => fmt(r.answer),
+    explain: (r) => `כל קפיצה היא ${r.tick}, והחץ על ${fmt(r.answer)}`,
+    hint: () => "בודקים בכמה גדל המספר בכל קפיצה, וסופרים קפיצות מהמספר שכתוב.",
+    Round: LineRound,
+  },
+  bigger: {
+    rounds: biggerRounds,
+    speech: (r) => [{ max: "big_max", min: "big_min", sign: "big_sign", round10: "round_10", round100: "round_100" }[r.mode]],
+    text: biggerText,
+    answer: (r) => (r.mode === "sign" ? r.answer : fmt(r.answer)),
+    explain: (r) => biggerText(r),
+    hint: () => "משווים קודם את הספרה הכי שמאלית. אם היא שווה, עוברים לבאה.",
+    Round: BiggerRound,
   },
 };
 
