@@ -278,7 +278,8 @@ export default function StaffPage() {
               <div>
                 <strong>{c.name}</strong>
                 <small>
-                  {c.children} ילדים{isAdmin && c.teacherName ? ` · ${c.teacherName}` : ""}
+                  {c.maxStudents ? `${c.children}/${c.maxStudents} תלמידים${c.children >= c.maxStudents ? " · מלאה" : ""}` : `${c.children} ילדים`}
+                  {isAdmin && c.teacherName ? ` · ${c.teacherName}` : ""}
                   {c.closed ? " · סגורה להרשמה" : ""}
                 </small>
               </div>
@@ -301,6 +302,19 @@ export default function StaffPage() {
                   <option key={g.key} value={g.key}>🔒 {g.label}</option>
                 ))}
               </select>
+              {/* 2026-11-13 (Shir: "I, the admin, set how many students a class can have"): admin only */}
+              {isAdmin && (
+                <button className="admin__btn admin__btn--ghost"
+                  onClick={() => {
+                    const v = window.prompt(`כמה תלמידים לכל היותר ב${c.name}? (ריק = בלי הגבלה)`, c.maxStudents ?? "");
+                    if (v === null) return;
+                    const n = v.trim() === "" ? 0 : Number(v.trim());
+                    if (!Number.isInteger(n) || n < 0) return;
+                    act(() => api.staffUpdateClass(c.id, { maxStudents: n }), n ? `${c.name}: עד ${n} תלמידים` : `${c.name}: בלי הגבלה`);
+                  }}>
+                  👥 {c.maxStudents ? `עד ${c.maxStudents}` : "מקסימום תלמידים"}
+                </button>
+              )}
               <div className="person__actions">
                 <button className="admin__btn admin__btn--ghost"
                   onClick={() => window.confirm("קוד חדש? הקוד הישן יפסיק לעבוד") &&
