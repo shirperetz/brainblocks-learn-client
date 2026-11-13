@@ -380,3 +380,12 @@ export function adminMoveClass(classId, teacherId) {
     body: JSON.stringify({ teacherId }),
   });
 }
+
+// 2026-11-13: the child's 3D island - coins, what is built, buying, upgrading, land, chests.
+export function getMyIsland(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/my-island`);
+}
+
+export function islandAction(profileId, what, body = {}) {
+  return apiRequest(`/api/learn/profiles/${profileId}/my-island/${what}`, { method: "POST", body: JSON.stringify(body) });
+}
