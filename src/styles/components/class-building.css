@@ -52,3 +52,17 @@
 .building__roof { fill: var(--red-dark); }
 .building__pole { stroke: var(--ink); stroke-width: 2; }
 .building__flag { fill: var(--blue); }
+
+/* 2026-11-14 (A5): donate coins to the building */
+.building__give {
+  align-self: flex-start; margin-top: 0.3rem; min-height: 40px; padding: 0 1rem; border: none; border-radius: 12px;
+  background: #ffcd3c; color: #3a2a00; font: 800 0.95rem var(--font); cursor: pointer; box-shadow: 0 3px 0 #d9a514;
+}
+.building__chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.3rem; }
+.building__chip {
+  min-height: 38px; padding: 0 0.8rem; border: 2px solid #ffcd3c; border-radius: 12px; background: #fff8e0;
+  color: #3a2a00; font: 700 0.9rem var(--font); cursor: pointer;
+}
+.building__chip:disabled { opacity: 0.6; }
+.building__chip--ghost { border-color: #ddd; background: #fff; }
+.building__note { margin: 0.3rem 0 0; padding: 0.35rem 0.6rem; border-radius: 10px; background: #fff; font-weight: 700; color: #145c34; font-size: 0.92rem; }

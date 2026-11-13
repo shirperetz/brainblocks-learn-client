@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getClassBuilding, staffClassBuilding } from "../services/learnApi";
+import { donateToBuilding, getClassBuilding, staffClassBuilding } from "../services/learnApi";
 import "../styles/components/class-building.css";
 
 /**
@@ -10,6 +10,9 @@ import "../styles/components/class-building.css";
 export default function ClassBuilding({ profileId, classId }) {
   const staff = classId != null;
   const [b, setB] = useState(null);
+  const [giving, setGiving] = useState(false);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -22,6 +25,24 @@ export default function ClassBuilding({ profileId, classId }) {
   }, [staff, classId, profileId]);
 
   if (!b) return null;
+
+  // 2026-11-14 (A5, Shir: "donate coins to the class building"): 2 coins = 1 brick, up to 20 a week.
+  async function give(coins) {
+    setBusy(true);
+    setNote("");
+    try {
+      const next = await donateToBuilding(profileId, coins);
+      setB(next);
+      setGiving(false);
+      window.dispatchEvent(new CustomEvent("coins-changed", { detail: next.coins }));
+      setNote(`תודה! הוספת ${coins / (next.coinsPerBrick || 2)} לבנים לבניין 🧱 (נשארו לך ${next.coins} מטבעות)`);
+    } catch (e) {
+      setNote(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  const canGive = !staff && !b.done && (b.canDonate ?? 0) > 0;
   const stage = Math.max(0, Math.min(5, b.stage));
   const perStage = b.target / 5;
   const toNext = b.done ? 0 : Math.max(1, Math.ceil(perStage * (stage + 1) - b.built));
@@ -32,13 +53,31 @@ export default function ClassBuilding({ profileId, classId }) {
       <div className="building__text">
         <h2 className="building__title">🏗️ הבניין של {b.className}</h2>
         <p className="building__line">
-          {b.done ? "🎉 הבניין מוכן! כל הכבוד לכל הכיתה" : `הכיתה ענתה נכון ${b.built} מתוך ${b.target} השבוע`}
+          {b.done ? "🎉 הבניין מוכן! כל הכבוד לכל הכיתה" : `הכיתה בנתה ${b.built} מתוך ${b.target} לבנים השבוע`}
         </p>
-        {!b.done && <p className="building__sub">עוד {toNext} תשובות נכונות ל{STAGE_NEXT[stage]}</p>}
+        {!b.done && <p className="building__sub">עוד {toNext} לבנים ל{STAGE_NEXT[stage]} · כל תשובה נכונה = לבנה</p>}
         <p className="building__sub">
           {b.helped === 0 ? "עוד אף אחד לא התחיל השבוע" : `${b.helped} מתוך ${b.children} ילדים כבר עזרו`}
-          {!staff && b.mine > 0 && ` · את/ה עזרת ב-${b.mine} תשובות`}
+          {!staff && b.mine > 0 && ` · את/ה עזרת ב-${b.mine} לבנים`}
+          {staff && b.donatedCoins > 0 && ` · נתרמו ${b.donatedCoins} מטבעות`}
         </p>
+        {canGive && !giving && (
+          <button className="building__give" onClick={() => setGiving(true)}>🪙 לתרום מטבעות לבניין</button>
+        )}
+        {canGive && giving && (
+          <div className="building__chips" role="group" aria-label="כמה מטבעות לתרום">
+            {[2, 6, 10, 20].filter((n) => n <= b.canDonate).map((n) => (
+              <button key={n} className="building__chip" disabled={busy} onClick={() => give(n)}>
+                {n} 🪙 = {n / (b.coinsPerBrick || 2)} 🧱
+              </button>
+            ))}
+            <button className="building__chip building__chip--ghost" onClick={() => setGiving(false)}>ביטול</button>
+          </div>
+        )}
+        {!staff && !b.done && b.canDonate === 0 && b.myDonated > 0 && (
+          <p className="building__sub">תרמת השבוע {b.myDonated} מטבעות - תודה! 💛</p>
+        )}
+        {note && <p className="building__note" role="status">{note}</p>}
       </div>
     </section>
   );

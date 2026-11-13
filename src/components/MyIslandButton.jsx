@@ -15,8 +15,12 @@ export default function MyIslandButton({ profileId }) {
     getMyIsland(profileId)
       .then((s) => on && setCoins(s.coins))
       .catch(() => {});
+    // 2026-11-14 (A5): a donation to the class building spends coins - show the new number at once.
+    const changed = (e) => on && typeof e.detail === "number" && setCoins(e.detail);
+    window.addEventListener("coins-changed", changed);
     return () => {
       on = false;
+      window.removeEventListener("coins-changed", changed);
     };
   }, [profileId]);
   return (
