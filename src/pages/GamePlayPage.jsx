@@ -214,6 +214,9 @@ export default function GamePlayPage() {
   return <GamePlay key={`${isleKey ?? ""}-${game}-${level}`} />;
 }
 
+/** How much harder a shared base island is for the older grades. */
+const BASE_TIER = { G2: 1, G3: 2 };
+
 /** The biggest island tier for each grade's games (higher islands repeat this level with fresh rounds). */
 const TIER_CAP = { G1: 2, G2: 3, G3: 6 };
 
@@ -239,6 +242,9 @@ function GamePlay() {
   const { profile: me } = useProfile();
   // 2026-11-13: numbers grow island after island, but never past the child's grade (א׳ stays small)
   const tier = Math.min(tierOf(isleKey), TIER_CAP[me?.grade] ?? 99);
+  // 2026-11-13 (Shir: "ב׳ shouldn't get א׳ material"): an island shared by several grades is played a
+  // level harder by the older ones (ב׳ +1, ג׳ +2); the generated islands keep their own tier.
+  const playTier = tier || (BASE_TIER[me?.grade] ?? 0);
   // Where this level lives: a generated island's page, or the base island's game map.
   const back = tier ? `/sea/${isleKey}` : null;
   const memoryKey = tier ? `${gameKey}@${isleKey}` : gameKey;
@@ -252,7 +258,7 @@ function GamePlay() {
   const [runId, setRunId] = useState(0); // bump to play the level again with new rounds
   // 2026-11-12 (Shir: "no repeating questions"): avoid what this child played lately on this device.
   const rounds = useMemo(
-    () => (kind ? kind.rounds(level, Math.random, recentKeys(profile?.id, memoryKey, level), tier) : []),
+    () => (kind ? kind.rounds(level, Math.random, recentKeys(profile?.id, memoryKey, level), playTier) : []),
     [kind, level, runId, profile?.id], // eslint-disable-line react-hooks/exhaustive-deps
   );
   const [index, setIndex] = useState(0);

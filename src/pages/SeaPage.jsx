@@ -4,6 +4,8 @@ import DolphinPerch from "../components/DolphinPerch";
 import WeeklyTasks from "../components/WeeklyTasks";
 import ClassBuilding from "../components/ClassBuilding";
 import { ISLES } from "../game/games";
+import { getTopic } from "../data/topics";
+import MyIslandButton from "../components/MyIslandButton";
 import { preload, say, sfx } from "../game/audio";
 import { getGrade } from "../data/grades";
 import { getIsles } from "../services/learnApi";
@@ -57,6 +59,9 @@ export default function SeaPage() {
     else navigate(isle.generated ? `/sea/${isle.key}` : `/isle/${isle.key}`);
   }
 
+  // 2026-11-13 (Shir: "the islands of the older grades don't look good"): a topic island shows its
+  // topic's picture, like the game islands of א׳-ב׳, instead of a text mark.
+  const markOf = (isle) => (isle.key.startsWith("t-") ? getTopic(isle.key.slice(2).toUpperCase())?.emoji ?? isle.mark : isle.mark);
   const list = isles ?? [];
   const openIsles = list.filter((i) => i.open);
   const current = openIsles[openIsles.length - 1];
@@ -66,12 +71,13 @@ export default function SeaPage() {
       <button className="back-button" onClick={() => navigate("/")}>← בית</button>
       <h1 className="island__title">🌊 ים האיים</h1>
       <DolphinPerch message="לאן מפליגים היום?" />
+      <MyIslandButton profileId={profile.id} />
       {error && <p className="form-error">{error}</p>}
 
       {current && (
         <section className="isle-card" style={{ "--isle": current.color }} aria-label="האי שלך עכשיו">
           <div className="isle-card__art" aria-hidden="true">
-            <span className="isle-card__land">{current.mark}</span>
+            <span className="isle-card__land">{markOf(current)}</span>
           </div>
           <div className="isle-card__body">
             <h2 className="isle-card__name">{current.name}</h2>
@@ -102,7 +108,7 @@ export default function SeaPage() {
                 onClick={() => open(isle)}
                 aria-label={`${isle.name}${closed ? " - נעול" : ""}`}
               >
-                <span className="path-isle__land" aria-hidden="true">{closed ? "🔒" : isle.mark}</span>
+                <span className="path-isle__land" aria-hidden="true">{closed ? "🔒" : markOf(isle)}</span>
                 <span className="path-isle__name">{isle.name}</span>
                 <span className="path-isle__sub">
                   {lock

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { hasIslands } from "../game/games";
+import MyIslandButton from "../components/MyIslandButton";
 import DolphinPerch from "../components/DolphinPerch";
 import { useNavigate } from "react-router-dom";
 import { getStats } from "../services/learnApi";
@@ -49,6 +50,7 @@ export default function TopicsPage() {
         {hasIslands(profile.grade) && (
           <button className="room-entry room-entry--sea" onClick={() => navigate("/island")}>🌊 לים האיים - משחקים</button>
         )}
+        <MyIslandButton profileId={profile.id} />
         <WeeklyTasks profileId={profile.id} />
         <ClassBuilding profileId={profile.id} />
 

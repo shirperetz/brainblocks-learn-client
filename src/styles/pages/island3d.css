@@ -81,3 +81,28 @@
 .i3-item { display: flex; flex-direction: column; gap: 4px; padding: 10px; border-radius: 14px; background: #fff; border: 2px solid #e8edf6; }
 .i3-item span { font-size: 13px; color: #5a6680; flex-grow: 1; }
 .i3-round:focus-visible, .i3-btn:focus-visible, .i3-tab:focus-visible, .i3-sheet__grip:focus-visible { outline: 3px solid #1f2a44; outline-offset: 2px; }
+
+/* the button to the island (sea + topics pages) */
+.my-island-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 30rem);
+  margin: 0 auto;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ffd36e 0%, #f4b73a 100%);
+  box-shadow: 0 5px 0 #c98f1a, 0 10px 20px rgba(150, 100, 0, 0.2);
+  color: #2a1c00;
+  font-family: var(--font);
+  text-align: start;
+  cursor: pointer;
+}
+.my-island-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #c98f1a; }
+.my-island-btn:focus-visible { outline: 3px solid #1f2a44; outline-offset: 3px; }
+.my-island-btn__icon { font-size: 2.2rem; line-height: 1; }
+.my-island-btn__text { display: flex; flex-direction: column; flex-grow: 1; }
+.my-island-btn__text b { font-size: 1.15rem; }
+.my-island-btn__text span { font-size: 0.95rem; font-weight: 700; }
+.my-island-btn__coin { width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff3c4, #f4b73a 60%, #c98f1a); border: 3px solid #a8740e; box-sizing: border-box; flex: none; }
