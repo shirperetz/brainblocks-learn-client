@@ -58,9 +58,13 @@ export default function Island3DPage() {
       },
     });
     sceneRef.current = scene;
+    document.body.classList.add("on-island3d"); // the sound button moves to the top on this page
     box.current.islandScene = scene; // for the page tests (tap a place by number)
     getMyIsland(profile.id).then(show).catch((e) => setMsg(e.message));
-    return () => scene.dispose();
+    return () => {
+      document.body.classList.remove("on-island3d");
+      scene.dispose();
+    };
   }, [ready, profile, show]);
 
   useEffect(() => {

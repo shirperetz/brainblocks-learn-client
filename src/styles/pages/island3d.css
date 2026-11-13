@@ -36,12 +36,12 @@
 .i3-chest b { display: block; }
 .i3-chest span { font-size: 13px; color: #6b5a2a; }
 .i3-chest__box { width: 34px; height: 28px; border-radius: 6px 6px 3px 3px; background: linear-gradient(180deg, #a46a33 45%, #8a5a2b 45%); border: 2px solid #f4b73a; flex: none; }
-/* 2026-11-13 (Shir: "I can't see what it says at the bottom - put it at the top"): the panel sits
-   under the coins, above the island; the sound button and the phone's bar can't cover it there. */
+/* 2026-11-13 (Shir): the shop at the bottom, and on this page the sound button moves up to the top
+   (it covered the shop's text at the bottom). */
 .i3-sheet {
   position: absolute;
   left: 50%;
-  top: calc(env(safe-area-inset-top, 0px) + 112px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
   transform: translateX(-50%);
   width: min(calc(100% - 20px), 560px);
   max-height: 42vh;
@@ -104,3 +104,12 @@
 .my-island-btn__text b { font-size: 1.15rem; }
 .my-island-btn__text span { font-size: 0.95rem; font-weight: 700; }
 .my-island-btn__coin { width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff3c4, #f4b73a 60%, #c98f1a); border: 3px solid #a8740e; box-sizing: border-box; flex: none; }
+
+body.on-island3d .sound-toggle {
+  top: calc(env(safe-area-inset-top, 0px) + 64px);
+  bottom: auto;
+  right: max(10px, env(safe-area-inset-right, 0px));
+  left: auto;
+}
+/* the coin inside a price button keeps its round size */
+.i3-item .i3-coin { flex-grow: 0; }
