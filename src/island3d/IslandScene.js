@@ -4,8 +4,14 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-const SKY = 0x8fd6ff;
-const C = { sea: 0x1e9fe0, sand: 0xf3d79a, grass: 0x6cc84a, grass2: 0x4fae3c, rock: 0x8d94a6, peak: 0xa7adbb, leaf: 0x2f9a3f };
+// 2026-11-13 (Shir: "and if I bought everything?" -> a new island in another season; the 4 looks she saw)
+export const SEASONS = {
+  summer: { sky: 0x8fd6ff, sea: 0x1e9fe0, sand: 0xf3d79a, grass: 0x6cc84a, grass2: 0x4fae3c, rock: 0x8d94a6, peak: 0xa7adbb, leaf: 0x2f9a3f, sun: 0xfff1d6 },
+  snow: { sky: 0xcfe3f2, sea: 0x3b7fb0, sand: 0xe9eef5, grass: 0xf2f6fb, grass2: 0xdfe8f2, rock: 0x7f8798, peak: 0xffffff, leaf: 0x2f6e4f, sun: 0xeaf2ff },
+  desert: { sky: 0xffd9a0, sea: 0x24a7c9, sand: 0xf0c27a, grass: 0xd9a65a, grass2: 0xc48e45, rock: 0xa86b3c, peak: 0xc98a52, leaf: 0x6f8a2f, sun: 0xffe2b0 },
+  sunset: { sky: 0xff9c7a, sea: 0x3a5fa8, sand: 0xe8b98a, grass: 0x5aa84a, grass2: 0x3f8a3c, rock: 0x7d6f8a, peak: 0x9a8aa8, leaf: 0x2f7a3f, sun: 0xffb27a },
+};
+let C = SEASONS.summer;
 
 function mulberry(a) {
   return () => {
@@ -36,7 +42,9 @@ const mat = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, flatShadin
 export const SLOT_COUNT = 32;
 
 export class IslandScene {
-  constructor(container, { seed, phone = false, onPick }) {
+  constructor(container, { seed, phone = false, onPick, season = "summer" }) {
+    C = SEASONS[season] ?? SEASONS.summer;
+    const SKY = C.sky;
     this.container = container;
     this.onPick = onPick;
     this.reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -63,7 +71,7 @@ export class IslandScene {
     ctl.enablePan = false;
     this.controls = ctl;
     scene.add(new THREE.HemisphereLight(0xcfeaff, 0x5a7a3a, 0.9));
-    const sun = new THREE.DirectionalLight(0xfff1d6, 2.1);
+    const sun = new THREE.DirectionalLight(C.sun, 2.1);
     sun.position.set(30, 45, 20);
     sun.castShadow = true;
     sun.shadow.mapSize.set(phone ? 1024 : 2048, phone ? 1024 : 2048);
@@ -286,11 +294,32 @@ export class IslandScene {
         add(new THREE.BoxGeometry(2, 1.8, 1.6), mat(0xc4553d), -2.8, 0.9, 0);
         add(new THREE.ConeGeometry(1.5, 1, 4), mat(0x7a3a2a), -2.8, 2.3, 0).rotation.y = Math.PI / 4;
       }
+      if (level >= 3) {
+        // a coop and chickens behind a little fence
+        add(new THREE.BoxGeometry(1.2, 0.9, 1), mat(0xf6ead2), 2.9, 0.45, -1.1);
+        add(new THREE.ConeGeometry(0.95, 0.6, 4), mat(0xc4553d), 2.9, 1.2, -1.1).rotation.y = Math.PI / 4;
+        for (let k = 0; k < 4; k++) {
+          const x = 2.4 + (k % 2) * 1.1, z = 0.4 + Math.floor(k / 2) * 0.9;
+          add(new THREE.SphereGeometry(0.22, 6, 5), mat(0xffffff), x, 0.25, z);
+          add(new THREE.SphereGeometry(0.12, 6, 5), mat(0xffffff), x + 0.18, 0.45, z);
+          add(new THREE.BoxGeometry(0.06, 0.08, 0.06), mat(0xe2483a), x + 0.18, 0.58, z);
+        }
+        for (let k = 0; k < 5; k++) add(new THREE.BoxGeometry(0.08, 0.5, 0.08), mat(0xc98b4c), 1.9 + k * 0.5, 0.25, 1.6);
+        add(new THREE.BoxGeometry(2.2, 0.06, 0.06), mat(0xc98b4c), 2.9, 0.4, 1.6);
+      }
     } else if (kind === "stall") {
       add(new THREE.BoxGeometry(2.4, 1.1, 1.4), mat(0xc98b4c), 0, 0.55, 0);
       for (let k = 0; k < 4; k++) add(new THREE.BoxGeometry(0.6, 0.12, 1.8), mat(k % 2 ? 0xffffff : 0xff5f8f), -0.9 + k * 0.6, 2.0, 0);
       add(new THREE.BoxGeometry(0.1, 1.9, 0.1), mat(0x8a5a2b), -1.1, 1.0, 0.7);
       add(new THREE.BoxGeometry(0.1, 1.9, 0.1), mat(0x8a5a2b), 1.1, 1.0, 0.7);
+      if (level >= 2) {
+        // two more stalls in other colours
+        for (const [x, col] of [[-2.8, 0x5b9bff], [2.8, 0xffd36e]]) {
+          add(new THREE.BoxGeometry(2, 1, 1.3), mat(0xc98b4c), x, 0.5, 0);
+          add(new THREE.BoxGeometry(2.2, 0.12, 1.6), mat(col), x, 1.85, 0);
+          for (let k = 0; k < 3; k++) add(new THREE.SphereGeometry(0.2, 6, 5), mat([0xff7a3a, 0x5fc24a, 0xe2483a][k]), x - 0.5 + k * 0.5, 1.15, 0.3);
+        }
+      }
     } else if (kind === "mill") {
       const s2 = level >= 2 ? 1.35 : 1;
       add(new THREE.CylinderGeometry(0.9 * s2, 1.3 * s2, 3.6 * s2, 8), mat(0xf3e6cf), 0, 1.8 * s2, 0);
@@ -308,15 +337,36 @@ export class IslandScene {
         m.add(p);
       }
       this.mills.push(m);
+      if (level >= 3) {
+        // a bakery beside the mill, with a smoking chimney
+        add(new THREE.BoxGeometry(2.4, 1.6, 2), mat(0xf0d3a0), -3, 0.8, 0);
+        add(new THREE.ConeGeometry(1.9, 1.1, 4), mat(0x8a5a2b), -3, 2.15, 0).rotation.y = Math.PI / 4;
+        add(new THREE.BoxGeometry(0.4, 1.2, 0.4), mat(0x9a8a7a), -2.4, 2.4, -0.4);
+        add(new THREE.SphereGeometry(0.3, 6, 5), mat(0xe8e8e8), -2.4, 3.3, -0.4);
+        add(new THREE.BoxGeometry(0.6, 0.5, 0.1), light, -3, 0.9, 1.01);
+      }
     } else if (kind === "lighthouse") {
       for (let k = 0; k < 4; k++) add(new THREE.CylinderGeometry(0.9 - k * 0.08, 1.0 - k * 0.08, 1.4, 12), mat(k % 2 ? 0xe2483a : 0xffffff), 0, 0.7 + k * 1.4, 0);
       add(new THREE.CylinderGeometry(0.75, 0.75, 0.8, 12), mat(0xffe08a, { emissive: 0xffb000, emissiveIntensity: 0.9 }), 0, 6.1, 0);
       add(new THREE.ConeGeometry(0.95, 0.9, 12), mat(0xe2483a), 0, 6.95, 0);
+      if (level >= 2) {
+        add(new THREE.BoxGeometry(1.8, 1.3, 1.6), mat(0xffffff), 2, 0.65, 0);
+        add(new THREE.ConeGeometry(1.4, 0.9, 4), mat(0xe2483a), 2, 1.75, 0).rotation.y = Math.PI / 4;
+        add(new THREE.BoxGeometry(0.45, 0.45, 0.1), light, 2, 0.75, 0.81);
+      }
     } else if (kind === "tree" || kind === "palm") {
       this.tree(g, 0, 0, 0, kind === "palm");
+      if (kind === "tree" && level >= 2) {
+        for (let k = 0; k < 6; k++) add(new THREE.SphereGeometry(0.16, 6, 5), mat(0xe2483a), Math.cos(k) * 0.75, 1.5 + (k % 3) * 0.35, Math.sin(k) * 0.75);
+      }
     } else if (kind === "flowers") {
       for (let k = 0; k < 7; k++) add(new THREE.SphereGeometry(0.32, 6, 5), mat([0xff6fa0, 0xffd36e, 0xa77bff, 0xffffff][k % 4]), Math.cos(k) * 1.1, 0.4, Math.sin(k) * 1.1);
       add(new THREE.CylinderGeometry(1.5, 1.5, 0.15, 16), mat(0x4fae3c), 0, 0.08, 0);
+      if (level >= 2) {
+        for (let k = 0; k < 8; k++) add(new THREE.SphereGeometry(0.28, 6, 5), mat([0xff6fa0, 0xffd36e, 0xa77bff, 0xff7a3a][k % 4]), Math.cos(k * 0.8) * 2.1, 0.35, Math.sin(k * 0.8) * 2.1);
+        add(new THREE.BoxGeometry(1.4, 0.12, 0.45), mat(0x8a5a2b), 0, 0.5, -2.6);
+        add(new THREE.BoxGeometry(1.4, 0.5, 0.1), mat(0x8a5a2b), 0, 0.8, -2.8);
+      }
     } else if (kind === "ship") {
       const big = level >= 2;
       add(new THREE.BoxGeometry(6, 1.3, 2.2), mat(0x8a5a2b), 0, 0.7, 0);

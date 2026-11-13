@@ -382,8 +382,8 @@ export function adminMoveClass(classId, teacherId) {
 }
 
 // 2026-11-13: the child's 3D island - coins, what is built, buying, upgrading, land, chests.
-export function getMyIsland(profileId) {
-  return apiRequest(`/api/learn/profiles/${profileId}/my-island`);
+export function getMyIsland(profileId, isle = 0) {
+  return apiRequest(`/api/learn/profiles/${profileId}/my-island?isle=${isle}`);
 }
 
 export function islandAction(profileId, what, body = {}) {

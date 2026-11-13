@@ -113,3 +113,21 @@ body.on-island3d .sound-toggle {
 }
 /* the coin inside a price button keeps its round size */
 .i3-item .i3-coin { flex-grow: 0; }
+
+/* 2026-11-13: more islands - a chip for each, and the "buy a new island" card */
+.i3-isles {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 126px); /* under the sound button */
+  left: max(10px, env(safe-area-inset-left, 0px));
+  right: max(10px, env(safe-area-inset-right, 0px));
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.i3-isle-chip { flex: none; border: 0; border-radius: 16px; padding: 6px 12px; background: rgba(255, 255, 255, 0.9); font: 800 14px var(--font); color: #1f2a44; cursor: pointer; min-height: 36px; }
+.i3-isle-chip[aria-pressed="true"] { background: linear-gradient(180deg, #ffd36e, #f4b73a); }
+.i3-isle-chip:focus-visible { outline: 3px solid #1f2a44; outline-offset: 2px; }
+.i3-new-isle { display: flex; flex-direction: column; gap: 6px; align-items: center; text-align: center; padding: 10px; border-radius: 16px; background: #f3f0ff; border: 2px solid #d9cffc; }
+.i3-new-isle span { font-size: 13px; color: #5a6680; }

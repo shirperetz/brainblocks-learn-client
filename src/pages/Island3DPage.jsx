@@ -21,6 +21,8 @@ const CATEGORIES = [
 ];
 
 /** A picture for each thing in the shop (the island draws it in 3D after it is built). */
+const SEASON_ICON = { summer: "☀️", snow: "❄️", desert: "🏜️", sunset: "🌅" };
+
 const ICON = { house: "🏠", farm: "🌾", stall: "🍉", mill: "🌬️", lighthouse: "🗼", tree: "🌳", palm: "🌴", flowers: "🌷", boat: "⛵", ship: "🚢" };
 
 function Coin({ size = 20 }) {
@@ -38,17 +40,30 @@ export default function Island3DPage() {
   const [open, setOpen] = useState(true);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  // 2026-11-13 (Shir: "and if I bought everything?"): which of her islands is on screen (0 = the first)
+  const [isle, setIsle] = useState(0);
+  const [season, setSeason] = useState(null);
 
+  const stRef = useRef(null);
   const show = useCallback((s) => {
+    stRef.current = s;
     setSt(s);
+    setSeason(s.season ?? "summer");
     sceneRef.current?.setBuildings(s.buildings, s.openSlots);
   }, []);
 
+  // the island's state; the 3D scene is made once its season is known (a new island = a new scene)
   useEffect(() => {
     if (!ready) return;
+    getMyIsland(profile.id, isle).then(show).catch((e) => setMsg(e.message));
+  }, [ready, profile, isle, show]);
+
+  useEffect(() => {
+    if (!ready || !season) return;
     const phone = window.innerWidth < 700;
     const scene = new IslandScene(box.current, {
-      seed: 1000 + profile.id * 7919,
+      seed: 1000 + profile.id * 7919 + isle * 104729,
+      season,
       phone,
       onPick: (i) => {
         sfx.tap();
@@ -60,12 +75,14 @@ export default function Island3DPage() {
     sceneRef.current = scene;
     document.body.classList.add("on-island3d"); // the sound button moves to the top on this page
     box.current.islandScene = scene; // for the page tests (tap a place by number)
-    getMyIsland(profile.id).then(show).catch((e) => setMsg(e.message));
+    if (stRef.current) scene.setBuildings(stRef.current.buildings, stRef.current.openSlots);
     return () => {
       document.body.classList.remove("on-island3d");
       scene.dispose();
+      sceneRef.current = null;
     };
-  }, [ready, profile, show]);
+    // the scene belongs to one island: rebuilt only when the island or its season changes
+  }, [ready, profile, isle, season]);
 
   useEffect(() => {
     const s = sceneRef.current;
@@ -86,7 +103,7 @@ export default function Island3DPage() {
     setBusy(true);
     setMsg("");
     try {
-      const s = await islandAction(profile.id, what, body);
+      const s = await islandAction(profile.id, what, { isle, ...body });
       sfx.star();
       show(s);
       setMsg(done(s));
@@ -115,7 +132,7 @@ export default function Island3DPage() {
         <div className="i3-who">
           <img src="/mascot/smile-01.webp" alt="" className="i3-avatar" />
           <div>
-            <b>האי של {profile.name}</b>
+            <b>{st?.isles?.length > 1 ? st.isles[isle]?.name : `האי של ${profile.name}`}</b>
             <span>{st ? `${st.buildings.length} מבנים` : "טוען..."}</span>
           </div>
         </div>
@@ -124,6 +141,24 @@ export default function Island3DPage() {
           <span className="i3-pill i3-pill--star" aria-label={`${st?.stars ?? 0} כוכבים`}>★ {st?.stars ?? "…"}</span>
         </div>
       </header>
+
+      {st?.isles?.length > 1 && (
+        <nav className="i3-isles" aria-label="האיים שלי">
+          {st.isles.map((x) => (
+            <button key={x.index} className="i3-isle-chip" aria-pressed={x.index === isle}
+              onClick={() => {
+                if (x.index === isle) return;
+                sfx.tap();
+                setSlot(null);
+                setMsg("");
+                setSeason(null);
+                setIsle(x.index);
+              }}>
+              {SEASON_ICON[x.season] ?? "🏝️"} {x.name}
+            </button>
+          ))}
+        </nav>
+      )}
 
       <section className={`i3-sheet${open ? "" : " is-closed"}`} aria-label="בנייה ושדרוג">
         <button className="i3-sheet__grip" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "להקטין" : "להגדיל"}>
@@ -149,6 +184,20 @@ export default function Island3DPage() {
             {st && slot == null && (
               <div className="i3-intro">
                 <p className="i3-hint">לוחצים על עיגול לבן על האי כדי לבנות, או על מבנה כדי לשדרג.</p>
+                {st.nextIsle && (
+                  <div className="i3-new-isle">
+                    <b>{SEASON_ICON[st.nextIsle.season]} האי מלא! אפשר לקנות אי חדש: {st.nextIsle.name}</b>
+                    <span>אי ריק לבנייה בעונה אחרת. המחירים שם קצת גבוהים יותר.</span>
+                    <button className="i3-btn i3-btn--gold" disabled={busy || st.coins < st.nextIsle.cost}
+                      onClick={() => act("new-isle", {}, (s) => {
+                        setSeason(null);
+                        setIsle(s.isle);
+                        return `קנית את ${s.isles[s.isle].name}! 🎉`;
+                      })}>
+                      לקנות אי · {st.nextIsle.cost} <Coin size={16} />
+                    </button>
+                  </div>
+                )}
                 {st.nextLandCost != null && (
                   <button className="i3-btn i3-btn--blue" disabled={busy} onClick={() => act("land", {}, () => "האי גדל! נפתחו 2 מקומות חדשים")}>
                     להגדיל את האי · {st.nextLandCost} <Coin size={16} />
