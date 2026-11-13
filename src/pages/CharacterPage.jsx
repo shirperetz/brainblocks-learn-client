@@ -163,7 +163,12 @@ export default function CharacterPage() {
             <input
               id="join-code"
               type="text"
-              inputMode="numeric"
+              // 2026-11-13 (Shir: a child couldn't type the class code "JRAU8B" - the keyboard had only
+              // digits): class codes have letters too - a normal keyboard, capitals, left to right.
+              inputMode="text"
+              autoCapitalize="characters"
+              spellCheck={false}
+              dir="ltr"
               value={joinCode}
               maxLength={20}
               autoComplete="off"

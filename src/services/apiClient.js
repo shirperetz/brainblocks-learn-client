@@ -62,6 +62,23 @@ export function stillHere() {
 }
 
 let leaving = false;
+/*
+ * 2026-11-13 (Shir saw "No message available" on the sea page): another tab was logged out after the
+ * idle half hour and removed the login this tab shares; this tab kept its screen and sent requests with
+ * no login, so nothing sent it to the log-in screen. Now every open tab follows: login removed in one
+ * tab -> all go to log in; a page brought back from the browser's back/forward memory reloads fresh.
+ */
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === TOKEN_STORAGE_KEY && e.oldValue && !e.newValue && !window.location.pathname.startsWith("/login")) {
+      loggedOut();
+    }
+  });
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted) window.location.reload();
+  });
+}
+
 function loggedOut() {
   if (leaving) return;
   leaving = true;
@@ -98,7 +115,8 @@ async function readResponseBody(response) {
 function friendlyError(status, data) {
   const serverMessage = data?.message || data?.error;
   if (status === 404) return "לא מצאנו את מה שחיפשנו. נסו שוב.";
-  if (status === 401) return serverMessage || "צריך להיכנס שוב עם שם משתמש וסיסמה.";
+  // 2026-11-13: Spring's own "No message available" reached a child's screen - never show it
+  if (status === 401) return "צריך להיכנס שוב עם שם משתמש וסיסמה.";
   if (status === 403 || status === 409 || status === 429) return serverMessage || "נסו שוב.";
   if (status === 400) return serverMessage || "משהו בטופס לא תקין, נסו שוב.";
   return "אופס! משהו השתבש. ננסה שוב עוד רגע.";

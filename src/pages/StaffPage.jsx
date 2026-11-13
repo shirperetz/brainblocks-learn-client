@@ -418,6 +418,19 @@ export default function StaffPage() {
                 </button>
               )}
               <div className="person__actions">
+                {/* 2026-11-13: a link that opens sign-up with this class's code already filled in */}
+                <button className="admin__btn admin__btn--ghost"
+                  onClick={async () => {
+                    const link = `${window.location.origin}/?code=${c.joinCode}`;
+                    try {
+                      await navigator.clipboard.writeText(link);
+                      setMessage(`הקישור של ${c.name} הועתק - אפשר לשלוח לילדים בוואטסאפ`);
+                    } catch {
+                      window.prompt("הקישור לילדים (להעתיק):", link);
+                    }
+                  }}>
+                  🔗 קישור לילדים
+                </button>
                 <button className="admin__btn admin__btn--ghost"
                   onClick={() => window.confirm("קוד חדש? הקוד הישן יפסיק לעבוד") &&
                     act(() => api.staffUpdateClass(c.id, { newCode: true }), "נוצר קוד חדש")}>
