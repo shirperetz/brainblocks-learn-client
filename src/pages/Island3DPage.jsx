@@ -12,12 +12,16 @@ import "../styles/pages/island3d.css";
  * upgrade it; finished islands of the sea give a treasure chest. The server checks every price.
  */
 const CATEGORIES = [
+  { key: "all", name: "הכל" },
   { key: "home", name: "בתים" },
   { key: "food", name: "אוכל" },
   { key: "production", name: "ייצור" },
   { key: "decor", name: "קישוט" },
   { key: "transport", name: "ספינות" },
 ];
+
+/** A picture for each thing in the shop (the island draws it in 3D after it is built). */
+const ICON = { house: "🏠", farm: "🌾", stall: "🍉", mill: "🌬️", lighthouse: "🗼", tree: "🌳", palm: "🌴", flowers: "🌷", boat: "⛵", ship: "🚢" };
 
 function Coin({ size = 20 }) {
   return <span className="i3-coin" style={{ width: size, height: size }} aria-hidden="true" />;
@@ -30,7 +34,7 @@ export default function Island3DPage() {
   const sceneRef = useRef(null);
   const [st, setSt] = useState(null);
   const [slot, setSlot] = useState(null);
-  const [cat, setCat] = useState("home");
+  const [cat, setCat] = useState("all");
   const [open, setOpen] = useState(true);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
@@ -90,6 +94,10 @@ export default function Island3DPage() {
     }
   }
 
+  function replace() {
+    act("remove", { slot }, () => "המקום פנוי. בחרו מה לבנות בו");
+  }
+
   function upgrade() {
     act("upgrade", { slot }, () => `שודרג ל${bk.names[built.level]}!`);
   }
@@ -108,23 +116,10 @@ export default function Island3DPage() {
           </div>
         </div>
         <div className="i3-money">
-          <span className="i3-pill" aria-label={`${st?.coins ?? 0} מטבעות`}><Coin />{st?.coins ?? "…"}</span>
+          <span className="i3-pill" aria-label={`${st?.coins ?? 0} מטבעות`}><Coin />{st ? st.coins.toLocaleString("he-IL") : "…"}</span>
           <span className="i3-pill i3-pill--star" aria-label={`${st?.stars ?? 0} כוכבים`}>★ {st?.stars ?? "…"}</span>
         </div>
       </header>
-
-      {st?.chests?.length > 0 && (
-        <div className="i3-chest">
-          <span className="i3-chest__box" aria-hidden="true" />
-          <div>
-            <b>תיבת אוצר!</b>
-            <span>סיימת את {st.chests[0].name}</span>
-          </div>
-          <button className="i3-btn i3-btn--gold" disabled={busy} onClick={() => act("chest", { isleKey: st.chests[0].isleKey }, (s) => `פתחת את התיבה: +${s.opened} מטבעות!`)}>
-            לפתוח
-          </button>
-        </div>
-      )}
 
       <section className={`i3-sheet${open ? "" : " is-closed"}`} aria-label="בנייה ושדרוג">
         <button className="i3-sheet__grip" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? "להקטין" : "להגדיל"}>
@@ -133,6 +128,19 @@ export default function Island3DPage() {
         {open && (
           <div className="i3-sheet__body">
             {msg && <p className="i3-msg" role="status">{msg}</p>}
+            {st?.chests?.length > 0 && (
+              <div className="i3-chest">
+                <span className="i3-chest__box" aria-hidden="true" />
+                <div>
+                  <b>תיבת אוצר!</b>
+                  <span>סיימת את {st.chests[0].name}</span>
+                </div>
+                <button className="i3-btn i3-btn--gold" disabled={busy} onClick={() => act("chest", { isleKey: st.chests[0].isleKey }, (s) => `פתחת את התיבה: +${s.opened} מטבעות!`)}>
+                  לפתוח
+                </button>
+              </div>
+            )}
+
             {!st && <p className="i3-hint">טוען את האי...</p>}
             {st && slot == null && (
               <div className="i3-intro">
@@ -164,6 +172,9 @@ export default function Island3DPage() {
                     </button>
                   </>
                 )}
+                <button className="i3-btn i3-btn--ghost" disabled={busy} onClick={replace}>
+                  להחליף במבנה אחר (המטבעות חוזרים)
+                </button>
               </div>
             )}
 
@@ -177,8 +188,9 @@ export default function Island3DPage() {
                   ))}
                 </div>
                 <div className="i3-items">
-                  {st.catalog.filter((c) => c.category === cat).map((c) => (
+                  {st.catalog.filter((c) => cat === "all" || c.category === cat).map((c) => (
                     <div key={c.kind} className="i3-item">
+                      <span className="i3-item__icon" aria-hidden="true">{ICON[c.kind] ?? "🏗️"}</span>
                       <b>{c.names[0]}</b>
                       <span>{c.perks[0]}</span>
                       <button className="i3-btn i3-btn--green i3-btn--small" disabled={busy || st.coins < c.costs[0]}

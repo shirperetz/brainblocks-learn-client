@@ -33,7 +33,7 @@ function noise2(seed) {
 }
 const mat = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, flatShading: true, roughness: 0.85, ...o });
 
-export const SLOT_COUNT = 16;
+export const SLOT_COUNT = 32;
 
 export class IslandScene {
   constructor(container, { seed, phone = false, onPick }) {
@@ -147,10 +147,10 @@ export class IslandScene {
     };
     // the places to build: flat grass, apart from each other, nearest to the middle first
     const spots = [];
-    for (let t = 0; t < 3000 && spots.length < SLOT_COUNT; t++) {
+    for (let t = 0; t < 8000 && spots.length < SLOT_COUNT; t++) {
       const a = rnd() * 6.28, d = 3 + rnd() * 15, x = Math.cos(a) * d, z = Math.sin(a) * d, y = heightAt(x, z);
       const flat = Math.abs(heightAt(x + 1, z) - y) + Math.abs(heightAt(x, z + 1) - y) < 0.9;
-      if (y > 1.6 && y < 5 && flat && spots.every((s) => Math.hypot(s.x - x, s.z - z) > 5.2)) spots.push({ x, y, z, rot: rnd() * 6.28 });
+      if (y > 1.6 && y < 5 && flat && spots.every((s) => Math.hypot(s.x - x, s.z - z) > 4.1)) spots.push({ x, y, z, rot: rnd() * 6.28 });
     }
     spots.sort((p, q) => Math.hypot(p.x, p.z) - Math.hypot(q.x, q.z));
     this.spots = spots;
@@ -231,6 +231,12 @@ export class IslandScene {
     const g = new THREE.Group();
     g.position.set(s.x, s.y - 0.1, s.z);
     g.rotation.y = s.rot;
+    if (kind === "boat" || kind === "ship") {
+      // boats float in the sea, out from their place on the island
+      const a = Math.atan2(s.z, s.x);
+      g.position.set(Math.cos(a) * 27, 0.35, Math.sin(a) * 27);
+      g.rotation.y = -a;
+    }
     this.builds.add(g);
     const add = (geo, m, px, py, pz) => {
       const o = new THREE.Mesh(geo, m);
@@ -296,6 +302,17 @@ export class IslandScene {
     } else if (kind === "flowers") {
       for (let k = 0; k < 7; k++) add(new THREE.SphereGeometry(0.32, 6, 5), mat([0xff6fa0, 0xffd36e, 0xa77bff, 0xffffff][k % 4]), Math.cos(k) * 1.1, 0.4, Math.sin(k) * 1.1);
       add(new THREE.CylinderGeometry(1.5, 1.5, 0.15, 16), mat(0x4fae3c), 0, 0.08, 0);
+    } else if (kind === "ship") {
+      const big = level >= 2;
+      add(new THREE.BoxGeometry(6, 1.3, 2.2), mat(0x8a5a2b), 0, 0.7, 0);
+      add(new THREE.BoxGeometry(6.2, 0.25, 2.4), mat(0xc98b4c), 0, 1.45, 0);
+      const masts = big ? [-1.5, 1.2] : [0];
+      masts.forEach((mx, i) => {
+        add(new THREE.CylinderGeometry(0.1, 0.12, 5, 6), mat(0x5c3a17), mx, 3.9, 0);
+        const sail = add(new THREE.BoxGeometry(0.08, 2.4, 2.2), mat(0xfff6e6), mx + 0.2, 4.0, 0);
+        sail.rotation.y = 0.15;
+        if (i === masts.length - 1) add(new THREE.BoxGeometry(0.05, 0.5, 0.9), mat(0xe2483a), mx, 6.6, 0.45);
+      });
     } else if (kind === "boat") {
       add(new THREE.BoxGeometry(3.4, 0.8, 1.4), mat(0xffffff), 0, 0.5, 0);
       add(new THREE.CylinderGeometry(0.07, 0.07, 3.4, 6), mat(0x8a5a2b), 0, 2.2, 0);
