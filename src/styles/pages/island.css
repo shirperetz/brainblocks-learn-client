@@ -910,3 +910,4 @@
   cursor: pointer;
   animation: pulse 1.6s ease-in-out infinite;
 }
+.game-help--done { text-align: center; font-weight: 700; color: #6f4fd8; }

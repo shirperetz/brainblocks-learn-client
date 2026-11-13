@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import OptionCard from "../components/OptionCard";
 import BigButton from "../components/BigButton";
 import Mascot from "../components/Mascot";
-import { GRADES, DIFFICULTIES } from "../data/grades";
+import { GRADES } from "../data/grades";
 import { startsOnIsland } from "../game/games";
 import { useProfile } from "../context/profileStore";
 import { preload, say } from "../game/audio";
@@ -54,7 +54,7 @@ function GradeForm() {
   const navigate = useNavigate();
   const { profile, hasProfile, patchProfile } = useProfile();
   const [grade, setGrade] = useState(profile?.grade ?? null);
-  const [difficulty, setDifficulty] = useState(profile?.difficulty ?? "MEDIUM");
+  const difficulty = profile?.difficulty ?? "MEDIUM";
 
   useEffect(() => {
     if (hasProfile) return; // a returning child already knows this screen
@@ -112,19 +112,7 @@ function GradeForm() {
           ))}
         </div>
 
-        <p className="screen-subtitle">רמת קושי</p>
-        <div className="pills" role="group" aria-label="רמת קושי">
-          {DIFFICULTIES.map((d) => (
-            <button
-              key={d.key}
-              className={`pill ${difficulty === d.key ? "is-active" : ""}`}
-              onClick={() => setDifficulty(d.key)}
-              aria-pressed={difficulty === d.key}
-            >
-              {d.label}
-            </button>
-          ))}
-        </div>
+        {/* 2026-11-13 (Shir): no easy / medium / hard - the level follows the child's own results */}
 
         {error && <p className="form-error">{error}</p>}
 

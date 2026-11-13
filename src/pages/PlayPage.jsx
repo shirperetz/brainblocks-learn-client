@@ -9,7 +9,8 @@ import { readAloudDefault } from "../game/readAloud";
 import QuestionPicture from "../components/QuestionPicture";
 import MathText from "../components/MathText";
 import { getTopic } from "../data/topics";
-import { getQuestions, submitSession, submitIsleSession, answerQuestion } from "../services/learnApi";
+import { getQuestions, submitSession, submitIsleSession, answerQuestion, getHelp } from "../services/learnApi";
+import HelpVisual from "../components/HelpVisual";
 import { useProfile } from "../context/profileStore";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/play.css";
@@ -36,6 +37,12 @@ export default function PlayPage() {
   const [feedback, setFeedback] = useState(null); // "correct" | "wrong" | null
   const [submitting, setSubmitting] = useState(false);
   const [checking, setChecking] = useState(false); // waiting for the server to check an answer
+  // 2026-11-13 (Shir: "the explanation after he got it wrong; help is for before - limited, unless the
+  // child is struggling"): after a mistake the game waits on an explanation card; help in a round is
+  // limited to HELP_LIMIT questions, unlimited once the child has made STRUGGLING mistakes in it.
+  const [wrongHelp, setWrongHelp] = useState(null); // { text, visual, right } | "loading" | null
+  const [helpCount, setHelpCount] = useState(0);
+  const [wrongCount, setWrongCount] = useState(0);
 
   const answersRef = useRef([]);
   const streakRef = useRef(0);
@@ -103,8 +110,12 @@ export default function PlayPage() {
     // again, to check it was understood"): a wrong answer brings the same exercise back 3 questions
     // later, options in another order. The second try doesn't count in points, stars or the saved
     // round (the first answer did) - it only tells the child whether it got it now.
+    if (!isCorrect) {
+      setWrongCount((n) => n + 1);
+      explainMistake(q, q.options[optionIndex]);
+    }
     if (current.retry) {
-      setTimeout(advance, FEEDBACK_MS);
+      if (isCorrect) setTimeout(advance, FEEDBACK_MS);
       return;
     }
     if (!isCorrect) {
@@ -134,7 +145,21 @@ export default function PlayPage() {
       skill: q.skill,
     });
 
-    setTimeout(advance, FEEDBACK_MS);
+    if (isCorrect) setTimeout(advance, FEEDBACK_MS);
+  }
+
+  /** After a wrong answer: the right answer + why (the mistake sentence, a way, a drawing) - free, from code. */
+  function explainMistake(q, chosen) {
+    const right = q.options[q.correctIndex];
+    setWrongHelp("loading");
+    getHelp({ questionText: q.text, correctAnswer: right, chosenAnswer: chosen, grade: profile.grade, attempt: 0, fallbackHint: q.hint, bankId: q.bankId })
+      .then((h) => setWrongHelp({ ...h, right }))
+      .catch(() => setWrongHelp({ text: q.explanation || q.hint || "", right }));
+  }
+
+  function continueAfterMistake() {
+    setWrongHelp(null);
+    advance();
   }
 
   function advance() {
@@ -185,6 +210,9 @@ export default function PlayPage() {
     }
   }
 
+  const struggling = wrongCount >= STRUGGLING;
+  const helpOpen = struggling || helpCount < HELP_LIMIT;
+
   function optionState(j) {
     if (selected === null) return "idle";
     if (j === selected) return feedback === "correct" ? "correct" : "wrong";
@@ -228,12 +256,18 @@ export default function PlayPage() {
               <QuestionPicture visual={current.visual} />
             </div>
 
-            {selected === null && (
+            {selected === null && !helpOpen && (
+              <p className="play__help-left">🦉 העזרה בסבב הזה נגמרה - נסו לבד, אתם יכולים!</p>
+            )}
+            {selected === null && helpOpen && (
               <HelpButton
                 key={`${index}-${current.text}`}
                 question={{ text: current.text, correct: current.options[current.correctIndex], chosen: current.chosen, hint: current.hint, bankId: current.bankId }}
                 grade={profile.grade}
-                onUsed={() => (helpUsedRef.current = true)}
+                onUsed={() => {
+                  helpUsedRef.current = true;
+                  setHelpCount((n) => n + 1);
+                }}
               />
             )}
 
@@ -249,12 +283,33 @@ export default function PlayPage() {
               ))}
             </div>
 
+            {wrongHelp && (
+              <div className="mistake-card" role="status">
+                {wrongHelp === "loading" ? (
+                  <p>רגע, מסבירים... 🦉</p>
+                ) : (
+                  <>
+                    <p className="mistake-card__right">✔ התשובה הנכונה: <b><MathText text={String(wrongHelp.right)} /></b></p>
+                    {wrongHelp.text && <p className="mistake-card__text">{wrongHelp.text}</p>}
+                    <HelpVisual visual={wrongHelp.visual} />
+                    <button type="button" className="mistake-card__go" onClick={continueAfterMistake} autoFocus>
+                      הבנתי, ממשיכים ←
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+
           </>
         )}
       </div>
     </div>
   );
 }
+
+/** Help in one round: this many questions; unlimited after this many mistakes in the round (struggling). */
+const HELP_LIMIT = 3;
+const STRUGGLING = 2;
 
 /** How many questions after a wrong answer its exercise comes back. */
 const RETRY_AFTER = 2;

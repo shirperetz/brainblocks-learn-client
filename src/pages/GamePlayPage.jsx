@@ -256,6 +256,10 @@ function GamePlay() {
   const { refreshProfile } = useProfile();
 
   const [runId, setRunId] = useState(0); // bump to play the level again with new rounds
+  // 2026-11-13 (Shir: "help limited in a round, unless the child is struggling"): 3 rounds with help,
+  // unlimited after 2 mistakes in this run.
+  const [helpCount, setHelpCount] = useState(0);
+  const [wrongCount, setWrongCount] = useState(0);
   // 2026-11-12 (Shir: "no repeating questions"): avoid what this child played lately on this device.
   const rounds = useMemo(
     () => (kind ? kind.rounds(level, Math.random, recentKeys(profile?.id, memoryKey, level), playTier) : []),
@@ -307,6 +311,7 @@ function GamePlay() {
     if (correct && round?._key) rememberKeys(profile?.id, memoryKey, level, [round._key]);
     if (!correct && round?._key) rememberWrong(profile?.id, `${memoryKey}:${round._key}`, chosen);
     cheer(correct ? "correct" : "wrong");
+    if (!correct) setWrongCount((n) => n + 1);
     answers.current.push({
       questionText: kind.text(round),
       chosenAnswer: chosen,
@@ -357,6 +362,8 @@ function GamePlay() {
 
   function again() {
     answers.current = [];
+    setHelpCount(0);
+    setWrongCount(0);
     setResult(null);
     setIndex(0);
     setRunId((n) => n + 1);
@@ -390,13 +397,17 @@ function GamePlay() {
 
       {error && <p className="form-error">{error}</p>}
 
-      {round && !result && (
+      {round && !result && helpCount >= 3 && wrongCount < 2 && (
+        <p className="game-help game-help--done">🦉 העזרה נגמרה - נסו לבד!</p>
+      )}
+      {round && !result && (helpCount < 3 || wrongCount >= 2) && (
         <div className="game-help">
           <HelpButton
             key={`${runId}-${index}`}
             compact
             speak
             grade={profile.grade}
+            onUsed={() => setHelpCount((n) => n + 1)}
             question={{
               text: kind.text(round),
               correct: kind.answer(round),
