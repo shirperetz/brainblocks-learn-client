@@ -48,6 +48,7 @@
 }
 
 .help-bubble__text {
+  white-space: pre-line; /* 2026-11-13: the mistake sentence on its own line */
   margin: 0 0 0.5rem;
   font-size: 1.05rem;
   line-height: 1.55;
@@ -95,3 +96,26 @@
     animation: none;
   }
 }
+
+/* 2026-11-13: the drawing of the question */
+.help-visual { margin: 0 0 0.6rem; padding: 0.6rem; border-radius: 14px; background: #f6f3ff; }
+.help-visual__svg { display: block; width: 100%; height: auto; }
+.help-visual__blocks { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.4rem; }
+.help-visual__num-wrap { display: flex; align-items: center; gap: 0.4rem; }
+.help-visual__sign { font-size: 1.6rem; font-weight: 900; color: #3a2fa8; }
+.help-visual__num { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+.help-visual__num b { font-size: 1.2rem; color: #3a2fa8; }
+.help-visual__num small, .help-visual__caption { font-size: 0.85rem; color: #5a6680; font-weight: 700; text-align: center; }
+.help-visual__pieces { display: flex; align-items: flex-end; gap: 3px; flex-wrap: wrap; max-width: 150px; }
+.hv-hundred { width: 22px; height: 22px; border-radius: 3px; background: #6f4fd8; }
+.hv-ten { width: 7px; height: 30px; border-radius: 2px; background: #3a6fd8; }
+.hv-one { width: 7px; height: 7px; border-radius: 2px; background: #ff9f43; }
+.help-visual__groups { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.4rem; }
+.help-visual__caption { flex-basis: 100%; }
+.hv-group { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 3px; width: 42px; padding: 5px; border: 2px solid #c9c0ff; border-radius: 50%; }
+.hv-dot { width: 9px; height: 9px; border-radius: 50%; background: #ff9f43; }
+.hv-pile { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; max-width: 220px; }
+.hv-arrow { flex-basis: 100%; text-align: center; color: #3a2fa8; }
+.hv-plates { display: flex; gap: 6px; }
+.hv-plate { width: 34px; height: 14px; border-radius: 50%; border: 2px solid #3a2fa8; background: #fff; }
+.help-visual__pie { width: 110px; height: 110px; }

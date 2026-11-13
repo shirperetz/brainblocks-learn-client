@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { getHelp, speakUrl } from "../services/learnApi";
 import { sayUrl, stopVoice } from "../game/audio";
 import { cheer } from "../game/companion";
+import HelpVisual from "./HelpVisual";
 import "../styles/components/help.css";
 
 /**
@@ -79,7 +80,11 @@ export default function HelpButton({ question, grade, speak = false, onUsed, com
         {loading ? (
           <p className="help-bubble__text help-bubble__text--loading">חושבים על הסבר...</p>
         ) : (
-          <p className="help-bubble__text">{help?.text}</p>
+          <>
+            <p className="help-bubble__text">{help?.text}</p>
+            {/* 2026-11-13: a drawing of the question (free, from code) */}
+            <HelpVisual visual={help?.visual} />
+          </>
         )}
         <div className="help-bubble__actions">
           {audio && !loading && (
