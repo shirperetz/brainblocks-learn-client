@@ -194,3 +194,12 @@
 .daily-card__body b { font-size: 1.15rem; }
 .daily-card__body span { font-size: 0.95rem; font-weight: 700; }
 .challenge__coins { font-weight: 800; color: #a8740e; }
+
+/* 2026-11-14: the topics fold behind one button on the game's home (Shir picked option 2) */
+.topics-toggle {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem;
+  min-height: 60px; margin: 0.4rem 0 1rem; padding: 0.8rem 1.2rem; border: 2px solid #e4dcff; border-radius: 18px;
+  background: #fff; color: var(--ink); font: 800 1.1rem var(--font); cursor: pointer; box-shadow: var(--shadow-card);
+}
+.topics-toggle__sub { font-size: 0.9rem; font-weight: 600; color: #7a7396; }
+.topics-toggle[aria-expanded="true"] { border-color: var(--purple); }

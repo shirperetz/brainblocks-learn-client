@@ -18,6 +18,17 @@ export default function TopicsPage() {
   const navigate = useNavigate();
   const { profile, ready } = useRequireProfile();
   const [stats, setStats] = useState(null);
+  // 2026-11-14 (Shir: "why both islands and the topics below?"): the topics fold behind one button,
+  // so the page leads with the islands. Remembered for this tab - back from a topic map keeps it open.
+  const [showTopics, setShowTopics] = useState(() => {
+    try { return sessionStorage.getItem("topics-open") === "1"; } catch { return false; }
+  });
+  const toggleTopics = () => {
+    setShowTopics((open) => {
+      try { sessionStorage.setItem("topics-open", open ? "0" : "1"); } catch { /* private mode */ }
+      return !open;
+    });
+  };
 
   useEffect(() => {
     if (!ready) return;
@@ -40,7 +51,7 @@ export default function TopicsPage() {
             <span className="steps__dot is-active" />
             <span className="steps__dot is-active" />
           </div>
-          <h1 className="screen-title">בחר נושא</h1>
+          <h1 className="screen-title">מה משחקים היום?</h1>
           <DolphinPerch message="במה נתרגל היום?" />
         </div>
 
@@ -74,6 +85,14 @@ export default function TopicsPage() {
           </button>
         </div>
 
+        {/* Grades without islands have only the topics - nothing to fold there. */}
+        {hasIslands(profile.grade) && (
+          <button className="topics-toggle" onClick={toggleTopics} aria-expanded={showTopics}>
+            <span>📚 תרגול לפי נושא</span>
+            <span className="topics-toggle__sub">{showTopics ? "▲ להסתיר" : "חיבור, כפל, שברים... ▼"}</span>
+          </button>
+        )}
+        {(showTopics || !hasIslands(profile.grade)) && (
         <div className="option-grid option-grid--wide" role="group" aria-label="נושאים">
           {TOPICS.map((t) => {
             const allowed = isTopicAllowedForGrade(t.key, profile.grade);
@@ -90,6 +109,7 @@ export default function TopicsPage() {
             );
           })}
         </div>
+        )}
       </div>
     </div>
   );
