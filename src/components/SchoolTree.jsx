@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getGrade } from "../data/grades";
 import { getCharacter } from "../data/characters";
-import { adminMoveClass, adminSetTeacher, adminTree, staffCreateClass, staffMoveChild } from "../services/learnApi";
+import { adminMoveClass, adminSetTeacher, adminTree, staffCreateClass, staffDeleteClass, staffMoveChild } from "../services/learnApi";
 import { GRADES } from "../data/grades";
+import { ask } from "./dialog";
 
 function ago(iso) {
   if (!iso) return "עוד לא שיחק/ה";
@@ -110,6 +111,23 @@ export default function SchoolTree() {
     }
   }
 
+  // 2026-11-13 (Shir: "as the admin I add and delete classes for the teachers"): the children stay
+  // (they move to "no class"); the class's code stops working.
+  async function deleteClass(cls) {
+    const lines = [`למחוק את הכיתה "${cls.name}"?`, ""];
+    if (cls.children.length > 0) lines.push(`${cls.children.length} הילדים שבה לא יימחקו - הם יעברו ל"בלי כיתה".`);
+    lines.push("הקוד של הכיתה יפסיק לעבוד. אי אפשר לבטל.");
+    if (!await ask(lines.join("\n"))) return;
+    try {
+      await staffDeleteClass(cls.id);
+      setMessage(`הכיתה ${cls.name} נמחקה`);
+      setError("");
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   async function createClass() {
     if (!newClass?.name?.trim()) return;
     try {
@@ -185,6 +203,9 @@ export default function SchoolTree() {
                           ))}
                         </select>
                       </label>
+                      <button type="button" className="admin__btn admin__btn--ghost admin__btn--danger" onClick={() => deleteClass(cls)}>
+                        🗑️ מחיקת הכיתה
+                      </button>
                     </div>
                     {cls.children.length === 0 ? (
                       <p className="staff-card__hint">עוד אין ילדים בכיתה.</p>

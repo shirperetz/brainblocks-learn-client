@@ -7,6 +7,7 @@ import { GRADES, getGrade } from "../data/grades";
 import { LEVELS, LEVEL_ORDER, TREND, levelOf, timeAgo, topicInfo } from "../data/progress";
 import { staffCancelAssignment, staffGivePractice, staffMe, staffMoveChild, staffPractice, staffReport, staffSetGrade, staffSetPassword } from "../services/learnApi";
 import "../styles/pages/staff.css";
+import { ask } from "../components/dialog";
 
 // 2026-11-11 (Shir: "the children's results - what she finds hard and what she doesn't - really
 // organised, designed properly"): one child, for the teacher / the admin. Everything is computed on
@@ -125,7 +126,7 @@ function MoveClass({ child, admin, onSaved }) {
 
   async function save() {
     const to = options.find((c) => c.id === Number(target));
-    if (!window.confirm(`להעביר את ${child.name} ל${to?.name ?? "כיתה"}?`)) return;
+    if (!await ask(`להעביר את ${child.name} ל${to?.name ?? "כיתה"}?`)) return;
     try {
       const p = await staffMoveChild(child.id, Number(target));
       onSaved({ classId: p.classId ?? null, grade: p.grade, gradeLocked: p.gradeLocked });

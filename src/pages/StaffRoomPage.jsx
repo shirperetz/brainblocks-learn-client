@@ -5,6 +5,7 @@ import { avatarOf, clock, topicLabel } from "../data/room";
 import * as api from "../services/learnApi";
 import "../styles/pages/staff.css";
 import "../styles/pages/room.css";
+import { ask } from "../components/dialog";
 
 // 2026-11-12: the teacher's room - lobby (code, who's in, approvals) -> live table -> results.
 // Refreshes every 2 seconds.
@@ -56,7 +57,7 @@ export default function StaffRoomPage() {
               )}
               {room.state !== "ENDED" && <button className="admin__btn admin__btn--ghost" onClick={() => act("extend")}>+ דקה</button>}
               <a className="admin__btn admin__btn--ghost room-link" href={`/staff/room/${id}/board`} target="_blank" rel="noreferrer">הצג על הלוח</a>
-              {room.state === "RUNNING" && <button className="admin__btn room-end" onClick={() => window.confirm("לסיים את המשחק?") && act("end")}>סיום</button>}
+              {room.state === "RUNNING" && <button className="admin__btn room-end" onClick={async () => await ask("לסיים את המשחק?") && act("end")}>סיום</button>}
             </div>
           </div>
 

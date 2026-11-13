@@ -419,3 +419,8 @@ export function staffClassRequests() {
 export function staffAnswerClassRequest(childId, accept) {
   return apiRequest(`/api/learn/staff/class-requests/${childId}/${accept ? "accept" : "decline"}`, { method: "POST" });
 }
+
+// 2026-11-13 (Shir): the admin sets how many students a teacher can have (0 = no limit)
+export function staffSetTeacherMax(teacherId, maxStudents) {
+  return apiRequest(`/api/learn/staff/teachers/${teacherId}/max-students`, { method: "POST", body: JSON.stringify({ maxStudents }) });
+}

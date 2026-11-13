@@ -14,6 +14,7 @@ import { useProfile } from "../context/profileStore";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/play.css";
 import { cheer } from "../game/companion";
+import { ask } from "../components/dialog";
 
 const FEEDBACK_MS = 1300;
 
@@ -178,8 +179,8 @@ export default function PlayPage() {
       });
   }
 
-  function handleExit() {
-    if (window.confirm("לצאת מהשלב? ההתקדמות בשלב הזה לא תישמר.")) {
+  async function handleExit() {
+    if (await ask("לצאת מהשלב? ההתקדמות בשלב הזה לא תישמר.")) {
       navigate(tier ? `/sea/${isleKey}` : `/map/${topic}`);
     }
   }

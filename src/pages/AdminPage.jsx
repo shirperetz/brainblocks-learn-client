@@ -7,6 +7,7 @@ import { getCharacter } from "../data/characters";
 import * as learnApi from "../services/learnApi";
 import SchoolTree from "../components/SchoolTree";
 import "../styles/pages/admin.css";
+import { ask } from "../components/dialog";
 
 // 2026-11-11: Shir's admin screen - every child, reset a password (or give an old profile a
 // username), block / unblock, and the join code. The server checks the admin flag on every call;
@@ -22,6 +23,7 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(null); // { id, username, password, needsUsername }
   const [filter, setFilter] = useState("");
+  const [who, setWho] = useState("kids"); // 2026-11-13: students / teachers, each on its own
   // 2026-11-12 (Shir): a tab with teachers -> classes -> children.
   const [tab, setTab] = useState("children");
 
@@ -95,7 +97,7 @@ export default function AdminPage() {
   async function toggleBlock(c) {
     const request = !c.approved && !c.disabled; // a sign-up waiting: "not approved", not "blocked"
     const verb = request ? "לא לאשר את הבקשה של" : c.disabled ? "לבטל את החסימה של" : "לחסום את";
-    if (!window.confirm(`${verb} ${c.name}${c.username ? ` (${c.username})` : ""}?`)) return;
+    if (!await ask(`${verb} ${c.name}${c.username ? ` (${c.username})` : ""}?`)) return;
     try {
       await learnApi.adminSetDisabled(c.id, !c.disabled);
       done(request ? "הבקשה לא אושרה (אפשר לשנות בכל רגע)" : c.disabled ? "החסימה בוטלה" : "המשתמש נחסם (אפשר לבטל בכל רגע)");
@@ -105,8 +107,12 @@ export default function AdminPage() {
   }
 
   const waiting = children.filter((c) => !c.approved && !c.disabled);
-  const shown = children.filter((c) =>
-    !filter || `${c.name} ${c.username ?? ""}`.toLowerCase().includes(filter.trim().toLowerCase()));
+  // 2026-11-13 (Shir: "teachers and students each on their own - with many people it's a mess")
+  const isStaffRow = (c) => c.teacher || c.admin;
+  const kidsCount = children.filter((c) => !isStaffRow(c)).length;
+  const staffCount = children.length - kidsCount;
+  const shown = children.filter((c) => (who === "staff" ? isStaffRow(c) : !isStaffRow(c)) &&
+    (!filter || `${c.name} ${c.username ?? ""}`.toLowerCase().includes(filter.trim().toLowerCase())));
   const withUser = children.filter((c) => c.username).length;
 
   return (
@@ -183,7 +189,14 @@ export default function AdminPage() {
       </section>
 
       <section className="admin__card">
-        <h2>ילדים</h2>
+        <div className="admin-tabs admin-tabs--small" role="tablist" aria-label="מי ברשימה">
+          <button type="button" role="tab" aria-selected={who === "kids"} className={`admin-tabs__tab ${who === "kids" ? "is-on" : ""}`} onClick={() => setWho("kids")}>
+            🧒 תלמידים ({kidsCount})
+          </button>
+          <button type="button" role="tab" aria-selected={who === "staff"} className={`admin-tabs__tab ${who === "staff" ? "is-on" : ""}`} onClick={() => setWho("staff")}>
+            👩‍🏫 מורים ({staffCount})
+          </button>
+        </div>
         <input
           className="admin__input admin__search"
           placeholder="חיפוש לפי שם או שם משתמש"

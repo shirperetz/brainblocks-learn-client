@@ -10,6 +10,7 @@ import { Legend } from "./ChildReportPage";
 import StaffWeeklyTasks from "../components/StaffWeeklyTasks";
 import ClassBuilding from "../components/ClassBuilding";
 import "../styles/pages/staff.css";
+import { ask, askText } from "../components/dialog";
 
 // 2026-11-11 (Shir: "teachers look at their students, I look at mine, and I oversee everything"):
 // the teachers' / admin's home. A teacher sees only her classes (the server enforces it); the admin
@@ -183,7 +184,7 @@ export default function StaffPage() {
           <h2>⏳ ממתינים לאישור ({waiting.length})</h2>
           <p className="staff-card__hint">נרשמו עם קוד של כיתה. רק אחרי אישור הם יכולים להיכנס.</p>
           {waiting.length > 1 && (
-            <button className="admin__btn" onClick={() => window.confirm(`לאשר את כל ${waiting.length} הילדים?`) && approveAll()}>
+            <button className="admin__btn" onClick={async () => await ask(`לאשר את כל ${waiting.length} הילדים?`) && approveAll()}>
               ✓ אישור לכולם ({waiting.length})
             </button>
           )}
@@ -203,8 +204,8 @@ export default function StaffPage() {
                   </button>
                   <button
                     className="admin__btn admin__btn--ghost"
-                    onClick={() =>
-                      window.confirm(`לחסום את ${c.name}? (אפשר לבטל בכל רגע)`) &&
+                    onClick={async () =>
+                      await ask(`לחסום את ${c.name}? (אפשר לבטל בכל רגע)`) &&
                       act(() => api.staffSetDisabled(c.id, true), "נחסם/ה")
                     }
                   >
@@ -391,10 +392,10 @@ export default function StaffPage() {
                 className="class-row__grade"
                 value={c.grade ?? ""}
                 aria-label={`הכיתה שמתרגלים ב${c.name}`}
-                onChange={(e) => {
+                onChange={async (e) => {
                   const g = e.target.value;
                   const label = GRADES.find((x) => x.key === g)?.label;
-                  if (window.confirm(g ? `כל הילדים ב${c.name} יתרגלו רק ${label}. להמשיך?` : `לבטל את הנעילה של ${c.name}?`)) {
+                  if (await ask(g ? `כל הילדים ב${c.name} יתרגלו רק ${label}. להמשיך?` : `לבטל את הנעילה של ${c.name}?`)) {
                     act(() => api.staffUpdateClass(c.id, { grade: g }), g ? `${c.name}: כולם מתרגלים ${label} 🔒` : "הנעילה בוטלה");
                   }
                 }}
@@ -407,8 +408,8 @@ export default function StaffPage() {
               {/* 2026-11-13 (Shir: "I, the admin, set how many students a class can have"): admin only */}
               {isAdmin && (
                 <button className="admin__btn admin__btn--ghost"
-                  onClick={() => {
-                    const v = window.prompt(`כמה תלמידים לכל היותר ב${c.name}? (ריק = בלי הגבלה)`, c.maxStudents ?? "");
+                  onClick={async () => {
+                    const v = await askText(`כמה תלמידים לכל היותר ב${c.name}?\nריק = בלי הגבלה. ילד נוסף לא יוכל להירשם לכיתה מלאה.`, c.maxStudents ?? "", { inputMode: "numeric" });
                     if (v === null) return;
                     const n = v.trim() === "" ? 0 : Number(v.trim());
                     if (!Number.isInteger(n) || n < 0) return;
@@ -426,13 +427,13 @@ export default function StaffPage() {
                       await navigator.clipboard.writeText(link);
                       setMessage(`הקישור של ${c.name} הועתק - אפשר לשלוח לילדים בוואטסאפ`);
                     } catch {
-                      window.prompt("הקישור לילדים (להעתיק):", link);
+                      await askText("הקישור לילדים\nלהעתיק ולשלוח לילדים", link, { okText: "סגירה" });
                     }
                   }}>
                   🔗 קישור לילדים
                 </button>
                 <button className="admin__btn admin__btn--ghost"
-                  onClick={() => window.confirm("קוד חדש? הקוד הישן יפסיק לעבוד") &&
+                  onClick={async () => await ask("קוד חדש? הקוד הישן יפסיק לעבוד") &&
                     act(() => api.staffUpdateClass(c.id, { newCode: true }), "נוצר קוד חדש")}>
                   קוד חדש
                 </button>
@@ -442,7 +443,7 @@ export default function StaffPage() {
                 </button>
                 {/* 2026-11-12 (Shir: "possible to delete if needed, and it won't be seen") */}
                 <button className="admin__btn admin__btn--ghost admin__btn--danger"
-                  onClick={() => window.confirm(
+                  onClick={async () => await ask(
                     [
                       `למחוק את הכיתה "${c.name}"?`,
                       "",
@@ -502,21 +503,38 @@ export default function StaffPage() {
                     {!t.approved && !t.disabled && <span className="admin__tag admin__tag--wait">🕓 בקשת הרשמה - מחכה לאישור</span>}
                     {t.disabled && <span className="admin__tag admin__tag--off">חסומה</span>}
                   </strong>
-                  <small>@{t.username} · {t.classes.length ? t.classes.join(", ") : "אין כיתות"} · {timeAgo(t.lastActiveAt)}</small>
+                  <small>
+                    @{t.username} · {t.classes.length ? t.classes.join(", ") : "אין כיתות"} · {timeAgo(t.lastActiveAt)}
+                    {" · "}
+                    {t.maxStudents ? `${t.students}/${t.maxStudents} תלמידים${t.students >= t.maxStudents ? " · מלא" : ""}` : `${t.students ?? 0} תלמידים`}
+                  </small>
                 </div>
                 <div className="person__actions">
                   {!t.approved && !t.disabled && (
                     <button className="admin__btn" onClick={() => act(() => api.staffApproveTeacher(t.id), `${t.name} אושרה`)}>✓ אישור</button>
                   )}
+                  {/* 2026-11-13 (Shir: "I decide how many students a teacher has; one more is blocked at once") */}
+                  {t.approved && !t.disabled && (
+                    <button className="admin__btn admin__btn--ghost"
+                      onClick={async () => {
+                        const v = await askText(`כמה תלמידים לכל היותר ל${t.name}?\nבכל הכיתות שלה יחד. ריק = בלי הגבלה. ילד נוסף לא יוכל להירשם.`, t.maxStudents ?? "", { inputMode: "numeric" });
+                        if (v === null) return;
+                        const n = v.trim() === "" ? 0 : Number(v.trim());
+                        if (!Number.isInteger(n) || n < 0) return;
+                        act(() => api.staffSetTeacherMax(t.id, n), n ? `${t.name}: עד ${n} תלמידים` : `${t.name}: בלי הגבלה`);
+                      }}>
+                      👥 {t.maxStudents ? `עד ${t.maxStudents}` : "מקסימום תלמידים"}
+                    </button>
+                  )}
                   {!t.approved && !t.disabled ? (
                     <button className="admin__btn admin__btn--ghost"
-                      onClick={() => window.confirm(`לא לאשר את הבקשה של ${t.name}? (אפשר לשנות אחר כך)`) &&
+                      onClick={async () => await ask(`לא לאשר את הבקשה של ${t.name}? (אפשר לשנות אחר כך)`) &&
                         act(() => api.staffSetTeacherDisabled(t.id, true), "הבקשה לא אושרה")}>
                       ✕ לא לאשר
                     </button>
                   ) : (
                     <button className="admin__btn admin__btn--ghost"
-                      onClick={() => window.confirm(`${t.disabled ? "לבטל חסימה של" : "לחסום את"} ${t.name}?`) &&
+                      onClick={async () => await ask(`${t.disabled ? "לבטל חסימה של" : "לחסום את"} ${t.name}?`) &&
                         act(() => api.staffSetTeacherDisabled(t.id, !t.disabled), t.disabled ? "החסימה בוטלה" : "נחסמה")}>
                       {t.disabled ? "ביטול חסימה" : "חסימה"}
                     </button>

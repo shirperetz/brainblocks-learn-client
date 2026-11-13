@@ -174,3 +174,7 @@
 .tree-newclass { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
 .tree-newclass input, .tree-newclass select { font: inherit; padding: 0.45rem 0.6rem; border-radius: 0.6rem; border: 1px solid var(--line); min-width: 0; }
 .tree-newclass input { flex: 1 1 9rem; }
+
+/* 2026-11-13: students / teachers tabs inside the users card */
+.admin-tabs--small { margin: 0 0 0.8rem; }
+.admin-tabs--small .admin-tabs__tab { font-size: 1rem; padding: 0.55rem 0.9rem; }

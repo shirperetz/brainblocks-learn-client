@@ -4,6 +4,7 @@ import { topicInfo } from "../data/progress";
 import { TOPICS, isTopicAllowedForGrade } from "../data/topics";
 import { GAMES } from "../game/games";
 import * as api from "../services/learnApi";
+import { ask } from "./dialog";
 
 /**
  * 2026-11-12 (idea #5): the teacher's "📅 משימה שבועית" for one class - set "3 rounds of fractions
@@ -93,7 +94,7 @@ export default function StaffWeeklyTasks({ cls }) {
                   )}
                   {t.active && (
                     <button className="admin__btn admin__btn--ghost task__cancel"
-                      onClick={() => window.confirm(`לבטל את המשימה "${info.name}"? הילדים לא יראו אותה יותר.`) &&
+                      onClick={async () => await ask(`לבטל את המשימה "${info.name}"? הילדים לא יראו אותה יותר.`) &&
                         act(() => api.staffCancelAssignment(t.id), "המשימה בוטלה")}>
                       ביטול
                     </button>
