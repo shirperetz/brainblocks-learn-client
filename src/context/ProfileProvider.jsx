@@ -86,8 +86,16 @@ export function ProfileProvider({ children }) {
   }
 
   /** A child who already has a username - on any device. */
+  // 2026-11-14 (public site): the admin's password alone gives no token - { secondStep } comes back, and
+  // the log-in page asks for her fingerprint or a backup code, then calls finishLogin.
   async function loginProfile({ username, password }) {
-    return signedIn(await learnApi.login({ username, password }));
+    const r = await learnApi.login({ username, password });
+    if (r.secondStep) return { secondStep: r };
+    return signedIn(r);
+  }
+
+  function finishLogin(session) {
+    return signedIn(session);
   }
 
   async function patchProfile(changes) {
@@ -121,6 +129,7 @@ export function ProfileProvider({ children }) {
     hasProfile: Boolean(profile),
     createProfile,
     loginProfile,
+    finishLogin,
     patchProfile,
     refreshProfile,
     changePassword,

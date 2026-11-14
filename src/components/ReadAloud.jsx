@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { isMuted, stopVoice } from "../game/audio";
+import { isMuted, sayText, stopVoice } from "../game/audio";
 import { speakUrl } from "../services/learnApi";
 import "../styles/components/read-aloud.css";
 
@@ -20,6 +20,11 @@ async function urlFor(text) {
 }
 
 function stopPlaying() {
+  try {
+    window.speechSynthesis?.cancel();
+  } catch {
+    /* no speech */
+  }
   if (playing) {
     playing.pause();
     playing = null;
@@ -39,6 +44,13 @@ export default function ReadAloud({ text, auto = false }) {
     if (!alive.current) return;
     if (!url) {
       setState("none"); // no voice on this computer / server - the button stays, quietly
+      return;
+    }
+    if (url.startsWith("speech:")) {
+      // 2026-11-14: the browser's own voice (no voice on the public server)
+      setState("playing");
+      await sayText(url.slice(7));
+      if (alive.current) setState("idle");
       return;
     }
     const a = new Audio(url);

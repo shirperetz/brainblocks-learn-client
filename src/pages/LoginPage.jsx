@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BigButton from "../components/BigButton";
 import Mascot from "../components/Mascot";
+import AdminSecondStep from "../components/AdminSecondStep";
 import { useProfile, lastUsername } from "../context/profileStore";
 import "../styles/pages/onboarding.css";
 import "../styles/pages/admin.css";
@@ -10,7 +11,8 @@ import "../styles/pages/admin.css";
 // and continues exactly where they stopped (the progress is on the server).
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { loginProfile } = useProfile();
+  const { loginProfile, finishLogin } = useProfile();
+  const [secondStep, setSecondStep] = useState(null); // 2026-11-14: the admin's fingerprint / backup code
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   // e.g. "/admin" from the admin link; after an automatic log-out, the staff page she was on
@@ -29,15 +31,37 @@ export default function LoginPage() {
     setSubmitting(true);
     setError("");
     try {
-      const p = await loginProfile({ username: username.trim(), password });
-      const staff = p.admin || p.teacher;
-      // 2026-11-12 (Shir: "when I log in I want the home screen first, not straight to the lessons"):
-      // everyone lands on the home screen; only a link that asked for a staff page goes back there.
-      navigate(next && staff && (next === "/admin" ? p.admin : next.startsWith("/staff")) ? next : "/");
+      const r = await loginProfile({ username: username.trim(), password });
+      if (r.secondStep) {
+        setSecondStep(r.secondStep);
+        setSubmitting(false);
+        return;
+      }
+      goOn(r);
     } catch (err) {
       setError(err.message);
       setSubmitting(false);
     }
+  }
+
+  function goOn(p) {
+    const staff = p.admin || p.teacher;
+    // 2026-11-12 (Shir: "when I log in I want the home screen first, not straight to the lessons"):
+    // everyone lands on the home screen; only a link that asked for a staff page goes back there.
+    navigate(next && staff && (next === "/admin" ? p.admin : next.startsWith("/staff")) ? next : "/");
+  }
+
+  if (secondStep) {
+    return (
+      <AdminSecondStep
+        step={secondStep}
+        onDone={(session) => goOn(finishLogin(session))}
+        onRestart={() => {
+          setSecondStep(null);
+          setPassword("");
+        }}
+      />
+    );
   }
 
   return (

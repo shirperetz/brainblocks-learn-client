@@ -10,6 +10,7 @@ import "../styles/pages/admin.css";
 import { ask } from "../components/dialog";
 import AuditLog from "../components/AuditLog";
 import PrivacyAdmin from "../components/PrivacyAdmin";
+import AdminSecurity from "../components/AdminSecurity";
 
 // 2026-11-11: Shir's admin screen - every child, reset a password (or give an old profile a
 // username), block / unblock, and the join code. The server checks the admin flag on every call;
@@ -141,9 +142,12 @@ export default function AdminPage() {
         <button type="button" role="tab" aria-selected={tab === "privacy"} className={`admin-tabs__tab ${tab === "privacy" ? "is-on" : ""}`} onClick={() => setTab("privacy")}>
           🔒 פרטיות ופניות
         </button>
+        <button type="button" role="tab" aria-selected={tab === "security"} className={`admin-tabs__tab ${tab === "security" ? "is-on" : ""}`} onClick={() => setTab("security")}>
+          🔐 כניסה מאובטחת
+        </button>
       </div>
 
-      {tab === "privacy" ? <PrivacyAdmin /> : tab === "audit" ? <AuditLog /> : tab === "school" ? <SchoolTree /> : (<>
+      {tab === "security" ? <AdminSecurity /> : tab === "privacy" ? <PrivacyAdmin /> : tab === "audit" ? <AuditLog /> : tab === "school" ? <SchoolTree /> : (<>
       {message && <p className="admin__message" role="status">{message}</p>}
       {error && <p className="form-error">{error}</p>}
 

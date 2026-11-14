@@ -42,6 +42,11 @@ export function preload(keys) {
 }
 
 export function stopVoice() {
+  try {
+    window.speechSynthesis?.cancel();
+  } catch {
+    /* no speech */
+  }
   if (current) {
     current.cancelled = true;
     current.audio?.pause();
@@ -80,7 +85,29 @@ export function say(...keys) {
 }
 
 /** Plays one recorded file (e.g. a help explanation made on the server); same rules as say(). */
+/**
+ * 2026-11-14 (the public site has no voice of its own): the browser's own Hebrew voice says the words
+ * the server prepared (math already in words). Resolves when done; silent where there is no voice.
+ */
+export function sayText(text) {
+  stopVoice();
+  const synth = typeof window !== "undefined" ? window.speechSynthesis : null;
+  if (muted || !text || !synth || typeof SpeechSynthesisUtterance === "undefined") return Promise.resolve();
+  return new Promise((res) => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "he-IL";
+    const he = synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith("he"));
+    if (he) u.voice = he;
+    u.rate = 0.95;
+    u.onend = res;
+    u.onerror = res;
+    synth.speak(u);
+    setTimeout(res, 20000); // never hang a game on a voice that doesn't answer
+  });
+}
+
 export function sayUrl(src) {
+  if (src && src.startsWith("speech:")) return sayText(src.slice(7));
   stopVoice();
   if (muted || !src) return Promise.resolve();
   const a = new Audio(src);

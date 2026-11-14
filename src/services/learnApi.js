@@ -118,6 +118,11 @@ export async function speakUrl(text) {
       headers: { "Content-Type": "application/json", ...tokenHeader() },
       body: JSON.stringify({ text }),
     });
+    // 2026-11-14: no voice on the server (the public site) - the words for the browser's own voice
+    if (r.status === 204) {
+      const words = r.headers.get("X-Spoken");
+      return words ? "speech:" + decodeURIComponent(words) : null;
+    }
     if (r.status !== 200) return null;
     return URL.createObjectURL(await r.blob());
   } catch {

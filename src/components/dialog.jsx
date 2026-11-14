@@ -31,7 +31,7 @@ function mount(render) {
 
 const DANGER = /למחוק|מחיקה|לחסום|אי אפשר לבטל|לסיים|לצאת/;
 
-function Dialog({ message, input, value, inputMode, okText, cancelText, danger, done }) {
+function Dialog({ message, input, value, inputMode, secret, okText, cancelText, danger, done }) {
   const [text, setText] = useState(value ?? "");
   const okRef = useRef(null);
   const inRef = useRef(null);
@@ -53,7 +53,7 @@ function Dialog({ message, input, value, inputMode, okText, cancelText, danger, 
         <h2 id="bb-dialog-title" className="bb-dialog__title">{title}</h2>
         {body && <p className="bb-dialog__body">{body}</p>}
         {input && (
-          <input ref={inRef} className="bb-dialog__input" value={text} inputMode={inputMode} dir="auto"
+          <input ref={inRef} className="bb-dialog__input" value={text} inputMode={inputMode} type={secret ? "password" : "text"} dir="auto"
             onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && ok()} aria-label={title} />
         )}
         <div className="bb-dialog__actions">
@@ -80,8 +80,8 @@ export function ask(message, { okText, danger } = {}) {
 }
 
 /** A short answer. Resolves the text, or null on "ביטול". */
-export function askText(message, value = "", { inputMode = "text", okText = "שמירה" } = {}) {
+export function askText(message, value = "", { inputMode = "text", okText = "שמירה", secret = false } = {}) {
   return mount((done) => (
-    <Dialog message={message} input value={String(value ?? "")} inputMode={inputMode} okText={okText} cancelText="ביטול" done={done} />
+    <Dialog message={message} input value={String(value ?? "")} inputMode={inputMode} secret={secret} okText={okText} cancelText="ביטול" done={done} />
   ));
 }
