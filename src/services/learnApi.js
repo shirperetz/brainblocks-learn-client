@@ -328,6 +328,10 @@ export function getClassBuilding(profileId) {
   return apiRequest(`/api/learn/profiles/${profileId}/class-building`);
 }
 
+/** 2026-11-14: the class's 3D island + the league of classes. */
+export const getClassIsland = (profileId) => apiRequest(`/api/learn/profiles/${profileId}/class-island`);
+export const staffClassIsland = (classId) => apiRequest(`/api/learn/staff/classes/${classId}/island`);
+
 /** 2026-11-14 (A5): coins from my island to my class's building (2 coins = 1 brick, 20 a week). */
 export function donateToBuilding(profileId, coins) {
   return apiRequest(`/api/learn/profiles/${profileId}/class-building/donate`, { method: "POST", body: JSON.stringify({ coins }) });

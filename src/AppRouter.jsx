@@ -22,6 +22,7 @@ import SettingsPage from "./pages/SettingsPage";
 import MyIslandPage from "./pages/MyIslandPage";
 // 2026-11-13: the 3D island loads three.js only on its own page
 const Island3DPage = lazy(() => import("./pages/Island3DPage"));
+const ClassIslandPage = lazy(() => import("./pages/ClassIslandPage"));
 import ChildReportPage from "./pages/ChildReportPage";
 import ParentsPage from "./pages/ParentsPage";
 import PrivacyPage from "./pages/PrivacyPage";
@@ -61,6 +62,8 @@ export default function AppRouter() {
       <Route path="/review" element={<ReviewPage />} />
       <Route path="/rewards" element={<Navigate to="/my-island" replace />} />
       <Route path="/my-island" element={<Suspense fallback={null}><Island3DPage /></Suspense>} />
+      <Route path="/class-island" element={<Suspense fallback={null}><ClassIslandPage /></Suspense>} />
+      <Route path="/staff/class/:id/island" element={<Suspense fallback={null}><ClassIslandPage /></Suspense>} />
       <Route path="/staff/child/:id/island" element={<MyIslandPage />} />
       <Route path="/daily" element={<DailyPage />} />
       <Route path="/timed" element={<TimedPage />} />

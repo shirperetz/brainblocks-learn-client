@@ -40,6 +40,8 @@ function noise2(seed) {
 const mat = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, flatShading: true, roughness: 0.85, ...o });
 
 export const SLOT_COUNT = 32;
+/** 2026-11-14: what the class island builds (ClassIslandService.SEQUENCE). */
+const CLASS_KINDS = new Set(["school", "library", "fountain", "playground", "lighthouse", "clocktower", "stadium", "statue", "pond", "balloon"]);
 
 export class IslandScene {
   constructor(container, { seed, phone = false, onPick, season = "summer" }) {
@@ -421,6 +423,11 @@ export class IslandScene {
     } else {
       this.extra(kind, level, g, add, light);
     }
+    // 2026-11-14 (the class island): a third round of weeks crowns a building with a golden flag
+    if (level >= 3 && CLASS_KINDS.has(kind)) {
+      add(new THREE.BoxGeometry(0.08, 2, 0.08), mat(0x9aa3b5), 1.6, 1, 1.6);
+      add(new THREE.BoxGeometry(0.8, 0.45, 0.04), mat(0xf4c542, { metalness: 0.5, emissive: 0x6a4a00, emissiveIntensity: 0.3 }), 2.02, 1.75, 1.6);
+    }
   }
 
   /** 2026-11-13: the new things (school, well, fountain, playground, pond, animals, season things). */
@@ -652,6 +659,90 @@ export class IslandScene {
       const flame = piece(new THREE.ConeGeometry(0.4, 0.8, 10), mat(0xffa000, { emissive: 0xff6000, emissiveIntensity: 1 }), 0, 0.15, 0);
       flame.rotation.x = Math.PI;
       this.anims.push((t) => (flame.scale.y = 0.7 + Math.abs(Math.sin(t * 12)) * 0.5));
+    } else if (kind === "library") {
+      // 2026-11-14 (the class island): a library - columns, steps, books in the windows; grows a wing
+      const stone = mat(0xf1ead8), roof = mat(0x8f3b2e);
+      add(new THREE.BoxGeometry(4.2, 0.3, 2.8), mat(0xd8cfb8), 0, 0.15, 0);
+      add(new THREE.BoxGeometry(3.6, 2, 2.2), stone, 0, 1.3, -0.1);
+      for (const x of [-1.4, -0.47, 0.47, 1.4]) add(new THREE.CylinderGeometry(0.16, 0.18, 2, 10), stone, x, 1.3, 1.15);
+      add(new THREE.BoxGeometry(3.8, 0.3, 2.6), stone, 0, 2.45, 0);
+      const pd = add(new THREE.CylinderGeometry(0.01, 2.1, 0.9, 3), roof, 0, 3.05, 0.1);
+      pd.rotation.z = Math.PI / 2;
+      pd.rotation.y = Math.PI / 2;
+      pd.scale.set(1, 1, 0.55);
+      const books = [0xe45f4f, 0x3a6fd8, 0x2fbf71, 0xffc93a];
+      books.forEach((c, k) => add(new THREE.BoxGeometry(0.12, 0.45, 0.1), mat(c), -0.25 + k * 0.17, 1.4, 1.02));
+      if (level >= 2) {
+        add(new THREE.BoxGeometry(1.6, 1.6, 2), stone, 2.6, 1.1, -0.1);
+        add(new THREE.ConeGeometry(1.3, 0.8, 4), roof, 2.6, 2.3, -0.1).rotation.y = Math.PI / 4;
+        add(new THREE.BoxGeometry(0.6, 0.6, 0.1), light, 2.6, 1.3, 0.91);
+      }
+    } else if (kind === "clocktower") {
+      const brick = mat(0xc9714e), cap = mat(0x2d4a7a);
+      const h = level >= 2 ? 6.2 : 5;
+      add(new THREE.BoxGeometry(1.6, h, 1.6), brick, 0, h / 2, 0);
+      add(new THREE.ConeGeometry(1.35, 1.6, 4), cap, 0, h + 0.8, 0).rotation.y = Math.PI / 4;
+      const face = add(new THREE.CylinderGeometry(0.6, 0.6, 0.08, 24), mat(0xfffbe8), 0, h - 0.9, 0.82);
+      face.rotation.x = Math.PI / 2;
+      const hand = add(new THREE.BoxGeometry(0.06, 0.45, 0.04), mat(0x1f2a44), 0, h - 0.9, 0.88);
+      const hand2 = add(new THREE.BoxGeometry(0.06, 0.3, 0.04), mat(0x1f2a44), 0, h - 0.9, 0.89);
+      this.anims.push((t) => {
+        hand.rotation.z = -t * 0.6;
+        hand2.rotation.z = -t * 0.05;
+        hand.position.set(Math.sin(t * 0.6) * 0.2, h - 0.9 + Math.cos(t * 0.6) * 0.2, 0.88);
+      });
+      add(new THREE.BoxGeometry(0.6, 1, 0.1), mat(0x6b3b1f), 0, 0.5, 0.81);
+    } else if (kind === "stadium") {
+      add(new THREE.CylinderGeometry(2.8, 3, 0.3, 28), mat(0xe8e2d4), 0, 0.15, 0);
+      add(new THREE.CylinderGeometry(2.1, 2.1, 0.05, 28), mat(0x4fae3c), 0, 0.32, 0);
+      add(new THREE.BoxGeometry(2.6, 0.02, 0.06), mat(0xffffff), 0, 0.36, 0);
+      const rows = level >= 2 ? 3 : 2;
+      for (let r = 0; r < rows; r++) {
+        const ring = add(new THREE.TorusGeometry(2.35 + r * 0.32, 0.16, 6, 28), mat([0xe45f4f, 0x3a6fd8, 0xffc93a][r]), 0, 0.5 + r * 0.32, 0);
+        ring.rotation.x = Math.PI / 2;
+      }
+      const ball = add(new THREE.SphereGeometry(0.22, 10, 8), mat(0xffffff), 0, 0.55, 0);
+      this.anims.push((t) => ball.position.set(Math.sin(t * 1.3) * 1.3, 0.55 + Math.abs(Math.sin(t * 2.6)) * 0.4, Math.cos(t * 0.9) * 0.6));
+      for (const x of [-2.1, 2.1]) {
+        add(new THREE.BoxGeometry(0.06, 3, 0.06), mat(0x9aa3b5), x, 1.8, -2.2);
+        add(new THREE.BoxGeometry(0.5, 0.3, 0.2), light, x, 3.3, -2.2);
+      }
+    } else if (kind === "statue") {
+      // the class's statue: a pedestal and a golden dolphin-like arc, a star on top
+      const gold = mat(0xf4c542, { metalness: 0.6, roughness: 0.35, emissive: 0x6a4a00, emissiveIntensity: 0.25 });
+      add(new THREE.BoxGeometry(1.6, 1, 1.6), mat(0xe8e2d4), 0, 0.5, 0);
+      add(new THREE.BoxGeometry(1.9, 0.15, 1.9), mat(0xd8cfb8), 0, 1.05, 0);
+      const arc = add(new THREE.TorusGeometry(0.75, 0.22, 8, 20, Math.PI * 1.2), gold, 0, 1.9, 0);
+      arc.rotation.z = -0.3;
+      const star = add(new THREE.OctahedronGeometry(0.35), gold, 0, level >= 2 ? 3.2 : 2.9, 0);
+      this.anims.push((t) => (star.rotation.y = t));
+    } else if (kind === "site") {
+      // this week's building, under construction: level = 0 (empty lot) .. 5 (done)
+      const stage = Math.max(0, Math.min(5, level));
+      add(new THREE.BoxGeometry(3.6, 0.1, 3.6), mat(0xc9b28a), 0, 0.05, 0);
+      for (const [x, z] of [[-1.7, -1.7], [1.7, -1.7], [-1.7, 1.7], [1.7, 1.7]]) add(new THREE.BoxGeometry(0.1, 0.5, 0.1), mat(0xff9f43), x, 0.25, z);
+      if (stage >= 1) add(new THREE.BoxGeometry(3, 0.35, 3), mat(0x9a9488), 0, 0.27, 0);
+      const wall = mat(0xffe3a3);
+      for (let f = 0; f < Math.min(2, Math.max(0, stage - 1)); f++) add(new THREE.BoxGeometry(2.6, 1.1, 2.6), wall, 0, 1 + f * 1.15, 0);
+      if (stage >= 4) add(new THREE.ConeGeometry(2.1, 1, 4), mat(0x3a6fd8), 0, 3.3, 0).rotation.y = Math.PI / 4;
+      if (stage < 5) {
+        // a crane that turns
+        add(new THREE.BoxGeometry(0.25, 5, 0.25), mat(0xffc93a), 2.2, 2.5, -2.2);
+        const arm = new THREE.Group();
+        arm.position.set(2.2, 5, -2.2);
+        g.add(arm);
+        const beam = new THREE.Mesh(new THREE.BoxGeometry(4, 0.2, 0.2), mat(0xffc93a));
+        beam.position.x = -1.4;
+        beam.castShadow = true;
+        arm.add(beam);
+        const hook = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat(0xc4553d));
+        hook.position.set(-2.8, -1.2, 0);
+        arm.add(hook);
+        this.anims.push((t) => (arm.rotation.y = Math.sin(t * 0.5) * 0.8));
+      } else {
+        add(new THREE.BoxGeometry(0.06, 1.4, 0.06), mat(0x9aa3b5), 0, 4.4, 0);
+        add(new THREE.BoxGeometry(0.7, 0.4, 0.04), mat(0xe45f4f), 0.37, 4.9, 0);
+      }
     } else if (kind === "campfire") {
       for (let k = 0; k < 5; k++) add(new THREE.SphereGeometry(0.22, 6, 4), mat(0x8d94a6), Math.cos(k * 1.26) * 0.6, 0.1, Math.sin(k * 1.26) * 0.6);
       add(new THREE.BoxGeometry(1, 0.15, 0.15), dark, 0, 0.15, 0).rotation.y = 0.6;

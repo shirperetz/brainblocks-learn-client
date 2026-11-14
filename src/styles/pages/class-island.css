@@ -1,0 +1,18 @@
+/* 2026-11-14: the class's 3D island page (layout from island3d.css) */
+.ci-body { display: flex; flex-direction: column; gap: 0.7rem; }
+.ci-picked { margin: 0; background: #fff8e0; border-radius: 12px; padding: 0.6rem 0.8rem; color: #3a2a00; }
+.ci-next { display: flex; flex-direction: column; gap: 0.15rem; background: #f6f3ff; border-radius: 12px; padding: 0.6rem 0.8rem; }
+.ci-next span { font-size: 0.9rem; color: #4a5578; }
+.ci-body .building { margin-bottom: 0; }
+.ci-league { background: #fff; border-radius: 16px; padding: 0.8rem; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06); }
+.ci-league h2 { margin: 0 0 0.2rem; font-size: 1.1rem; }
+.ci-league__hint { margin: 0 0 0.6rem; font-size: 0.85rem; color: #4a5578; }
+.ci-league__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.ci-row { display: grid; grid-template-columns: 1.4rem minmax(0, 7rem) 1fr 2.4rem; align-items: center; gap: 0.5rem; padding: 0.3rem 0.4rem; border-radius: 10px; }
+.ci-row.is-mine { background: #efe9ff; font-weight: 800; }
+.ci-row__place { font-weight: 800; }
+.ci-row__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ci-row__bar { height: 0.7rem; border-radius: 0.35rem; background: #eef1f7; overflow: hidden; }
+.ci-row__bar span { display: block; height: 100%; border-radius: inherit; background: #7051f5; }
+.ci-row:not(.is-mine) .ci-row__bar span { background: #4a8fd8; }
+.ci-row__num { font-variant-numeric: tabular-nums; text-align: start; }

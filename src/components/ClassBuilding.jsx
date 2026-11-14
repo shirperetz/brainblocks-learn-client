@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { donateToBuilding, getClassBuilding, staffClassBuilding } from "../services/learnApi";
 import "../styles/components/class-building.css";
 
@@ -9,6 +10,8 @@ import "../styles/components/class-building.css";
  */
 export default function ClassBuilding({ profileId, classId }) {
   const staff = classId != null;
+  const navigate = useNavigate();
+  const onIsland = typeof window !== "undefined" && /island/.test(window.location.pathname);
   const [b, setB] = useState(null);
   const [giving, setGiving] = useState(false);
   const [note, setNote] = useState("");
@@ -78,6 +81,12 @@ export default function ClassBuilding({ profileId, classId }) {
           <p className="building__sub">תרמת השבוע {b.myDonated} מטבעות - תודה! 💛</p>
         )}
         {note && <p className="building__note" role="status">{note}</p>}
+        {/* 2026-11-14: the class's 3D island (every finished week stays there) */}
+        {!onIsland && (
+          <button className="building__isle" onClick={() => navigate(staff ? `/staff/class/${classId}/island` : "/class-island")}>
+            🏝️ לאי של הכיתה + ליגת הכיתות
+          </button>
+        )}
       </div>
     </section>
   );
