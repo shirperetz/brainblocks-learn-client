@@ -38,7 +38,21 @@ export default function TrainRound({ round, onDone }) {
     <div className="train-game">
       <div className={`track ${solved ? "is-leaving" : ""}`} dir="ltr">
         <div className="train">
-          <span className="train__engine" aria-hidden="true">🚂</span>
+          <svg className="train__engine" viewBox="0 0 64 48" aria-hidden="true">
+            {/* 2026-11-15 (Shir: "the train is backwards"): drawn, not the 🚂 emoji - phones draw the emoji
+                facing different ways. Faces LEFT, away from its wagons (the way it leaves). */}
+            <path d="M4 34 L12 26 L12 38 Z" fill="#c0392b" />
+            <rect x="12" y="20" width="30" height="16" rx="4" fill="#e74c3c" />
+            <rect x="18" y="8" width="7" height="12" rx="2" fill="#34495e" />
+            <rect x="15" y="5" width="13" height="5" rx="2" fill="#2c3e50" />
+            <rect x="40" y="10" width="18" height="26" rx="3" fill="#f39c12" />
+            <rect x="44" y="14" width="10" height="9" rx="2" fill="#d6f0ff" />
+            <rect x="38" y="7" width="22" height="5" rx="2" fill="#2c3e50" />
+            <rect x="10" y="36" width="50" height="4" rx="2" fill="#2c3e50" />
+            <circle cx="20" cy="41" r="5" fill="#2c3e50" /><circle cx="20" cy="41" r="2" fill="#bdc3c7" />
+            <circle cx="34" cy="41" r="5" fill="#2c3e50" /><circle cx="34" cy="41" r="2" fill="#bdc3c7" />
+            <circle cx="50" cy="40" r="6" fill="#2c3e50" /><circle cx="50" cy="40" r="2.4" fill="#bdc3c7" />
+          </svg>
           {round.wagons.map((n, i) => {
             const isGap = i === round.gap;
             return (

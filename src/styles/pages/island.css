@@ -821,9 +821,10 @@
   transform: translateX(-120%);
 }
 .train__engine {
-  font-size: 2.6rem;
-  line-height: 1;
-  transform: scaleX(-1); /* faces left - the way it leaves */
+  width: 3.6rem;
+  height: 2.7rem;
+  flex: 0 0 auto;
+  align-self: flex-end;
 }
 .wagon {
   position: relative;
