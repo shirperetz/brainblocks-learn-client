@@ -8,7 +8,7 @@ import { markFormOpened } from "../services/learnApi";
 export default function BotTrap() {
   useEffect(() => markFormOpened(), []);
   return (
-    <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}>
+    <div aria-hidden="true" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)", whiteSpace: "nowrap", opacity: 0, pointerEvents: "none" }}>
       <label>
         Website
         <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
