@@ -147,7 +147,7 @@ export default function Companion() {
       const n = hintsGiven;
       setHintsGiven(n + 1);
       setBubble({ title: "💡 רמז", text: lines[n], path: pathname, stay: true });
-      act("think");
+      act("hint");
       cheer("hintShown", { n: n + 1, key: perch.hint?.key });
       return;
     }

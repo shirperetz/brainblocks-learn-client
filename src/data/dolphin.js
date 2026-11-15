@@ -15,6 +15,8 @@ export const DOLPHIN_ANIMS = {
   success: { frames: 12, fps: 12 },
   sad: { frames: 10, fps: 9 },
   bored: { frames: 10, fps: 8 },
+  // 2026-11-15: Shir's light bulb over the head - the dolphin giving a hint.
+  hint: { frames: 13, fps: 10 },
 };
 
 export function dolphinFrame(anim, i) {
