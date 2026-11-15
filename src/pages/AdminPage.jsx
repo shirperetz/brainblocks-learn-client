@@ -109,6 +109,19 @@ export default function AdminPage() {
     }
   }
 
+  // 2026-11-15 (Shir: "I blocked a child - I want to be able to delete him too"): only a blocked account,
+  // with a clear warning; the server erases the account and every row of it (PrivacyService.erase).
+  async function erase(c) {
+    if (!await ask(`למחוק לצמיתות את ${c.name}${c.username ? ` (${c.username})` : ""}? החשבון, הכוכבים, האי וכל ההתקדמות יימחקו, ואי אפשר להחזיר.`,
+      { okText: "למחוק לצמיתות", danger: true })) return;
+    try {
+      await learnApi.adminErase(c.id);
+      done(`${c.name} נמחק/ה לצמיתות`);
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   const waiting = children.filter((c) => !c.approved && !c.disabled);
   // 2026-11-13 (Shir: "teachers and students each on their own - with many people it's a mess")
   const isStaffRow = (c) => c.teacher || c.admin;
@@ -246,9 +259,14 @@ export default function AdminPage() {
                     <button className="admin__btn admin__btn--ghost" onClick={() => toggleBlock(c)}>✕ לא לאשר</button>
                   </>
                 ) : !c.admin && (
-                  <button className="admin__btn admin__btn--ghost" onClick={() => toggleBlock(c)}>
-                    {c.disabled ? "ביטול חסימה" : "חסימה"}
-                  </button>
+                  <>
+                    <button className="admin__btn admin__btn--ghost" onClick={() => toggleBlock(c)}>
+                      {c.disabled ? "ביטול חסימה" : "חסימה"}
+                    </button>
+                    {c.disabled && (
+                      <button className="admin__btn admin__btn--danger" onClick={() => erase(c)}>🗑 מחיקה לצמיתות</button>
+                    )}
+                  </>
                 )}
               </div>
               {editing?.id === c.id && (
