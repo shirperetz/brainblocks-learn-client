@@ -170,7 +170,6 @@ export default function Companion() {
       <button type="button" className={`companion__dolphin${glowing ? " is-hint" : ""}`} onClick={tap}
         aria-label={glowing ? "רמז מהדולפין - לחצו" : `${DOLPHIN_NAME} - לחצו לעידוד`}>
         <Dolphin play={anim.name} playKey={anim.key} label="" />
-        {glowing && <span className="companion__hint-tag">💡 רמז?</span>}
       </button>
       {text && (
         <div key={text} className={`companion__bubble${shown?.title ? " companion__bubble--hint" : ""}`}>
