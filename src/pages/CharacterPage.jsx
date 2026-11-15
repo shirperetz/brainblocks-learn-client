@@ -52,7 +52,7 @@ export default function CharacterPage() {
             <div className="pending-badge" aria-hidden="true">⏳</div>
             <h1 className="screen-title">ההרשמה התקבלה!</h1>
             <p className="screen-subtitle">
-              עכשיו מחכים שההורים או המורה יאשרו. אחרי האישור נכנסים עם שם המשתמש <strong>{username.trim().toLowerCase()}</strong> והסיסמה שבחרתם.
+              עכשיו מחכים שהמורה תאשר. אחרי האישור נכנסים עם שם המשתמש <strong>{username.trim().toLowerCase()}</strong> והסיסמה שבחרתם.
             </p>
           </div>
           <div className="onboarding__actions">
@@ -163,7 +163,7 @@ export default function CharacterPage() {
             </div>
           </div>
           <div className="name-field">
-            <label htmlFor="join-code">קוד הצטרפות (מההורים או מהמורה)</label>
+            <label htmlFor="join-code">קוד הצטרפות (מהמורה)</label>
             <input
               id="join-code"
               type="text"

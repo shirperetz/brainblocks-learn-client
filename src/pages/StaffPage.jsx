@@ -322,7 +322,7 @@ export default function StaffPage() {
         ) : approvedRows.length === 0 ? (
           <p className="staff-card__empty">
             {classes.length === 0 && !isAdmin
-              ? "פתחי כיתה למטה ושלחי להורים את קוד הכיתה."
+              ? "פתחי כיתה למטה ושלחי לתלמידים את קוד הכיתה."
               : "עוד אין ילדים כאן."}
           </p>
         ) : (
