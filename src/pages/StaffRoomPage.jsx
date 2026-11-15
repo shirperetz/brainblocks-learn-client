@@ -48,12 +48,17 @@ export default function StaffRoomPage() {
           <div className="room-head">
             <div>
               <small>{room.title}</small>
-              <h1>{room.state === "LOBBY" ? "חדר משחק" : room.state === "RUNNING" ? "בזמן אמת" : "המשחק נגמר"} · {room.topics.map(topicLabel).join(" + ")}</h1>
+              <h1>{room.state === "LOBBY" ? "חדר משחק" : room.state === "RUNNING" ? (room.paused ? "⏸️ בהשהיה" : "בזמן אמת") : "המשחק נגמר"} · {room.topics.map(topicLabel).join(" + ")}</h1>
             </div>
             <span className="room-clock">{clock(room.secondsLeft)}</span>
             <div className="room-actions">
               {room.state === "LOBBY" && (
                 <button className="admin__btn room-start" onClick={() => act("start")}>מתחילים! ({room.players.length} ילדים)</button>
+              )}
+              {room.state === "RUNNING" && (
+                <button className="admin__btn admin__btn--ghost" onClick={() => act(room.paused ? "resume" : "pause")}>
+                  {room.paused ? "▶️ המשך" : "⏸️ השהיה"}
+                </button>
               )}
               {room.state !== "ENDED" && <button className="admin__btn admin__btn--ghost" onClick={() => act("extend")}>+ דקה</button>}
               <a className="admin__btn admin__btn--ghost room-link" href={`/staff/room/${id}/board`} target="_blank" rel="noreferrer">הצג על הלוח</a>

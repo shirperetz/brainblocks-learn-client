@@ -3,6 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import MathText from "../components/MathText";
 import QuestionPicture from "../components/QuestionPicture";
 import DolphinPerch from "../components/DolphinPerch";
+import ReadAloud from "../components/ReadAloud";
+import Mascot from "../components/Mascot";
+import { readAloudDefault } from "../game/readAloud";
+import { useProfile } from "../context/profileStore";
 import { cheer } from "../game/companion";
 import { clock, topicLabel } from "../data/room";
 import { roomAnswer, roomMe, roomQuestion } from "../services/learnApi";
@@ -53,7 +57,10 @@ export default function RoomPlayPage() {
     };
   }, [code]);
 
-  const running = me?.state === "RUNNING" && me?.status === "IN";
+  const { profile } = useProfile();
+  // 2026-11-15 (room upgrade #8): the teacher paused - every screen waits.
+  const paused = Boolean(me?.paused);
+  const running = me?.state === "RUNNING" && me?.status === "IN" && !paused;
   useEffect(() => {
     if (running && !q && !result) loadQuestion();
   }, [running, q, result, loadQuestion]);
@@ -117,12 +124,24 @@ export default function RoomPlayPage() {
         </section>
       )}
 
+      {me.status === "IN" && me.state === "RUNNING" && paused && (
+        <section className="room-card room-paused">
+          <Mascot dolphin size="md" play="think" />
+          <p className="room-big">⏸️</p>
+          <h1>המורה עצרה רגע</h1>
+          <p className="room-note">מקשיבים, ותיכף ממשיכים</p>
+        </section>
+      )}
+
       {running && q && (
         <>
           <DolphinPerch side />
           <section className="room-card room-question">
             <small>{q.retry ? "🔁 התרגיל מקודם - עוד ניסיון" : `שאלה ${q.number} · ${q.topic === "MIXED" ? "" : topicLabel(q.topic)}`}</small>
-            <p className="room-question__text"><MathText text={q.text} /></p>
+            <div className="room-question__row">
+              <p className="room-question__text"><MathText text={q.text} /></p>
+              <ReadAloud key={`${q.number}-${q.text}`} text={q.text} auto={readAloudDefault(profile?.grade)} />
+            </div>
             <QuestionPicture visual={q.visual} />
           </section>
           <div className="room-answers">
@@ -132,6 +151,9 @@ export default function RoomPlayPage() {
               </button>
             ))}
           </div>
+          {result?.correct && !result.retry && result.streak >= 3 && (
+            <div className="room-streak" role="status">🔥 {result.streak} ברצף! +5 בונוס</div>
+          )}
           {result && (
             <p className={`room-feedback ${result.correct ? "is-right" : "is-wrong"}`} role="status">
               {result.retry
@@ -143,10 +165,12 @@ export default function RoomPlayPage() {
       )}
 
       {me.state === "ENDED" && me.status === "IN" && (
-        <section className="room-card">
-          <h1>🎉 המשחק נגמר!</h1>
+        <section className="room-card room-end">
+          <Mascot dolphin size="md" play={me.place > 0 && me.place <= 5 ? "success" : "smile"} />
+          <h1>{me.place === 1 ? "🥇 מקום ראשון!" : me.place === 2 ? "🥈 מקום שני!" : me.place === 3 ? "🥉 מקום שלישי!" : me.place > 0 ? `מקום ${me.place}` : "🎉 המשחק נגמר!"}</h1>
           <p className="room-big">{me.points} נקודות</p>
-          <p className="room-note">ענית נכון על {me.right} מתוך {me.answered}. כל הכבוד!</p>
+          <p className="room-note">ענית נכון על <b>{me.right}</b> מתוך <b>{me.answered}</b>.</p>
+          <p className="room-note">{me.place > 0 && me.place <= 5 ? "כל הכבוד! אתם בין המובילים 🎉" : me.answered > 0 && me.right / me.answered >= 0.7 ? "עבודה מצוינת! 💪" : "כל תרגיל מקדם אתכם. בפעם הבאה עוד יותר! 💪"}</p>
         </section>
       )}
       {error && <p className="form-error">{error}</p>}

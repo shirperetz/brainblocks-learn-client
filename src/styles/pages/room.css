@@ -115,3 +115,13 @@
 .who__title { font-size: 1.35rem; font-weight: 800; }
 .who__sub { font-size: 0.9rem; color: var(--ink-soft); text-align: center; }
 .who__note { margin: 0; text-align: center; font-size: 0.9rem; color: var(--ink-soft); }
+
+/* 2026-11-15 room upgrades: read-aloud beside the question, the streak, pause, the end screen */
+.room-question__row { display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
+.room-streak {
+  margin: 0.4rem auto 0; width: fit-content; background: #ffcc4d; color: #20214a; font-weight: 800;
+  border-radius: 999px; padding: 0.35rem 1rem; box-shadow: 0 3px 0 #d9a520; animation: room-pop 0.35s ease-out;
+}
+@keyframes room-pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .room-streak { animation: none; } }
+.room-paused, .room-end { text-align: center; }
