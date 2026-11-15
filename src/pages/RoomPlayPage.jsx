@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MathText from "../components/MathText";
 import QuestionPicture from "../components/QuestionPicture";
+import DolphinPerch from "../components/DolphinPerch";
+import { cheer } from "../game/companion";
 import { clock, topicLabel } from "../data/room";
 import { roomAnswer, roomMe, roomQuestion } from "../services/learnApi";
 import "../styles/pages/room.css";
@@ -25,6 +27,7 @@ export default function RoomPlayPage() {
     roomQuestion(code)
       .then((x) => {
         setQ(x);
+        if (x) cheer("question");
         setResult(null);
         setChosen(null);
       })
@@ -62,6 +65,7 @@ export default function RoomPlayPage() {
     try {
       const r = await roomAnswer(code, option);
       setResult(r);
+      cheer(r.correct ? "correct" : "wrong"); // 2026-11-15: the dolphin plays along in the live room too
       setMe((m) => (m ? { ...m, points: r.points } : m));
       setTimeout(() => {
         busy.current = false;
@@ -115,6 +119,7 @@ export default function RoomPlayPage() {
 
       {running && q && (
         <>
+          <DolphinPerch side />
           <section className="room-card room-question">
             <small>{q.retry ? "🔁 התרגיל מקודם - עוד ניסיון" : `שאלה ${q.number} · ${q.topic === "MIXED" ? "" : topicLabel(q.topic)}`}</small>
             <p className="room-question__text"><MathText text={q.text} /></p>

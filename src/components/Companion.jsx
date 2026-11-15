@@ -11,7 +11,7 @@ import "../styles/components/companion.css";
 
 // Child screens only - not the welcome / log-in / sign-up / teachers' / admin screens. The summary has
 // its own big dolphin. Each screen also marks WHERE it sits (<DolphinPerch/>, Shir's option C).
-const CHILD_PATHS = /^\/(island|topics|map|play|review|daily|timed|my-island|settings)(\/|$)/;
+const CHILD_PATHS = /^\/(island|topics|map|play|review|daily|timed|my-island|settings|room)(\/|$)/;
 // Shir (the admin) asked to have the dolphin too - also on her own admin / staff screens.
 // Management / settings: the dolphin just stands there (no reactions).
 const QUIET_PATHS = /^\/(admin|staff|settings)(\/|$)/;
