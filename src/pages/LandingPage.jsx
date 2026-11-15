@@ -10,7 +10,7 @@ import "../styles/pages/legal.css";
 // Screen 1 — the warm welcome. One clear action: start playing.
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { hasProfile, profile, loading, resetProfile } = useProfile();
+  const { hasProfile, profile, loading, logout } = useProfile();
 
   function handleStart() {
     // Returning child jumps straight in; a new child starts with the grade (then the character).
@@ -82,8 +82,8 @@ export default function LandingPage() {
                   </BigButton>
                 </>
               )}
-              <BigButton variant="ghost" onClick={() => { resetProfile(); navigate("/login"); }}>
-                זה לא אני - החלפת משתמש
+              <BigButton variant="ghost" onClick={async () => { await logout(); navigate("/login"); }}>
+                🚪 התנתקות
               </BigButton>
             </>
           ) : lastUsername() ? (

@@ -464,3 +464,6 @@ export function staffAnswerClassRequest(childId, accept) {
 export function staffSetTeacherMax(teacherId, maxStudents) {
   return apiRequest(`/api/learn/staff/teachers/${teacherId}/max-students`, { method: "POST", body: JSON.stringify({ maxStudents }) });
 }
+
+/** 2026-11-15: log out - the device token stops working on the server too (the password is needed again). */
+export const logoutRequest = () => apiRequest("/api/learn/auth/logout", { method: "POST", body: "{}" });

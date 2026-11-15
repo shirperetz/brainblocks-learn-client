@@ -18,7 +18,7 @@ import "../styles/pages/legal.css";
 // also sees "בלי כיתה" (her own children), every class and the teachers. Nothing is deleted here.
 export default function StaffPage() {
   const navigate = useNavigate();
-  const { profile, loading, resetProfile } = useProfile();
+  const { profile, loading, logout } = useProfile();
   const [me, setMe] = useState(null);
   const [tab, setTab] = useState("all"); // "all" | classId | 0 (no class, admin)
   const [overview, setOverview] = useState(null);
@@ -553,8 +553,8 @@ export default function StaffPage() {
         </section>
       )}
 
-      <button className="text-link staff__logout" onClick={() => { resetProfile(); navigate("/login"); }}>
-        יציאה מהמשתמש
+      <button className="text-link staff__logout" onClick={async () => { await logout(); navigate("/login"); }}>
+        🚪 התנתקות
       </button>
       {/* 2026-11-14 (Shir: "a 'report a problem' button for teachers") */}
       <nav className="site-footer" aria-label="מידע על האתר">

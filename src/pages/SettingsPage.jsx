@@ -18,7 +18,7 @@ import "../styles/pages/legal.css";
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { profile, ready } = useRequireProfile();
-  const { patchProfile, changePassword, resetProfile } = useProfile();
+  const { patchProfile, changePassword, logout } = useProfile();
   const [muted, setMutedState] = useState(isMuted());
   const [readAloud, setReadAloudState] = useState(() => readAloudDefault(profile?.grade));
   const [pw, setPw] = useState({ current: "", next: "", again: "" });
@@ -197,8 +197,8 @@ export default function SettingsPage() {
 
       <DeleteAccountCard profile={profile} />
 
-      <button className="text-link staff__logout" onClick={() => { resetProfile(); navigate("/login"); }}>
-        יציאה מהמשתמש
+      <button className="text-link staff__logout" onClick={async () => { await logout(); navigate("/login"); }}>
+        🚪 התנתקות
       </button>
       <nav className="site-footer" aria-label="מידע על האתר">
         <a href="/privacy">מדיניות פרטיות</a>

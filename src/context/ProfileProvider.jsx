@@ -123,6 +123,16 @@ export function ProfileProvider({ children }) {
     setProfile(null);
   }
 
+  /** 2026-11-15 (Shir: "a log-out button - the password again"): server first, then this device. */
+  async function logout() {
+    try {
+      await learnApi.logoutRequest();
+    } catch {
+      /* offline: this device still forgets the login */
+    }
+    resetProfile();
+  }
+
   const value = {
     profile,
     loading,
@@ -134,6 +144,7 @@ export function ProfileProvider({ children }) {
     refreshProfile,
     changePassword,
     resetProfile,
+    logout,
   };
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;
