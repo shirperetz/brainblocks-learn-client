@@ -10,9 +10,9 @@ import "../styles/pages/room.css";
 export default function RoomJoinPage() {
   const navigate = useNavigate();
   const { profile, loading } = useProfile();
-  // 2026-11-15: "/room?code=123456" (the hint on the log-in screen, a link from the teacher) fills it in.
+  // 2026-11-15: "/room?room=123456" (not ?code= - main.jsx takes that one for the sign-up join code) (the hint on the log-in screen, a link from the teacher) fills it in.
   const [params] = useSearchParams();
-  const [code, setCode] = useState(() => (params.get("code") || "").replace(/\D/g, "").slice(0, 6));
+  const [code, setCode] = useState(() => (params.get("room") || "").replace(/\D/g, "").slice(0, 6));
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);

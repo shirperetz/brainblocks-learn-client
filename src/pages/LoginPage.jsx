@@ -94,7 +94,7 @@ export default function LoginPage() {
           {/^\d{5,8}$/.test(username.trim()) && (
             <p className="form-error" role="alert">
               זה נראה כמו קוד של חדר משחק, לא שם משתמש.{" "}
-              <a className="text-link" href={`/room?code=${username.trim().slice(0, 6)}`}>להיכנס לחדר עם הקוד ←</a>
+              <a className="text-link" href={`/room?room=${username.trim().slice(0, 6)}`}>להיכנס לחדר עם הקוד ←</a>
             </p>
           )}
           <div className="name-field">
