@@ -184,3 +184,7 @@
 .audit-row__when { grid-row: span 2; font-size: 0.85rem; color: #5a6680; font-variant-numeric: tabular-nums; align-self: center; }
 .audit-row__who { font-weight: 800; }
 .audit-row__what { color: #3a4560; }
+
+/* 2026-11-15: the new-class name gets a full line (it was squeezed to "שם כי" on phones). */
+.new-class-form__label { flex: 1 0 100%; font-weight: 700; color: var(--ink); }
+.new-class-form__name { flex: 1 0 100%; font-size: 1.05rem; padding: 0.7rem 0.9rem; }

@@ -463,8 +463,11 @@ export default function StaffPage() {
             </li>
           ))}
         </ul>
-        <div className="admin__row">
-          <input className="admin__input" placeholder="שם כיתה חדשה (למשל ה׳2)" maxLength={30} value={newClass}
+        {/* 2026-11-15 (Shir: "Etti can't open a class"): on a phone the name field was squeezed to "שם כי" and
+            the button stayed grey - now the name has its own full-width line with a label. */}
+        <div className="admin__row new-class-form">
+          <label className="new-class-form__label" htmlFor="new-class-name">שם הכיתה החדשה</label>
+          <input id="new-class-name" className="admin__input new-class-form__name" placeholder="למשל: ג׳1" maxLength={30} value={newClass}
             onChange={(e) => setNewClass(e.target.value)} />
           <select className="class-row__grade" value={newClassGrade} onChange={(e) => setNewClassGrade(e.target.value)}
             aria-label="איזו כיתה מתרגלים">
@@ -473,8 +476,10 @@ export default function StaffPage() {
               <option key={g.key} value={g.key}>🔒 {g.label}</option>
             ))}
           </select>
-          <button className="admin__btn" disabled={!newClass.trim()}
-            onClick={() => act(async () => {
+          <button className="admin__btn"
+            onClick={() => !newClass.trim()
+              ? (setError("כתבי קודם שם לכיתה בשורה למעלה (למשל ג׳1)"), document.getElementById("new-class-name")?.focus())
+              : act(async () => {
               await api.staffCreateClass(newClass.trim(), undefined, newClassGrade || undefined);
               setNewClass("");
               setNewClassGrade("");
