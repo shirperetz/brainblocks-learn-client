@@ -89,6 +89,14 @@ export default function LoginPage() {
               onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
             />
           </div>
+          {/* 2026-11-15 (live: a child typed the room code "6339885" here and got locked out): a code of
+              digits is a game-room code - send them to the room screen instead. */}
+          {/^\d{5,8}$/.test(username.trim()) && (
+            <p className="form-error" role="alert">
+              זה נראה כמו קוד של חדר משחק, לא שם משתמש.{" "}
+              <a className="text-link" href={`/room/${username.trim().slice(0, 6)}`}>להיכנס לחדר עם הקוד ←</a>
+            </p>
+          )}
           <div className="name-field">
             <label htmlFor="login-password">סיסמה</label>
             <div className="password-row">
