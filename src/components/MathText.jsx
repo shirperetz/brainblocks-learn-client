@@ -28,11 +28,23 @@ function withFractions(text) {
   });
 }
 
-export default function MathText({ text }) {
+/** 2026-11-15 (the dolphin's hint): the units digit of every number in the formula, in yellow. */
+function withUnitsMarked(text) {
+  const parts = text.split(/(\d+)/);
+  return parts.map((p, i) =>
+    /^\d{1,}$/.test(p) ? (
+      <span key={i}>{p.slice(0, -1)}<mark className="math-units">{p.slice(-1)}</mark></span>
+    ) : (
+      p
+    ),
+  );
+}
+
+export default function MathText({ text, markUnits = false }) {
   return mathParts(text).map((p, i) =>
     p.math ? (
       <bdi key={i} dir="ltr" className="math-inline">
-        {withFractions(keepFormulaTogether(p.text))}
+        {markUnits ? withUnitsMarked(keepFormulaTogether(p.text)) : withFractions(keepFormulaTogether(p.text))}
       </bdi>
     ) : (
       <span key={i}>{p.text}</span>

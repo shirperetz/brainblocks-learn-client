@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { pickLine } from "../data/companions";
 import { DOLPHIN_NAME, warmDolphin } from "../data/dolphin";
-import { getPerch, onCheer, onPerch } from "../game/companion";
+import { cheer, getPerch, onCheer, onPerch } from "../game/companion";
 import { sfx } from "../game/audio";
 import Dolphin from "./Dolphin";
 import "../styles/components/companion.css";
@@ -31,6 +31,9 @@ export default function Companion() {
   const { profile } = useProfile();
   const { pathname } = useLocation();
   const [bubble, setBubble] = useState(null);
+  // 2026-11-15 (sketch C): on a game page the dolphin gives hints - ready after a mistake or 25 s stuck.
+  const [hintReady, setHintReady] = useState(false);
+  const [hintsGiven, setHintsGiven] = useState(0);
   const [anim, setAnim] = useState({ name: "wave", key: 0 });
   // A new screen: wave hello (set while rendering - React's pattern for state that follows a prop).
   const [seenPath, setSeenPath] = useState(pathname);
@@ -67,10 +70,29 @@ export default function Companion() {
     }
     function armStuck() {
       clearTimeout(stuckTimer.current);
-      stuckTimer.current = setTimeout(() => say("stuck", "think"), STUCK_MS);
+      stuckTimer.current = setTimeout(() => {
+        if (getPerch()?.hint) return readyHint();
+        say("stuck", "think");
+      }, STUCK_MS);
     }
-    const off = onCheer(({ kind }) => {
-      if (kind === "question") return armStuck();
+    // A hint is waiting: glow + "💡 רמז?"; the very first time, the dolphin says how it works.
+    function readyHint() {
+      setHintReady(true);
+      act("think");
+      let first = false;
+      try { first = !localStorage.getItem("bb_hint_seen"); localStorage.setItem("bb_hint_seen", "1"); } catch { /* fine */ }
+      if (first) {
+        clearTimeout(hideTimer.current);
+        setBubble({ text: "לחצו עליי ואתן לכם רמז! 💡", path: window.location.pathname });
+        hideTimer.current = setTimeout(() => setBubble(null), SHOW_MS + 1500);
+      }
+    }
+    const off = onCheer(({ kind, wrongSoFar }) => {
+      if (kind === "question") {
+        setHintsGiven(0);
+        setHintReady(Boolean(wrongSoFar && getPerch()?.hint));
+        return armStuck();
+      }
       clearTimeout(stuckTimer.current);
       if (kind === "correct") {
         streak.current += 1;
@@ -80,6 +102,7 @@ export default function Companion() {
       }
       if (kind === "wrong") {
         streak.current = 0;
+        setHintReady(false);
         say("wrong", "sad");
         return undefined;
       }
@@ -116,21 +139,45 @@ export default function Companion() {
 
   if (!visible || !perch?.el) return null;
 
+  const lines = perch.hint?.lines || [];
   function tap() {
     sfx.pop();
     clearTimeout(hideTimer.current);
-    setBubble({ text: pickLine("tap"), path: pathname });
+    if (lines.length && hintReady && hintsGiven < Math.min(2, lines.length)) {
+      const n = hintsGiven;
+      setHintsGiven(n + 1);
+      setBubble({ title: "💡 רמז", text: lines[n], path: pathname, stay: true });
+      act("think");
+      cheer("hintShown", { n: n + 1, key: perch.hint?.key });
+      return;
+    }
+    if (lines.length && !hintReady) {
+      setBubble({ text: "נסו קודם לבד, אני כאן אם צריך 💪", path: pathname });
+    } else if (lines.length) {
+      setBubble({ text: "נתתי את כל הרמזים לשאלה הזאת. אתם יכולים! 💪", path: pathname });
+    } else {
+      setBubble({ text: pickLine("tap"), path: pathname });
+    }
     act("smile");
     hideTimer.current = setTimeout(() => setBubble(null), SHOW_MS);
   }
 
-  const text = bubble && bubble.path === pathname ? bubble.text : perch.message;
+  const shown = bubble && bubble.path === pathname ? bubble : null;
+  const text = shown ? shown.text : perch.message;
+  const glowing = lines.length > 0 && hintReady && hintsGiven < Math.min(2, lines.length);
   return createPortal(
     <div className="companion" aria-live="polite">
-      <button type="button" className="companion__dolphin" onClick={tap} aria-label={`${DOLPHIN_NAME} - לחצו לעידוד`}>
+      <button type="button" className={`companion__dolphin${glowing ? " is-hint" : ""}`} onClick={tap}
+        aria-label={glowing ? "רמז מהדולפין - לחצו" : `${DOLPHIN_NAME} - לחצו לעידוד`}>
         <Dolphin play={anim.name} playKey={anim.key} label="" />
+        {glowing && <span className="companion__hint-tag">💡 רמז?</span>}
       </button>
-      {text && <div key={text} className="companion__bubble">{text}</div>}
+      {text && (
+        <div key={text} className={`companion__bubble${shown?.title ? " companion__bubble--hint" : ""}`}>
+          {shown?.title && <b className="companion__hint-title">{shown.title}</b>}
+          {text}
+        </div>
+      )}
     </div>,
     perch.el,
   );

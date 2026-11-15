@@ -100,3 +100,22 @@
   height: 3.9rem;
   object-fit: contain;
 }
+
+/* 2026-11-15 (sketch C): a hint is waiting - the dolphin glows, "💡 רמז?" beside it; the hint bubble
+   has its own heading. */
+.companion__dolphin { position: relative; }
+.companion__dolphin.is-hint::before {
+  content: ""; position: absolute; inset: -10%; border-radius: 50%; z-index: -1;
+  background: radial-gradient(circle, rgba(255, 204, 77, 0.75), rgba(255, 204, 77, 0) 70%);
+  animation: hint-glow 1.6s ease-in-out infinite;
+}
+@keyframes hint-glow { 50% { transform: scale(1.12); opacity: 0.6; } }
+@media (prefers-reduced-motion: reduce) { .companion__dolphin.is-hint::before { animation: none; } }
+.companion__hint-tag {
+  position: absolute; top: -0.4rem; inset-inline-end: -0.6rem; white-space: nowrap;
+  background: #ffcc4d; color: #20214a; font-weight: 800; font-size: 0.85rem;
+  border-radius: 999px; padding: 0.2rem 0.55rem; box-shadow: 0 3px 0 #d9a520;
+}
+.companion__bubble--hint { border-color: #7051f5; }
+.companion__hint-title { display: block; color: #7051f5; font-size: 1rem; margin-bottom: 0.2rem; }
+.math-units { background: #ffcc4d; color: inherit; border-radius: 0.3rem; padding: 0 0.12em; }

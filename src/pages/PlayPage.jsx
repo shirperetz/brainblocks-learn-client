@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import DolphinPerch from "../components/DolphinPerch";
+import { hintsFor, marksUnits } from "../game/dolphinHint";
+import { onCheer } from "../game/companion";
 import { useNavigate, useParams } from "react-router-dom";
 import AnswerButton from "../components/AnswerButton";
 import ProgressBar from "../components/ProgressBar";
@@ -53,9 +55,18 @@ export default function PlayPage() {
   }, [questions]);
 
   // 2026-11-11: a new question on the screen -> the companion's "stuck?" timer starts again.
+  // The dolphin's hint shown -> the units digits in the question light up (+ / − only).
+  // (kept per question: the key of the question whose hint was shown)
+  const [unitsMarkedFor, setUnitsMarkedFor] = useState(null);
+  // 2026-11-15: after a mistake in this round, the dolphin's hint is ready at once on the next questions.
+  const wrongSoFarRef = useRef(0);
   useEffect(() => {
-    if (questions.length) cheer("question");
+    wrongSoFarRef.current = wrongCount;
+  }, [wrongCount]);
+  useEffect(() => {
+    if (questions.length) cheer("question", { wrongSoFar: wrongSoFarRef.current });
   }, [index, questions.length]);
+  useEffect(() => onCheer(({ kind, key }) => { if (kind === "hintShown") setUnitsMarkedFor(key); }), []);
   const helpUsedRef = useRef(false); // "לא הבנתי" opened on the current question
   const startRef = useRef(0); // set to the real start time in the effect below
 
@@ -245,11 +256,11 @@ export default function PlayPage() {
 
         {current && !submitting && (
           <>
-            <DolphinPerch side message={mascotMessage} />
+            <DolphinPerch side message={mascotMessage} hint={{ lines: hintsFor(current), key: `${index}-${current.text}` }} />
             <div className="play__question card" style={{ "--accent": topicInfo?.color }}>
               <div className="play__question-row">
                 <p className="play__question-text">
-                  <MathText text={current.text} />
+                  <MathText text={current.text} markUnits={unitsMarkedFor === `${index}-${current.text}` && marksUnits(current.text)} />
                 </p>
                 <ReadAloud key={`${index}-${current.text}`} text={current.text} auto={readAloudDefault(profile.grade)} />
               </div>
