@@ -16,7 +16,7 @@ export default function SummaryPage() {
   const back = location.state?.back ?? null;
   // 2026-11-11: the companion celebrates (or encourages) once, when the summary appears.
   useEffect(() => {
-    if (summary) cheer(summary.passed ? "levelPassed" : "levelFailed");
+    if (summary) cheer(summary.stars >= 3 ? "levelStars3" : summary.passed ? "levelPassed" : "levelFailed");
   }, [summary]);
 
   // Reached directly (e.g. refresh) without a result — send back to the map.
@@ -27,7 +27,7 @@ export default function SummaryPage() {
   return (
     <div className="app-shell">
       <div className="summary">
-        <Mascot dolphin size="md" play={summary.passed ? "success" : "sad"} />
+        <Mascot dolphin size="md" play={summary.stars >= 3 ? "success" : summary.passed ? "smile" : "sad"} />
 
         <h1 className="screen-title">{summary.encouragement}</h1>
 

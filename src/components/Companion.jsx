@@ -13,6 +13,8 @@ import "../styles/components/companion.css";
 // its own big dolphin. Each screen also marks WHERE it sits (<DolphinPerch/>, Shir's option C).
 const CHILD_PATHS = /^\/(island|topics|map|play|review|daily|timed|my-island|settings)(\/|$)/;
 // Shir (the admin) asked to have the dolphin too - also on her own admin / staff screens.
+// Management / settings: the dolphin just stands there (no reactions).
+const QUIET_PATHS = /^\/(admin|staff|settings)(\/|$)/;
 const ADMIN_PATHS = /^\/(admin|staff)(\/|$)/;
 const STUCK_MS = 25_000;
 const BORED_MS = 40_000;
@@ -37,9 +39,15 @@ export default function Companion() {
   const [anim, setAnim] = useState({ name: "wave", key: 0 });
   // A new screen: wave hello (set while rendering - React's pattern for state that follows a prop).
   const [seenPath, setSeenPath] = useState(pathname);
+  // 2026-11-15 (the dolphin's moods): wave only the first time a page is opened, not on every visit.
+  const [waved] = useState(() => new Set());
   if (seenPath !== pathname) {
     setSeenPath(pathname);
-    setAnim((a) => ({ name: "wave", key: a.key + 1 }));
+    const page = pathname.split("/").slice(0, 2).join("/");
+    if (!waved.has(page) && !QUIET_PATHS.test(pathname)) {
+      waved.add(page);
+      setAnim((a) => ({ name: "wave", key: a.key + 1 }));
+    }
   }
   const streak = useRef(0);
   const hideTimer = useRef(null);
@@ -63,6 +71,7 @@ export default function Companion() {
   useEffect(() => {
     if (!visible) return undefined;
     function say(kind, motion) {
+      if (QUIET_PATHS.test(window.location.pathname)) return;
       clearTimeout(hideTimer.current);
       setBubble({ text: pickLine(kind), path: window.location.pathname });
       act(motion);
@@ -103,12 +112,18 @@ export default function Companion() {
       if (kind === "wrong") {
         streak.current = 0;
         setHintReady(false);
-        say("wrong", "sad");
+        say("wrong", "think"); // a mistake = "let's think", never a sad dolphin
         return undefined;
       }
       if (kind === "help") return act("think");
-      if (kind === "levelPassed") return say("levelPassed", "success");
-      if (kind === "levelFailed") return say("levelFailed", "sad");
+      if (kind === "levelStars3") return say("levelStars3", "success");
+      if (kind === "levelPassed") return say("levelPassed", "smile");
+      if (kind === "levelFailed") {
+        say("levelFailed", "sad");
+        setTimeout(() => act("smile"), 1600); // sad for a moment, then encouraging
+        return undefined;
+      }
+      if (kind === "built") return say("built", "success");
       if (kind === "gifts") return say("gifts", "smile");
       return undefined;
     });

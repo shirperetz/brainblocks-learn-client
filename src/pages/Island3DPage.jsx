@@ -1,3 +1,4 @@
+import { cheer } from "../game/companion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IslandScene } from "../island3d/IslandScene";
@@ -116,6 +117,8 @@ export default function Island3DPage() {
       sfx.star();
       show(s);
       setMsg(done(s));
+      // 2026-11-15 (the dolphin's moods): building / upgrading = a celebration, opening a chest = a smile.
+      cheer(what === "chest" || what === "open" ? "gifts" : "built");
     } catch (e) {
       sfx.wrong();
       setMsg(e.message.includes("מטבעות") ? "אין מספיק מטבעות. כל שלב שעוברים נותן עד 3!" : e.message);
