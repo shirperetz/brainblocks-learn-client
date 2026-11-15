@@ -112,7 +112,8 @@
 @keyframes hint-glow { 50% { transform: scale(1.12); opacity: 0.6; } }
 @media (prefers-reduced-motion: reduce) { .companion__dolphin.is-hint::before { animation: none; } }
 .companion__hint-tag {
-  position: absolute; top: -0.4rem; inset-inline-end: -0.6rem; white-space: nowrap;
+  /* under the dolphin, never on it (Shir: "it must not hide the dolphin") */
+  position: absolute; top: 100%; left: 50%; transform: translate(-50%, 0.15rem); white-space: nowrap; pointer-events: none;
   background: #ffcc4d; color: #20214a; font-weight: 800; font-size: 0.85rem;
   border-radius: 999px; padding: 0.2rem 0.55rem; box-shadow: 0 3px 0 #d9a520;
 }
