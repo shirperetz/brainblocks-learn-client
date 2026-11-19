@@ -1,0 +1,124 @@
+/* The kids' guide (2026-11-19): first-visit tour + "?" tab. Colors match the site (purple accent). */
+.guide { position: fixed; inset: 0; z-index: 900; }
+.guide__dim { position: absolute; inset: 0; background: rgba(10, 20, 35, 0.62); }
+.guide__spot {
+  position: fixed;
+  border-radius: 16px;
+  outline: 3px solid #ffd23f;
+  box-shadow: 0 0 0 9999px rgba(10, 20, 35, 0.62);
+  pointer-events: none;
+  transition: top 0.25s, left 0.25s, width 0.25s, height 0.25s;
+}
+.guide__catch { position: absolute; inset: 0; }
+.guide__card {
+  position: fixed;
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  margin: 0 auto;
+  max-width: 26rem;
+  z-index: 2;
+}
+.guide__inner {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+  direction: rtl;
+}
+.guide__dolphin { flex: none; width: 4.6rem; aspect-ratio: 2 / 3; order: 2; }
+.guide__dolphin img { width: 100%; height: 100%; object-fit: contain; }
+.guide__body {
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  color: #1b2a38;
+  border-radius: 18px;
+  padding: 0.85rem 1rem 0.7rem;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+}
+.guide__title { display: block; font-size: 1.05rem; margin-bottom: 0.15rem; }
+.guide__text { margin: 0; font-size: 0.98rem; line-height: 1.5; }
+.guide__nav { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.7rem; flex-wrap: wrap; }
+.guide__nav > span:first-child { flex: 0; }
+.guide__dots { color: #7b8a99; font-size: 0.85rem; margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+.guide__link { background: none; border: 0; color: #5b6c7c; font: inherit; font-size: 0.92rem; padding: 0.3rem 0.35rem; cursor: pointer; border-radius: 8px; }
+.guide__go {
+  background: var(--purple, #7051f5);
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.45rem 1.1rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.guide__go:focus-visible, .guide__link:focus-visible, .guide-tab:focus-visible { outline: 3px solid #ffd23f; outline-offset: 2px; }
+
+/* "?" tab - on the left edge, half way down (the sound button is bottom-left, back buttons top-right). */
+.guide-tab {
+  position: fixed;
+  left: 0;
+  top: 46%;
+  z-index: 60;
+  width: 2.5rem;
+  height: 3rem;
+  border: 0;
+  border-radius: 0 14px 14px 0;
+  background: var(--purple, #7051f5);
+  color: #fff;
+  font: 700 1.4rem/1 inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.guide-drawer { position: fixed; inset: 0; z-index: 880; }
+.guide-drawer__back { position: absolute; inset: 0; background: rgba(10, 20, 35, 0.35); }
+.guide-drawer__panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(22rem, 86vw);
+  background: #fff;
+  color: #1b2a38;
+  direction: rtl;
+  padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  overflow-y: auto;
+  box-shadow: 6px 0 24px rgba(0, 0, 0, 0.25);
+}
+.guide-drawer__head { display: flex; align-items: center; gap: 0.6rem; }
+.guide-drawer__head b { display: block; font-size: 1.15rem; }
+.guide-drawer__head span { color: #5b6c7c; font-size: 0.9rem; }
+.guide-drawer__dolphin { width: 3.2rem; aspect-ratio: 2 / 3; flex: none; }
+.guide-drawer__dolphin img { width: 100%; height: 100%; object-fit: contain; }
+.guide-drawer__x { margin-inline-start: auto; background: none; border: 0; font-size: 1.2rem; cursor: pointer; color: #5b6c7c; padding: 0.4rem; }
+.guide-drawer__tour {
+  background: #f0ecff;
+  color: #3d2aa8;
+  border: 1.5px solid var(--purple, #7051f5);
+  border-radius: 12px;
+  padding: 0.6rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.guide-drawer__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.guide-drawer__list button {
+  width: 100%;
+  text-align: right;
+  background: #fff;
+  border: 1px solid #dfe6ec;
+  border-radius: 12px;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  gap: 0.1rem;
+}
+.guide-drawer__list button b { font-size: 0.98rem; }
+.guide-drawer__list button span { font-size: 0.88rem; color: #4c5b6b; line-height: 1.45; }
+.guide-drawer__list button:disabled { opacity: 0.5; cursor: default; }
+.guide-drawer__list button:not(:disabled):hover { border-color: var(--purple, #7051f5); }
+@media (prefers-reduced-motion: reduce) { .guide__spot { transition: none; } }
