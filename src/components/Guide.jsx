@@ -5,7 +5,7 @@ import { useProfile } from "../context/profileStore";
 import { findTarget, guideFor, markGuideSeen, seenGuides } from "../data/guide";
 import { readAloudDefault } from "../game/readAloud";
 import { sayUrl, sfx, stopVoice } from "../game/audio";
-import { speakUrl } from "../services/learnApi";
+import { speakUrl, updateProfile } from "../services/learnApi";
 import Dolphin from "./Dolphin";
 import "../styles/components/guide.css";
 
@@ -50,14 +50,18 @@ function ScreenGuide({ guide, profile }) {
 
   // First visit to this screen -> start the tour once the screen has settled.
   useEffect(() => {
-    if (!profile?.id || seenGuides(profile.id).has(guide.key)) return undefined;
+    if (!profile?.id || seenGuides(profile.id).has(guide.key) || profile.guidesSeen?.includes(guide.key)) return undefined;
     const t = setTimeout(start, 1200);
     return () => { clearTimeout(t); stopVoice(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function end() {
-    if (profile?.id) markGuideSeen(profile.id, guide.key);
+    if (profile?.id) {
+      markGuideSeen(profile.id, guide.key);
+      // 2026-11-19 (Shir): kept in the child's account too, so another device doesn't show it again.
+      if (!profile.guidesSeen?.includes(guide.key)) updateProfile(profile.id, { guideSeen: guide.key }).catch(() => {});
+    }
     stopVoice();
     setTour(null);
   }
