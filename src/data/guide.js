@@ -271,8 +271,8 @@ export function setSiteTourStep(profileId, i) {
 export function welcomeAnswered(profile) {
   const local = seenGuides(profile.id);
   const acc = profile.guidesSeen || [];
-  // Children who already went through tours before this question existed aren't asked.
-  return ["welcome", "welcome-no", "home"].some((k) => local.has(k) || acc.includes(k));
+  // Shir: every child is asked once - also the ones who were here before it existed.
+  return ["welcome", "welcome-no"].some((k) => local.has(k) || acc.includes(k));
 }
 
 export function toursOff(profile) {
