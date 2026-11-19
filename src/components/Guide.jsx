@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
-import { findTarget, guideFor, markGuideSeen, seenGuides } from "../data/guide";
+import { SITE_TOUR, findTarget, guideFor, markGuideSeen, seenGuides, setSiteTourStep, siteTourStep, toursOff, welcomeAnswered } from "../data/guide";
 import { readAloudDefault } from "../game/readAloud";
 import { sayUrl, sfx, stopVoice } from "../game/audio";
 import { speakUrl, updateProfile } from "../services/learnApi";
@@ -24,13 +24,24 @@ export default function Guide() {
   const { pathname } = useLocation();
   const { profile } = useProfile();
   const guide = guideFor(pathname, profile);
+  const siteStep = profile?.id ? siteTourStep(profile.id) : -1;
+  // The whole-site tour only follows its own path; going somewhere else ends it.
+  if (siteStep >= 0 && pathname !== SITE_TOUR[siteStep]) setSiteTourStep(profile.id, -1);
   if (!guide) return null;
   // A new screen = a fresh guide (closed drawer, no tour from the last screen).
-  return <ScreenGuide key={pathname} guide={guide} profile={profile} />;
+  return <ScreenGuide key={pathname} guide={guide} profile={profile} pathname={pathname} />;
 }
 
-function ScreenGuide({ guide, profile }) {
+function remember(profile, key) {
+  markGuideSeen(profile.id, key);
+  if (!profile.guidesSeen?.includes(key)) updateProfile(profile.id, { guideSeen: key }).catch(() => {});
+}
+
+function ScreenGuide({ guide, profile, pathname }) {
+  const navigate = useNavigate();
   const [tour, setTour] = useState(null); // { steps: [...found steps], i }
+  const [welcome, setWelcome] = useState(false); // the one-time "show you the whole site?" question
+  const staff = profile?.teacher || profile?.admin;
   const [drawer, setDrawer] = useState(false);
   const [flash, setFlash] = useState(null); // an element lit from the "?" list
   const voice = readAloudDefault(profile?.grade);
@@ -50,26 +61,49 @@ function ScreenGuide({ guide, profile }) {
 
   // First visit to this screen -> start the tour once the screen has settled.
   useEffect(() => {
-    if (!profile?.id || seenGuides(profile.id).has(guide.key) || profile.guidesSeen?.includes(guide.key)) return undefined;
-    const t = setTimeout(start, 1200);
+    if (!profile?.id) return undefined;
+    const step = siteTourStep(profile.id);
+    let run = null;
+    if (step >= 0 && SITE_TOUR[step] === pathname) run = () => (liveSteps().length ? start() : next());
+    else if (pathname === "/" && !staff && step < 0 && !welcomeAnswered(profile)) run = () => setWelcome(true);
+    else if (!toursOff(profile) && !seenGuides(profile.id).has(guide.key) && !profile.guidesSeen?.includes(guide.key)) run = start;
+    if (!run) return undefined;
+    const t = setTimeout(run, 1200);
     return () => { clearTimeout(t); stopVoice(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function end() {
-    if (profile?.id) {
-      markGuideSeen(profile.id, guide.key);
-      // 2026-11-19 (Shir): kept in the child's account too, so another device doesn't show it again.
-      if (!profile.guidesSeen?.includes(guide.key)) updateProfile(profile.id, { guideSeen: guide.key }).catch(() => {});
+  // Whole-site tour: on to the next screen (or home at the end).
+  function next() {
+    const step = siteTourStep(profile.id);
+    if (step < 0) return;
+    if (step + 1 < SITE_TOUR.length) {
+      setSiteTourStep(profile.id, step + 1);
+      navigate(SITE_TOUR[step + 1]);
+    } else {
+      setSiteTourStep(profile.id, -1);
+      navigate("/");
     }
+  }
+
+  function end(skipAll = false) {
+    // 2026-11-19 (Shir): kept in the child's account too, so another device doesn't show it again.
+    if (profile?.id) remember(profile, guide.key);
     stopVoice();
     setTour(null);
+    if (profile?.id && siteTourStep(profile.id) >= 0) {
+      if (skipAll) setSiteTourStep(profile.id, -1);
+      else next();
+    }
   }
 
   const step = tour ? tour.steps[tour.i] : null;
   useEffect(() => {
     if (step && voice) say(`${step.title}. ${step.text}`);
   }, [step, voice]);
+  useEffect(() => {
+    if (welcome && voice) say(`${WELCOME.title}. ${WELCOME.text}`);
+  }, [welcome, voice]);
 
   return (
     <>
@@ -86,7 +120,15 @@ function ScreenGuide({ guide, profile }) {
           <Card step={step} index={tour.i} count={tour.steps.length}
             onNext={() => (tour.i + 1 < tour.steps.length ? setTour({ ...tour, i: tour.i + 1 }) : end())}
             onBack={tour.i > 0 ? () => setTour({ ...tour, i: tour.i - 1 }) : null}
-            onSkip={end} onSay={() => say(`${step.title}. ${step.text}`)} />
+            onSkip={() => end(true)} onSay={() => say(`${step.title}. ${step.text}`)} />
+        </Spot>
+      )}
+      {welcome && !tour && (
+        <Spot step={WELCOME}>
+          <Card step={WELCOME} nextLabel="כן, תראו לי הכל! 👍" skipLabel="לא תודה, אסתדר"
+            onNext={() => { setWelcome(false); remember(profile, "welcome"); setSiteTourStep(profile.id, 0); start(); }}
+            onSkip={() => { setWelcome(false); remember(profile, "welcome-no"); }}
+            onSay={() => say(`${WELCOME.title}. ${WELCOME.text}`)} />
         </Spot>
       )}
       {flash && !tour && (
@@ -146,7 +188,13 @@ function Spot({ step, children, onDismiss }) {
   );
 }
 
-function Card({ step, index = null, count = 0, onNext, onBack = null, onSkip = null, onSay, nextLabel }) {
+const WELCOME = {
+  center: true,
+  title: "שלום! אני הדולפין 🐬",
+  text: "זאת הפעם הראשונה שלך כאן. רוצה שאראה לך את כל האתר - איפה משחקים, האי שלך, חדר המשחק וההגדרות? אם לא, תמיד אפשר ללחוץ על \"?\" בצד.",
+};
+
+function Card({ step, index = null, count = 0, onNext, onBack = null, onSkip = null, onSay, nextLabel, skipLabel = "דלג" }) {
   const last = index !== null && index + 1 >= count;
   return (
     <div className="guide__inner">
@@ -157,7 +205,7 @@ function Card({ step, index = null, count = 0, onNext, onBack = null, onSkip = n
         <b className="guide__title">{step.title}</b>
         <p className="guide__text">{step.text}</p>
         <div className="guide__nav">
-          {onSkip && !last ? <button type="button" className="guide__link" onClick={onSkip}>דלג</button> : <span />}
+          {onSkip && !last ? <button type="button" className="guide__link" onClick={onSkip}>{skipLabel}</button> : <span />}
           <button type="button" className="guide__link" onClick={onSay} aria-label="להקריא">🔊</button>
           {count > 1 && <span className="guide__dots" aria-label={`${index + 1} מתוך ${count}`}>{index + 1}/{count}</span>}
           {onBack && <button type="button" className="guide__link" onClick={onBack}>‹ הקודם</button>}

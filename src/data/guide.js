@@ -239,3 +239,42 @@ export function findTarget(target) {
   }
   return null;
 }
+
+/**
+ * 2026-11-19 (Shir: "one time, when a child comes in - do they want a guide to the WHOLE site, not
+ * just the games"): the first time a child reaches the home screen the dolphin asks once. "Yes" walks
+ * through these screens one after the other (each screen's own tour); "No" = no automatic tours at
+ * all (the "?" tab stays). The answer is kept in the account ("welcome" / "welcome-no").
+ */
+export const SITE_TOUR = ["/", "/island", "/topics", "/my-island", "/room", "/settings"];
+const RUN_KEY = (id) => `lc_site_tour_${id}`;
+
+export function siteTourStep(profileId) {
+  try {
+    const v = sessionStorage.getItem(RUN_KEY(profileId));
+    return v === null ? -1 : Number(v);
+  } catch {
+    return -1;
+  }
+}
+
+export function setSiteTourStep(profileId, i) {
+  try {
+    if (i < 0) sessionStorage.removeItem(RUN_KEY(profileId));
+    else sessionStorage.setItem(RUN_KEY(profileId), String(i));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Has this child answered the one-time question (here or on another device)? */
+export function welcomeAnswered(profile) {
+  const local = seenGuides(profile.id);
+  const acc = profile.guidesSeen || [];
+  // Children who already went through tours before this question existed aren't asked.
+  return ["welcome", "welcome-no", "home"].some((k) => local.has(k) || acc.includes(k));
+}
+
+export function toursOff(profile) {
+  return seenGuides(profile.id).has("welcome-no") || (profile.guidesSeen || []).includes("welcome-no");
+}
