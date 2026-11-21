@@ -70,3 +70,22 @@
   align-self: flex-start; margin-top: 0.35rem; min-height: 40px; padding: 0 1rem; border: 2px solid #7051f5; border-radius: 12px;
   background: #fff; color: #4b2fd6; font: 800 0.95rem var(--font); cursor: pointer;
 }
+
+/* 2026-11-21: slim row on the play pages (Shir: the big card hid what's below it) */
+.building-row {
+  display: flex; align-items: center; gap: 0.8rem; width: 100%;
+  margin: 0.9rem 0; padding: 0.75rem 1rem; text-align: start;
+  background: #fff7ec; border: 2px solid #f3b77e; border-radius: 18px;
+  font: inherit; color: inherit; cursor: pointer;
+  transition: transform 100ms ease-out;
+}
+.building-row:active { transform: scale(0.97); }
+.building-row.is-done { border-color: #7cc98a; background: #effaf0; }
+.building-row__icon { font-size: 1.8rem; line-height: 1; }
+.building-row__text { flex: 1; display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.building-row__text b { font-size: 1.02rem; }
+.building-row__text > span:not(.building-row__bar) { font-size: 0.88rem; color: #7a5a3c; }
+.building-row__bar { display: block; height: 7px; margin-top: 0.3rem; background: #f6dcc0; border-radius: 99px; overflow: hidden; }
+.building-row__bar i { display: block; height: 100%; background: linear-gradient(90deg, #f39a4a, #f6c23e); border-radius: 99px; }
+.building-row__go { font-size: 1.6rem; color: #c98a4c; }
+@media (prefers-reduced-motion: reduce) { .building-row { transition: none; } }

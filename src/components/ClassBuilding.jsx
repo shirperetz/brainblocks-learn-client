@@ -8,7 +8,7 @@ import "../styles/components/class-building.css";
  * right answers. `profileId` - the child's own class; `classId` - a class (teacher / admin).
  * Nothing is shown for a child without a class.
  */
-export default function ClassBuilding({ profileId, classId }) {
+export default function ClassBuilding({ profileId, classId, compact = false }) {
   const staff = classId != null;
   const navigate = useNavigate();
   const onIsland = typeof window !== "undefined" && /island/.test(window.location.pathname);
@@ -49,6 +49,23 @@ export default function ClassBuilding({ profileId, classId }) {
   const stage = Math.max(0, Math.min(5, b.stage));
   const perStage = b.target / 5;
   const toNext = b.done ? 0 : Math.max(1, Math.ceil(perStage * (stage + 1) - b.built));
+
+  // 2026-11-21 (Shir: the big card sat in the middle of the play page and hid what's below it):
+  // on the play pages it's one slim row; the full card (picture, donating) lives on the class island.
+  if (compact) {
+    const pct = Math.round((100 * Math.min(b.built, b.target)) / Math.max(1, b.target));
+    return (
+      <button className={`building-row${b.done ? " is-done" : ""}`} onClick={() => navigate("/class-island")}>
+        <span className="building-row__icon" aria-hidden="true">{b.done ? "🎉" : "🏗️"}</span>
+        <span className="building-row__text">
+          <b>הבניין של {b.className}</b>
+          <span>{b.done ? "הבניין מוכן! כל הכבוד" : `${b.built} מתוך ${b.target} לבנים השבוע`}</span>
+          <span className="building-row__bar" aria-hidden="true"><i style={{ width: `${pct}%` }} /></span>
+        </span>
+        <span className="building-row__go" aria-hidden="true">‹</span>
+      </button>
+    );
+  }
 
   return (
     <section className={`building${b.done ? " is-done" : ""}`} aria-label="הבניין של הכיתה">

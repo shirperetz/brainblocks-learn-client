@@ -132,7 +132,7 @@ export default function SeaPage() {
       <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>
       <DailyCard profileId={profile.id} back="/island" />
       <WeeklyTasks profileId={profile.id} />
-      <ClassBuilding profileId={profile.id} />
+      <ClassBuilding profileId={profile.id} compact />
       <button className="text-link island__grown" onClick={() => navigate("/topics")}>
         לכל נושאי החשבון
       </button>

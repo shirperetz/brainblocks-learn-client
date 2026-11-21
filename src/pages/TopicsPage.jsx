@@ -85,8 +85,6 @@ export default function TopicsPage() {
         )}
         <MyIslandButton profileId={profile.id} />
         <WeeklyTasks profileId={profile.id} />
-        <ClassBuilding profileId={profile.id} />
-
 
         {/* Grades without islands have only the topics - nothing to fold there. */}
         {hasIslands(profile.grade) && (
@@ -98,6 +96,8 @@ export default function TopicsPage() {
         {(showTopics || !hasIslands(profile.grade)) && (
         <TopicGroups profile={profile} onOpen={(key) => navigate(`/map/${key}`)} />
         )}
+        {/* 2026-11-21 (Shir): the class building moved here, as one slim row - full card on the class island */}
+        <ClassBuilding profileId={profile.id} compact />
       </div>
     </div>
   );
