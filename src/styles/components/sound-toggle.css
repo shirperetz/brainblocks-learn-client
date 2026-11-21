@@ -40,3 +40,18 @@
     padding: 0.5rem 0.8rem;
   }
 }
+
+/* 2026-11-21 (Shir: on a computer it floated at the left edge mid-screen) - wide screens: top corner,
+   level with the "← בית" button on the other side, a quiet pill instead of a floating badge. */
+@media (min-width: 900px) {
+  body:not(.on-island3d) .sound-toggle {
+    top: 22px;
+    bottom: auto;
+    left: 24px;
+    min-height: 42px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.95rem;
+    border-width: 2px;
+  }
+  body:not(.on-island3d) .sound-toggle span[aria-hidden] { font-size: 1.2rem; }
+}
