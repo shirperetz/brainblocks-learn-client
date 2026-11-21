@@ -16,6 +16,7 @@
 .sbs__choice.is-wrong { border-color: var(--red-soft); background: #fff0f2; animation: steps-shake 320ms; }
 .sbs__try { margin: 0.5rem 0 0; text-align: center; font-weight: 700; color: #b5485a; }
 .sbs__end { margin: 0.2rem 0 0.4rem; text-align: center; font-size: 1.15rem; color: #1f7a3a; }
+.sbs__math { unicode-bidi: isolate; display: inline-block; }
 .sbs__open { display: block; margin: 0 auto 0.6rem; min-height: 48px; padding: 0.55rem 1.2rem; border: 2px solid var(--purple); border-radius: 16px; background: #fff; color: var(--purple-dark); font: 800 1.05rem var(--font); cursor: pointer; transition: transform 100ms ease-out; }
 .sbs__open:active { transform: scale(0.97); }
 .sbs__open:focus-visible { outline: 3px solid var(--purple); outline-offset: 2px; }

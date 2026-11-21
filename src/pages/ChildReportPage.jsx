@@ -464,7 +464,7 @@ function Report({ report, openTopic, setOpenTopic }) {
         <section className="attention" aria-label="יסוד חסר">
           <span className="attention__chip">
             🧱 {topicInfo(report.foundation.forTopic)?.name ?? ""} קשה ({report.foundation.topicPct}%) - כדאי לבדוק {report.foundation.name}
-            {report.foundation.pct != null ? ` (${report.foundation.pct}% נכון)` : " (עוד לא נבדק - הילד/ה יקבל/תקבל בדיקה קצרה)"}
+            {report.foundation.pct != null ? ` (${report.foundation.pct}% נכון)` : " (עוד לא נבדק - תופיע לילד/ה בדיקה קצרה)"}
           </span>
         </section>
       )}
