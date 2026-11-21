@@ -34,6 +34,8 @@ import { PatternRound, ShapeNameRound, SidesRound } from "../game/ShapesGames";
 import { ArraysRound, GroupsRound, ShareRound } from "../game/TimesGames";
 import { BiggerRound, LineRound, PlaceValueRound } from "../game/BigGames";
 import { speakUrl, submitIsleSession, submitSession } from "../services/learnApi";
+import { withRetry } from "../services/apiClient";
+import BigButton from "../components/BigButton";
 import { lastWrong, recentKeys, rememberKeys, rememberWrong } from "../game/recent";
 import { cheer } from "../game/companion";
 import HelpButton from "../components/HelpButton";
@@ -268,6 +270,7 @@ function GamePlay() {
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const [saveFailed, setSaveFailed] = useState(false);
   const answers = useRef([]);
   const startedAt = useRef(0);
 
@@ -325,7 +328,14 @@ function GamePlay() {
       setIndex(index + 1);
       return;
     }
-    const sent = tier
+    save();
+  }
+
+  // 2026-11-21 (edge-case pass): the end of the round is saved with retries, and can be saved again.
+  function save() {
+    setSaveFailed(false);
+    setError("");
+    const sent = withRetry(() => tier
       ? // 2026-11-13: a generated island keeps its own stages (and every answer) on the server.
         submitIsleSession(profile.id, isleKey, {
           topic: game.topic,
@@ -344,7 +354,7 @@ function GamePlay() {
           mode: "STAGE",
           durationMs: Date.now() - startedAt.current,
           answers: answers.current,
-        });
+        }));
     sent
       .then((summary) => {
         refreshProfile();
@@ -357,7 +367,10 @@ function GamePlay() {
           say("level_retry");
         }
       })
-      .catch((e) => setError(e.message));
+      .catch((e) => {
+        setError(e.message);
+        setSaveFailed(true);
+      });
   }
 
   function again() {
@@ -396,6 +409,7 @@ function GamePlay() {
       <DolphinPerch side />
 
       {error && <p className="form-error">{error}</p>}
+      {saveFailed && <BigButton variant="green" onClick={save}>💾 לשמור את הסבב שוב</BigButton>}
 
       {round && !result && helpCount >= 3 && wrongCount < 2 && (
         <p className="game-help game-help--done">🦉 העזרה נגמרה - נסו לבד!</p>

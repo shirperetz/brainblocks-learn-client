@@ -12,6 +12,8 @@ import QuestionPicture from "../components/QuestionPicture";
 import MathText from "../components/MathText";
 import { getTopic } from "../data/topics";
 import { getQuestions, submitSession, submitIsleSession, answerQuestion, getHelp } from "../services/learnApi";
+import { withRetry } from "../services/apiClient";
+import BigButton from "../components/BigButton";
 import HelpVisual from "../components/HelpVisual";
 import { useProfile } from "../context/profileStore";
 import { useRequireProfile } from "../hooks/useRequireProfile";
@@ -33,6 +35,7 @@ export default function PlayPage() {
 
   const [questions, setQuestions] = useState([]);
   const [error, setError] = useState("");
+  const [saveFailed, setSaveFailed] = useState(false);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState(null); // chosen option index, or null
   const [points, setPoints] = useState(0);
@@ -195,7 +198,9 @@ export default function PlayPage() {
     setSubmitting(true);
     // eslint-disable-next-line react-hooks/purity -- end-of-run timing; this runs from a timeout, not during render
     const durationMs = Date.now() - startRef.current;
-    const sent = tier
+    setSaveFailed(false);
+    setError("");
+    const sent = withRetry(() => tier
       ? submitIsleSession(profile.id, isleKey, { topic, stage: Number(stage), durationMs, answers: answersRef.current }).then((s) => ({
           ...s,
           correct: Math.round((s.scorePct * answersRef.current.length) / 100),
@@ -210,7 +215,7 @@ export default function PlayPage() {
           mode: "STAGE",
           durationMs,
           answers: answersRef.current,
-        });
+        }));
     sent
       .then((summary) => {
         refreshProfile();
@@ -218,6 +223,7 @@ export default function PlayPage() {
       })
       .catch((err) => {
         setError(err.message);
+        setSaveFailed(true);
         setSubmitting(false);
       });
   }
@@ -256,6 +262,9 @@ export default function PlayPage() {
         {total > 0 && <ProgressBar current={index + 1} total={total} />}
 
         {error && <p className="form-error">{error}</p>}
+        {saveFailed && !submitting && (
+          <BigButton variant="green" onClick={finish}>💾 לשמור את הסבב שוב</BigButton>
+        )}
 
         {submitting && <p className="play__loading">בודקים את התשובות... 🎉</p>}
 

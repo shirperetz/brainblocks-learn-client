@@ -13,7 +13,7 @@ export async function apiRequest(path, options = {}) {
       headers: { "Content-Type": "application/json", ...tokenHeader(), ...options.headers },
     });
   } catch {
-    const err = new Error("אופס! לא הצלחנו להתחבר. בדקו שהשרת פועל ונסו שוב.");
+    const err = new Error("אופס! אין חיבור לאינטרנט כרגע. בדקו את האינטרנט ונסו שוב.");
     err.network = true; // no answer at all (offline / a page switch) - NOT "this login is invalid"
     throw err;
   }
@@ -120,6 +120,22 @@ function friendlyError(status, data) {
   if (status === 403 || status === 409 || status === 429) return serverMessage || "נסו שוב.";
   if (status === 400) return serverMessage || "משהו בטופס לא תקין, נסו שוב.";
   return "אופס! משהו השתבש. ננסה שוב עוד רגע.";
+}
+
+/**
+ * 2026-11-21 (security/edge-case pass): saving the end of a round must survive a dropped connection or
+ * the free server waking up (~30s): retry on "no answer" / 5xx only - never on a refusal (4xx).
+ */
+export async function withRetry(fn, delays = [2000, 4000, 8000, 15000]) {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const retryable = err?.network || (err?.status >= 500 && err?.status < 600);
+      if (!retryable || i >= delays.length) throw err;
+      await new Promise((r) => setTimeout(r, delays[i]));
+    }
+  }
 }
 
 export { API_BASE_URL };
