@@ -2,6 +2,7 @@
 // scene. Built from a fixed seed (the child's id), so it is always the same island; the places to
 // build (slots) are found on its grass the same way every time. The page tells it what is built.
 import * as THREE from "three";
+import { buildWonder } from "./wonders";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 // 2026-11-13 (Shir: "and if I bought everything?" -> a new island in another season; the 4 looks she saw)
@@ -410,6 +411,16 @@ export class IslandScene {
         sail.rotation.y = 0.15;
         if (i === masts.length - 1) add(new THREE.BoxGeometry(0.05, 0.5, 0.9), mat(0xe2483a), mx, 6.6, 0.45);
       });
+      if (level >= 3) {
+        // 2026-11-21: the pirate ship - black sails over the white ones, a skull flag, cannons, a treasure chest
+        masts.forEach((mx) => add(new THREE.BoxGeometry(0.1, 2.5, 2.3), mat(0x2b2b33), mx + 0.25, 4.0, 0).rotation.y = 0.15);
+        const flag = add(new THREE.BoxGeometry(0.05, 0.6, 1), mat(0x111111), masts[masts.length - 1], 6.7, 0.5);
+        add(new THREE.SphereGeometry(0.14, 8, 6), mat(0xffffff), masts[masts.length - 1] + 0.04, 6.75, 0.5);
+        this.anims.push((t) => (flag.rotation.y = Math.sin(t * 3) * 0.3));
+        for (const x of [-2, 0, 2]) for (const z of [-1.15, 1.15]) add(new THREE.CylinderGeometry(0.12, 0.14, 0.6, 8), mat(0x1f2a44), x, 1.1, z).rotation.x = Math.PI / 2;
+        add(new THREE.BoxGeometry(0.7, 0.45, 0.45), mat(0x8a5a2b), -2.4, 1.8, 0);
+        add(new THREE.BoxGeometry(0.75, 0.08, 0.5), mat(0xf4c542, { metalness: 0.5, emissive: 0x6a4a00, emissiveIntensity: 0.3 }), -2.4, 2.05, 0);
+      }
     } else if (kind === "boat") {
       add(new THREE.BoxGeometry(3.4, 0.8, 1.4), mat(0xffffff), 0, 0.5, 0);
       add(new THREE.CylinderGeometry(0.07, 0.07, 3.4, 6), mat(0x8a5a2b), 0, 2.2, 0);
@@ -432,6 +443,8 @@ export class IslandScene {
 
   /** 2026-11-13: the new things (school, well, fountain, playground, pond, animals, season things). */
   extra(kind, level, g, add, light) {
+    // 2026-11-21: the wonders (dragon, roller coaster, volcano, UFO...) - island3d/wonders.js
+    if (buildWonder(kind, level, g, add, mat, this.anims)) return;
     const wood = mat(0xc98b4c), dark = mat(0x5c3a17);
     const fence = (w, d) => {
       for (let k = 0; k <= 6; k++) {

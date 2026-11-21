@@ -19,7 +19,10 @@ const CATEGORIES = [
   { key: "production", name: "ייצור" },
   { key: "decor", name: "קישוט" },
   { key: "animals", name: "חיות" },
-  { key: "transport", name: "ספינות" },
+  { key: "transport", name: "כלי תחבורה" },
+  // 2026-11-21: the wonders
+  { key: "fun", name: "לונה פארק" },
+  { key: "magic", name: "קסם" },
 ];
 
 /** A picture for each thing in the shop (the island draws it in 3D after it is built). */
@@ -30,6 +33,9 @@ const ICON = {
   // 2026-11-13: the new things
   school: "🏫", well: "🪣", fountain: "⛲", playground: "🛝", pond: "🦆", sheep: "🐑", cow: "🐄", horse: "🐎",
   balloon: "🎈", rocket: "🚀", snowman: "⛄", igloo: "🧊", penguin: "🐧", cactus: "🌵", camel: "🐫", pyramid: "🔺", lantern: "🏮", campfire: "🔥",
+  // 2026-11-21: the wonders
+  icecream: "🍦", rainbow: "🌈", chest: "💰", carousel: "🎠", treehouse: "🛖", robot: "🤖", ferris: "🎡", dino: "🦕",
+  helicopter: "🚁", dragon: "🐉", wizard: "🧙", volcano: "🌋", unicorn: "🦄", observatory: "🔭", coaster: "🎢", ufo: "🛸",
 };
 
 function Coin({ size = 20 }) {
