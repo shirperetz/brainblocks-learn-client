@@ -1,0 +1,20 @@
+/* 2026-11-21: open answers - a calculator-like keypad sized for small fingers (apple-design: feedback on
+   press, one clear primary action, the result shown in place with colour + a mark, not colour alone). */
+.open-answer { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; width: 100%; max-width: 22rem; margin: 0 auto; }
+.open-answer__hint { margin: 0; font-weight: 700; color: var(--ink-soft); }
+.open-answer__display { width: 100%; min-height: 4.2rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+  background: #fff; border: 3px solid #e3def9; border-radius: 20px; font-size: 2.3rem; font-weight: 800; letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums; color: var(--ink); transition: border-color 150ms ease, background 150ms ease; }
+.open-answer__display.is-right { border-color: var(--green); background: #eafaf2; color: var(--green-dark); }
+.open-answer__display.is-wrong { border-color: var(--red-soft); background: #fff0f2; color: var(--red-dark); }
+.open-answer__mark { font-size: 1.8rem; }
+.open-answer__keys { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.open-answer__key { min-height: 3.6rem; border-radius: 16px; border: 0; background: #fff; box-shadow: 0 3px 0 #e1dcf6, var(--shadow-card);
+  font: inherit; font-size: 1.6rem; font-weight: 800; color: var(--ink); cursor: pointer; transition: transform 90ms ease-out, box-shadow 90ms ease-out; }
+.open-answer__key:active { transform: translateY(2px) scale(0.97); box-shadow: 0 1px 0 #e1dcf6; }
+.open-answer__key.is-back { background: #f4f1ff; color: var(--purple-dark); }
+.open-answer__go { width: 100%; min-height: 3.6rem; border: 0; border-radius: 18px; background: var(--green); color: #fff; font: inherit;
+  font-size: 1.3rem; font-weight: 800; box-shadow: 0 4px 0 var(--green-dark); cursor: pointer; transition: transform 90ms ease-out, box-shadow 90ms ease-out; }
+.open-answer__go:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--green-dark); }
+.open-answer__go:disabled { background: #c9c5dd; box-shadow: 0 4px 0 #b3aecb; cursor: default; }
+@media (prefers-reduced-motion: reduce) { .open-answer__key, .open-answer__go, .open-answer__display { transition: none; } }

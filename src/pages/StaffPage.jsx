@@ -9,6 +9,7 @@ import * as api from "../services/learnApi";
 import { Legend } from "./ChildReportPage";
 import StaffWeeklyTasks from "../components/StaffWeeklyTasks";
 import ClassBuilding from "../components/ClassBuilding";
+import { MeitzavCard, TomorrowCard } from "../components/TeacherInsights";
 import "../styles/pages/staff.css";
 import { ask, askText } from "../components/dialog";
 import "../styles/pages/legal.css";
@@ -260,6 +261,8 @@ export default function StaffPage() {
       {/* ---- the weekly task of the class on the tab (idea #5) ---- */}
       {typeof tab === "number" && tab !== 0 && classes.find((c) => c.id === tab) && (
         <>
+          <TomorrowCard key={`t${tab}`} classId={tab} />
+          {["G5", "G6", undefined, null].includes(classes.find((c) => c.id === tab)?.grade) && <MeitzavCard key={`m${tab}`} classId={tab} />}
           <ClassBuilding key={`b${tab}`} classId={tab} />
           <StaffWeeklyTasks key={tab} cls={classes.find((c) => c.id === tab)} />
         </>

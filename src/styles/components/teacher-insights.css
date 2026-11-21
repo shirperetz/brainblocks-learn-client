@@ -1,0 +1,61 @@
+/* 2026-11-21: the teacher's "what to teach tomorrow" + Meitzav readiness cards (apple-design: hierarchy by
+   weight/size, one accent per meaning - red help / amber on the way / green ready, quiet secondary text). */
+.ti { gap: 0.9rem; }
+.ti__empty, .ti__quiet { color: var(--ink-soft); font-size: 0.95rem; margin: 0; }
+.ti__note { margin: 0; font-weight: 700; color: var(--green-dark); }
+.ti__focus { border: 1px solid #ece8fb; border-radius: 16px; padding: 0.85rem; display: flex; flex-direction: column; gap: 0.65rem; background: #fcfbff; }
+.ti__head { display: flex; align-items: center; gap: 0.7rem; }
+.ti__num { flex: none; width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; background: var(--purple); color: #fff; font-weight: 800; }
+.ti__title { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.ti__title b { font-size: 1.08rem; line-height: 1.25; }
+.ti__title span { font-size: 0.88rem; color: var(--ink-soft); }
+.ti__pct { font-weight: 800; font-size: 1.15rem; padding: 0.15rem 0.6rem; border-radius: 999px; }
+.ti__pct.is-low { background: #ffe7ea; color: var(--red-dark); }
+.ti__pct.is-mid { background: #fff3d6; color: #a86a00; }
+.ti__mistake { margin: 0; font-size: 0.93rem; background: #f4f1ff; border-radius: 12px; padding: 0.55rem 0.7rem; }
+.ti__label { font-size: 0.86rem; font-weight: 700; color: var(--ink-soft); }
+.ti__examples ul { list-style: none; margin: 0.35rem 0 0; padding: 0; display: grid; gap: 0.35rem; }
+.ti__examples li { display: flex; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 0.45rem 0.65rem; }
+.ti__q { font-weight: 700; direction: rtl; }
+.ti__a { font-size: 0.88rem; color: var(--ink-soft); }
+.ti__groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45rem; }
+@media (max-width: 560px) { .ti__groups { grid-template-columns: 1fr; } }
+.ti__group { border-radius: 12px; padding: 0.5rem 0.6rem; display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.9rem; }
+.ti__group--help { background: #fff0f2; }
+.ti__group--way { background: #fff7e3; }
+.ti__group--ready { background: #eafaf2; }
+.ti__group-title { font-weight: 800; }
+.ti__group-title small { font-weight: 700; color: var(--ink-soft); margin-inline-start: 0.2rem; }
+.ti__none { color: var(--ink-soft); }
+.ti__give { align-self: flex-start; }
+.ti__mz-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.8rem; }
+.ti__mz-top h2 { margin: 0; }
+.ti__score { flex: none; display: flex; flex-direction: column; align-items: center; min-width: 5.5rem; padding: 0.45rem 0.7rem; border-radius: 16px; }
+.ti__score b { font-size: 1.7rem; line-height: 1.1; letter-spacing: -0.02em; }
+.ti__score span { font-size: 0.82rem; font-weight: 700; }
+.ti__score--ready { background: #eafaf2; color: var(--green-dark); }
+.ti__score--way { background: #fff3d6; color: #a86a00; }
+.ti__score--help { background: #ffe7ea; color: var(--red-dark); }
+.ti__score--none { background: #f1f0f7; color: var(--ink-soft); }
+.ti__areas { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; }
+.ti__areas li { display: grid; grid-template-columns: minmax(8rem, 1.3fr) 2fr 4.6rem; align-items: center; gap: 0.6rem; }
+@media (max-width: 560px) { .ti__areas li { grid-template-columns: 1fr 4.6rem; } .ti__bar { grid-column: 1 / -1; grid-row: 2; } }
+.ti__area-name { font-weight: 700; font-size: 0.95rem; }
+.ti__area-name small { display: block; font-weight: 600; color: var(--ink-soft); font-size: 0.78rem; }
+.ti__bar { display: block; height: 10px; background: #efedf7; border-radius: 99px; overflow: hidden; }
+.ti__bar i { display: block; height: 100%; border-radius: 99px; background: #cfcbe6; }
+.ti__bar i.is-ready { background: var(--green); }
+.ti__bar i.is-way { background: #f5b83d; }
+.ti__bar i.is-help { background: var(--red-soft); }
+.ti__area-pct { font-weight: 800; text-align: end; font-size: 0.95rem; }
+.ti__plan ol { margin: 0.35rem 0 0; padding-inline-start: 1.2rem; display: grid; gap: 0.4rem; }
+.ti__topics { display: block; font-size: 0.86rem; color: var(--ink-soft); }
+.ti__table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ti__table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 30rem; }
+.ti__table th { text-align: start; font-size: 0.8rem; color: var(--ink-soft); font-weight: 700; padding: 0.35rem 0.4rem; border-bottom: 1px solid #ece8fb; }
+.ti__table td { padding: 0.4rem; border-bottom: 1px solid #f3f1fb; }
+.ti__chip { display: inline-block; padding: 0.1rem 0.55rem; border-radius: 999px; font-weight: 700; font-size: 0.82rem; white-space: nowrap; }
+.ti__chip--ready { background: #eafaf2; color: var(--green-dark); }
+.ti__chip--way { background: #fff3d6; color: #a86a00; }
+.ti__chip--help { background: #ffe7ea; color: var(--red-dark); }
+.ti__chip--none { background: #f1f0f7; color: var(--ink-soft); }

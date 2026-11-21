@@ -475,3 +475,11 @@ export function staffSetTeacherMax(teacherId, maxStudents) {
 
 /** 2026-11-15: log out - the device token stops working on the server too (the password is needed again). */
 export const logoutRequest = () => apiRequest("/api/learn/auth/logout", { method: "POST", body: "{}" });
+
+// 2026-11-21 (Shir chose): the teacher's "what to teach tomorrow" + Meitzav readiness for a class
+export function staffTomorrow(classId) {
+  return apiRequest(`/api/learn/staff/classes/${classId}/tomorrow`);
+}
+export function staffMeitzav(classId) {
+  return apiRequest(`/api/learn/staff/classes/${classId}/meitzav`);
+}

@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --test tests/tiers.test.js tests/levels.test.js tests/review.test.js tests/mathText.test.js tests/islandGames2.test.js tests/islandClock.test.js tests/islands3.test.js tests/dolphinHint.test.js"
+    "test": "node --test tests/tiers.test.js tests/levels.test.js tests/review.test.js tests/mathText.test.js tests/islandGames2.test.js tests/islandClock.test.js tests/islands3.test.js tests/dolphinHint.test.js tests/openAnswer.test.js"
   },
   "dependencies": {
     "react": "^19.2.6",

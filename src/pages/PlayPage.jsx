@@ -4,6 +4,8 @@ import { hintsFor, marksUnits } from "../game/dolphinHint";
 import { onCheer } from "../game/companion";
 import { useNavigate, useParams } from "react-router-dom";
 import AnswerButton from "../components/AnswerButton";
+import OpenAnswer from "../components/OpenAnswer";
+import { isOpenQuestion } from "../game/openAnswer";
 import ProgressBar from "../components/ProgressBar";
 import HelpButton from "../components/HelpButton";
 import ReadAloud from "../components/ReadAloud";
@@ -96,15 +98,22 @@ export default function PlayPage() {
   const current = questions[index];
   const total = questions.length;
 
-  async function handleAnswer(optionIndex) {
+  async function handleAnswer(optionIndex, typed) {
     if (selected !== null || checking || !current) return;
     let q = current;
+    let chosenText = typed ?? q.options[optionIndex];
     // 2026-11-12 (stage 2): the server checks (a retry already knows the answer - it doesn't count).
     if (!q.retry && q.bankId) {
       setChecking(true);
       try {
-        const r = await answerQuestion(q.bankId, q.options[optionIndex]);
+        const r = await answerQuestion(q.bankId, chosenText);
         q = { ...q, correctIndex: r.correctIndex, explanation: r.explanation };
+        // 2026-11-21 (open answers): a typed number - right = the right option; else the option it equals, or none
+        if (typed != null) {
+          optionIndex = r.correct ? r.correctIndex : q.options.findIndex((o) => o.replace(/,/g, "") === typed.replace(/,/g, ""));
+          if (r.correct) chosenText = q.options[r.correctIndex];
+          q = { ...q, typed: chosenText, typedRight: r.correct };
+        }
         const at = index;
         setQuestions((qs) => qs.map((x, i) => (i === at ? q : x)));
       } catch (e) {
@@ -122,7 +131,8 @@ export default function PlayPage() {
       setChecking(false);
       setError("");
     }
-    const isCorrect = optionIndex === q.correctIndex;
+    const isCorrect = typed != null ? Boolean(q.typedRight) : optionIndex === q.correctIndex;
+    if (typed != null) setQuestions((qs) => qs.map((x, i) => (i === index ? q : x)));
     setSelected(optionIndex);
     setFeedback(isCorrect ? "correct" : "wrong");
     cheer(isCorrect ? "correct" : "wrong");
@@ -133,14 +143,14 @@ export default function PlayPage() {
     // round (the first answer did) - it only tells the child whether it got it now.
     if (!isCorrect) {
       setWrongCount((n) => n + 1);
-      explainMistake(q, q.options[optionIndex]);
+      explainMistake(q, chosenText);
     }
     if (current.retry) {
       if (isCorrect) setTimeout(advance, FEEDBACK_MS);
       return;
     }
     if (!isCorrect) {
-      const again = retryOf(q, q.options[optionIndex]);
+      const again = retryOf(q, chosenText);
       setQuestions((qs) => {
         const at = Math.min(index + 1 + RETRY_AFTER, qs.length);
         return [...qs.slice(0, at), again, ...qs.slice(at)];
@@ -157,7 +167,7 @@ export default function PlayPage() {
     answersRef.current.push({
       bankId: q.bankId, // the server judges this answer from the bank
       questionText: q.text,
-      chosenAnswer: q.options[optionIndex],
+      chosenAnswer: chosenText,
       correctAnswer: q.options[q.correctIndex],
       correct: isCorrect,
       hintUsed: helpUsedRef.current,
@@ -298,6 +308,16 @@ export default function PlayPage() {
               />
             )}
 
+            {isOpenQuestion(current, index, Number(stage)) ? (
+              <OpenAnswer
+                key={`open-${index}-${current.text}`}
+                done={selected !== null}
+                checking={checking}
+                typed={current.typed}
+                right={current.typedRight}
+                onSubmit={(v) => handleAnswer(-1, v)}
+              />
+            ) : (
             <div className="play__answers">
               {current.options.map((opt, j) => (
                 <AnswerButton
@@ -309,6 +329,7 @@ export default function PlayPage() {
                 />
               ))}
             </div>
+            )}
 
             {wrongHelp && (
               <div className="mistake-card" role="status">
