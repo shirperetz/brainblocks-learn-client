@@ -2,6 +2,8 @@
 // child-friendly explanation shown on the topic card.
 
 export const TOPICS = [
+  // 2026-11-21: a round built like the grade-5 מיצ"ב (ה׳-ו׳) - fractions, numbers, geometry and data
+  { key: "MEITZAV", emoji: "📝", name: "תרגול מיצ״ב", blurb: "כמו במבחן: שברים, מספרים, גיאומטריה ונתונים", color: "var(--purple)" },
   { key: "ADDITION", emoji: "➕", name: "חיבור", blurb: "מחברים מספרים ומגלים כמה יש ביחד", color: "var(--green)" },
   { key: "SUBTRACTION", emoji: "➖", name: "חיסור", blurb: "מורידים ומגלים כמה נשאר", color: "var(--orange)" },
   { key: "MULTIPLICATION", emoji: "✖️", name: "כפל", blurb: "קבוצות שוות", color: "var(--purple)" },
