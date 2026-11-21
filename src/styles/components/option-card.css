@@ -17,8 +17,17 @@
   animation: pop-in 0.25s ease;
 }
 
-.option-card:hover:not(:disabled) {
-  transform: translateY(-4px);
+/* 2026-11-21 (design pass, apple-design "respond on press"): instant feedback on pointer-down; the
+   lift only for a real mouse - on a touch screen :hover sticks after the tap. */
+@media (hover: hover) {
+  .option-card:hover:not(:disabled) {
+    transform: translateY(-4px);
+  }
+}
+
+.option-card:active:not(:disabled) {
+  transform: scale(0.96);
+  transition-duration: 0.06s;
 }
 
 .option-card.is-selected {

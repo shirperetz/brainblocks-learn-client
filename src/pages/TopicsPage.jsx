@@ -9,7 +9,7 @@ import OptionCard from "../components/OptionCard";
 import WeeklyTasks from "../components/WeeklyTasks";
 import "../styles/pages/room.css";
 import ClassBuilding from "../components/ClassBuilding";
-import { TOPICS, isTopicAllowedForGrade } from "../data/topics";
+import { TOPICS, TOPIC_GROUPS, isTopicAllowedForGrade } from "../data/topics";
 import { getGrade } from "../data/grades";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/onboarding.css";
@@ -96,29 +96,54 @@ export default function TopicsPage() {
           </button>
         )}
         {(showTopics || !hasIslands(profile.grade)) && (
-        <div className="option-grid option-grid--wide" role="group" aria-label="נושאים">
-          {/* 2026-11-14 (Shir: "everything open on top, everything locked at the bottom" - every grade) */}
-          {[...TOPICS]
-            .sort((a, b) => Number(!isTopicAllowedForGrade(a.key, profile.grade, profile.advanced)) - Number(!isTopicAllowedForGrade(b.key, profile.grade, profile.advanced)))
-            .map((t) => {
-            const allowed = isTopicAllowedForGrade(t.key, profile.grade, profile.advanced);
-            // 2026-11-21: a topic the teacher opened at a higher grade for this child
-            const up = profile.advanced?.[t.key];
-            return (
-              <OptionCard
-                key={t.key}
-                icon={t.emoji}
-                title={t.name}
-                subtitle={!allowed ? "נפתח בכיתה גבוהה יותר" : up ? `⭐ אתגר: רמת ${getGrade(up)?.label ?? "כיתה גבוהה"}` : t.blurb}
-                color={t.color}
-                locked={!allowed}
-                onClick={() => navigate(`/map/${t.key}`)}
-              />
-            );
-          })}
-        </div>
+        <TopicGroups profile={profile} onOpen={(key) => navigate(`/map/${key}`)} />
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * 2026-11-21 (design pass, apple-design: hierarchy + grouping, "show the common path first"): the
+ * topics in sections by subject, two per row on a phone (27 one-per-row cards were ~5,000px), and what
+ * opens in higher grades in its own quieter section at the end (Shir: "open on top, locked at the bottom").
+ */
+function TopicGroups({ profile, onOpen }) {
+  const allowed = (t) => isTopicAllowedForGrade(t.key, profile.grade, profile.advanced);
+  const locked = TOPICS.filter((t) => !allowed(t));
+  const card = (t) => {
+    const ok = allowed(t);
+    const up = profile.advanced?.[t.key];
+    return (
+      <OptionCard
+        key={t.key}
+        icon={t.emoji}
+        title={t.name}
+        subtitle={!ok ? "נפתח בכיתה גבוהה יותר" : up ? `⭐ אתגר: רמת ${getGrade(up)?.label ?? "כיתה גבוהה"}` : t.blurb}
+        color={t.color}
+        locked={!ok}
+        onClick={() => onOpen(t.key)}
+      />
+    );
+  };
+  return (
+    <div className="topic-groups">
+      {TOPIC_GROUPS.map((g) => {
+        const open = TOPICS.filter((t) => g.keys.includes(t.key) && allowed(t));
+        if (open.length === 0) return null;
+        return (
+          <section key={g.key} className="topic-group" aria-label={g.name}>
+            <h2 className="topic-group__title"><span aria-hidden="true">{g.emoji}</span> {g.name}</h2>
+            <div className="option-grid topic-grid">{open.map(card)}</div>
+          </section>
+        );
+      })}
+      {locked.length > 0 && (
+        <section className="topic-group topic-group--locked" aria-label="בכיתות הבאות">
+          <h2 className="topic-group__title"><span aria-hidden="true">🔒</span> בכיתות הבאות</h2>
+          <div className="option-grid topic-grid">{locked.map(card)}</div>
+        </section>
+      )}
     </div>
   );
 }

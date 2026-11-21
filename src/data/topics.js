@@ -35,6 +35,15 @@ export const TOPICS = [
   { key: "MIXED", emoji: "🎲", name: "תרגול מעורב", blurb: "קצת מהכל", color: "var(--yellow)" },
 ];
 
+/** 2026-11-21 (design pass): the topics screen in sections by subject. */
+export const TOPIC_GROUPS = [
+  { key: "test", emoji: "🎯", name: "תרגול כללי", keys: ["MEITZAV", "MIXED"] },
+  { key: "numbers", emoji: "🔢", name: "מספרים ופעולות", keys: ["ADDITION", "SUBTRACTION", "MULTIPLICATION", "DIVISION", "COMPARISON", "SEQUENCES", "MAKE_TEN", "EVEN_ODD", "ORDER_OPS", "ROUNDING", "DIVISIBILITY", "EQUATIONS", "WORD_PROBLEMS"] },
+  { key: "fractions", emoji: "🍕", name: "שברים, עשרוניים ואחוזים", keys: ["FRACTIONS", "DECIMALS", "PERCENT", "RATIO"] },
+  { key: "geometry", emoji: "📐", name: "גיאומטריה ומדידות", keys: ["ANGLES", "ANGLE_CALC", "PERIMETER", "AREA", "CIRCLE", "VOLUME", "MEASURE"] },
+  { key: "data", emoji: "📊", name: "נתונים", keys: ["DATA"] },
+];
+
 export function getTopic(key) {
   return TOPICS.find((t) => t.key === key) ?? null;
 }

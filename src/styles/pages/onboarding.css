@@ -176,3 +176,60 @@
   font-size: 4rem;
   line-height: 1;
 }
+
+/* 2026-11-21 (design pass): topics in sections, two per row on a phone */
+.topic-groups {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.topic-group__title {
+  margin: 0 0 0.6rem;
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.topic-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 700px) {
+  .topic-grid {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 16px;
+  }
+}
+
+.topic-grid .option-card {
+  min-height: 7.25rem;
+  padding: 14px 10px;
+}
+
+.topic-grid .option-card__icon {
+  font-size: 2.4rem;
+}
+
+.topic-grid .option-card__title {
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.topic-grid .option-card__subtitle {
+  font-size: 0.82rem;
+}
+
+.topic-group--locked .topic-group__title {
+  color: var(--ink-soft);
+}
+
+.topic-group--locked .option-card {
+  min-height: 5.5rem;
+}
+
+.topic-group--locked .option-card__subtitle {
+  display: none;
+}
