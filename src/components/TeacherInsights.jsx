@@ -53,7 +53,7 @@ export function TomorrowCard({ classId }) {
             </div>
             <span className={`ti__pct ${f.pct < 60 ? "is-low" : "is-mid"}`}>{f.pct}%</span>
           </header>
-          {f.mistake && (
+          {f.mistake?.name && f.mistake.name !== "-" && (
             <p className="ti__mistake">🔍 הטעות שחוזרת: <b>{f.mistake.name}</b> - {f.mistake.tip}</p>
           )}
           {f.examples?.length > 0 && (
@@ -131,6 +131,9 @@ export function MeitzavCard({ classId }) {
         <div className={`ti__score ti__score--${lv.cls}`}>
           <b>{d.score == null ? "-" : `${d.score}%`}</b>
           <span>{lv.text}</span>
+          {d.score != null && d.areas.some((a) => a.pct == null) && (
+            <small className="ti__missing">בלי: {d.areas.filter((a) => a.pct == null).map((a) => a.name).join(", ")}</small>
+          )}
         </div>
       </div>
       <ul className="ti__areas">
@@ -164,8 +167,8 @@ export function MeitzavCard({ classId }) {
             <thead>
               <tr>
                 <th>ילד/ה</th>
-                {Object.values(AREA_SHORT).map((n) => <th key={n}>{n}</th>)}
                 <th>מוכנות</th>
+                {Object.values(AREA_SHORT).map((n) => <th key={n}>{n}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -174,8 +177,8 @@ export function MeitzavCard({ classId }) {
                 return (
                   <tr key={c.id}>
                     <td>{c.name}</td>
-                    {Object.keys(AREA_SHORT).map((k) => <td key={k}>{c.areas[k] == null ? "·" : `${c.areas[k]}%`}</td>)}
                     <td><span className={`ti__chip ti__chip--${l.cls}`}>{c.score == null ? l.text : `${c.score}% ${l.text}`}</span></td>
+                    {Object.keys(AREA_SHORT).map((k) => <td key={k}>{c.areas[k] == null ? "·" : `${c.areas[k]}%`}</td>)}
                   </tr>
                 );
               })}

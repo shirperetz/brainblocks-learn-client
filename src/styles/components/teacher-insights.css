@@ -59,3 +59,4 @@
 .ti__chip--way { background: #fff3d6; color: #a86a00; }
 .ti__chip--help { background: #ffe7ea; color: var(--red-dark); }
 .ti__chip--none { background: #f1f0f7; color: var(--ink-soft); }
+.ti__missing { font-size: 0.72rem; font-weight: 600; color: var(--ink-soft); text-align: center; max-width: 7rem; margin-top: 0.15rem; }
