@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import DolphinPerch from "../components/DolphinPerch";
 import { hintsFor, marksUnits } from "../game/dolphinHint";
 import { onCheer } from "../game/companion";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import StepByStep from "../components/StepByStep";
+import { stepsFor } from "../game/steps";
 import AnswerButton from "../components/AnswerButton";
 import OpenAnswer from "../components/OpenAnswer";
 import { isOpenQuestion } from "../game/openAnswer";
@@ -31,7 +33,13 @@ export default function PlayPage() {
   // 2026-11-13: played on a generated island ("gen-3") - harder questions, results kept on the island
   const tier = Number(/^gen-(\d+)$/.exec(isleKey ?? "")?.[1] ?? 0);
   const navigate = useNavigate();
+  // 2026-11-21 (finding the gap): a foundations round - /play/MULTIPLICATION/6?foundation=TIMES
+  const [search] = useSearchParams();
+  const foundation = search.get("foundation");
   const { profile, ready } = useRequireProfile();
+  // 2026-11-21 (calm mode): 5 questions, no typed answers, help always open, soft words
+  const calm = Boolean(profile?.calm);
+  const roundSize = calm ? 5 : foundation ? 6 : 10;
   const { refreshProfile } = useProfile();
   const topicInfo = getTopic(topic);
 
@@ -47,7 +55,8 @@ export default function PlayPage() {
   // 2026-11-13 (Shir: "the explanation after he got it wrong; help is for before - limited, unless the
   // child is struggling"): after a mistake the game waits on an explanation card; help in a round is
   // limited to HELP_LIMIT questions, unlimited once the child has made STRUGGLING mistakes in it.
-  const [wrongHelp, setWrongHelp] = useState(null); // { text, visual, right } | "loading" | null
+  const [wrongHelp, setWrongHelp] = useState(null); // { text, visual, right, qtext } | "loading" | null
+  const [stepping, setStepping] = useState(false); // "step by step" open in the mistake card
   const [helpCount, setHelpCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
 
@@ -81,7 +90,7 @@ export default function PlayPage() {
     answersRef.current = [];
     startRef.current = Date.now();
     // 2026-11-12 (stage 2): secure - the right answer stays on the server until the child answers.
-    getQuestions({ profileId: profile.id, topic, stage, count: 10, secure: true, tier })
+    getQuestions({ profileId: profile.id, topic, stage, count: roundSize, secure: true, tier, foundation })
       .then((data) => {
         if (!active) return;
         if (!data || data.length === 0) setError("לא הצלחנו להכין שאלות. נסו שוב.");
@@ -91,7 +100,7 @@ export default function PlayPage() {
     return () => {
       active = false;
     };
-  }, [ready, profile, topic, stage, topicInfo, tier]);
+  }, [ready, profile, topic, stage, topicInfo, tier, foundation, roundSize]);
 
   if (!ready) return null;
 
@@ -184,12 +193,15 @@ export default function PlayPage() {
     const right = q.options[q.correctIndex];
     setWrongHelp("loading");
     getHelp({ questionText: q.text, correctAnswer: right, chosenAnswer: chosen, grade: profile.grade, attempt: 0, fallbackHint: q.hint, bankId: q.bankId })
-      .then((h) => setWrongHelp({ ...h, right }))
-      .catch(() => setWrongHelp({ text: q.explanation || q.hint || "", right }));
+      .then((h) => setWrongHelp({ ...h, right, qtext: q.text }))
+      .catch(() => setWrongHelp({ text: q.explanation || q.hint || "", right, qtext: q.text }));
+    // calm mode: the steps open by themselves
+    setStepping(calm && stepsFor(q.text, right) !== null);
   }
 
   function continueAfterMistake() {
     setWrongHelp(null);
+    setStepping(false);
     advance();
   }
 
@@ -225,11 +237,12 @@ export default function PlayPage() {
           mode: "STAGE",
           durationMs,
           answers: answersRef.current,
+          ...(foundation ? { foundation } : {}),
         }));
     sent
       .then((summary) => {
         refreshProfile();
-        navigate(`/summary/${topic}/${stage}`, { state: { summary, back: tier ? `/sea/${isleKey}` : null } });
+        navigate(`/summary/${topic}/${stage}`, { state: { summary, back: tier ? `/sea/${isleKey}` : null, foundation, calm } });
       })
       .catch((err) => {
         setError(err.message);
@@ -245,7 +258,7 @@ export default function PlayPage() {
   }
 
   const struggling = wrongCount >= STRUGGLING;
-  const helpOpen = struggling || helpCount < HELP_LIMIT;
+  const helpOpen = calm || struggling || helpCount < HELP_LIMIT;
 
   function optionState(j) {
     if (selected === null) return "idle";
@@ -256,7 +269,7 @@ export default function PlayPage() {
 
   const mascotMessage = current?.retry
     ? feedback === "correct" ? "הבנת! 👍 כל הכבוד" : feedback === "wrong" ? "נתרגל את זה עוד פעם בחזרה" : "🔁 התרגיל מקודם - עוד ניסיון"
-    : feedback === "correct" ? "כל הכבוד! תשובה נכונה!" : feedback === "wrong" ? "כמעט! עוד מעט נחזור על התרגיל הזה" : null;
+    : feedback === "correct" ? "כל הכבוד! תשובה נכונה!" : feedback === "wrong" ? (calm ? "זה בסדר לטעות 💙 נפתור את זה יחד" : "כמעט! עוד מעט נחזור על התרגיל הזה") : null;
 
   return (
     <div className="app-shell">
@@ -266,7 +279,11 @@ export default function PlayPage() {
             ✕
           </button>
           <div className="play__counter">{total > 0 ? `שאלה ${index + 1} מתוך ${total}` : "טוען..."}</div>
-          <div className="play__points">⭐ {points}</div>
+          <div className="play__points">
+            {calm && <span className="play__calm" title="מצב רגוע">🌿</span>}
+            {foundation && <span className="play__calm" title="בונים יסודות">🧱</span>}
+            ⭐ {points}
+          </div>
         </header>
 
         {total > 0 && <ProgressBar current={index + 1} total={total} />}
@@ -308,7 +325,7 @@ export default function PlayPage() {
               />
             )}
 
-            {isOpenQuestion(current, index, Number(stage)) ? (
+            {!calm && !foundation && isOpenQuestion(current, index, Number(stage)) ? (
               <OpenAnswer
                 key={`open-${index}-${current.text}`}
                 done={selected !== null}
@@ -338,8 +355,19 @@ export default function PlayPage() {
                 ) : (
                   <>
                     <p className="mistake-card__right">✔ התשובה הנכונה: <b><MathText text={String(wrongHelp.right)} /></b></p>
-                    {wrongHelp.text && <p className="mistake-card__text">{wrongHelp.text}</p>}
-                    <HelpVisual visual={wrongHelp.visual} />
+                    {stepping ? (
+                      <StepByStep text={wrongHelp.qtext} right={wrongHelp.right} />
+                    ) : (
+                      <>
+                        {wrongHelp.text && <p className="mistake-card__text">{wrongHelp.text}</p>}
+                        <HelpVisual visual={wrongHelp.visual} />
+                        {stepsFor(wrongHelp.qtext, wrongHelp.right) && (
+                          <button type="button" className="sbs__open" onClick={() => setStepping(true)}>
+                            👣 נפתור יחד, צעד אחרי צעד
+                          </button>
+                        )}
+                      </>
+                    )}
                     <button type="button" className="mistake-card__go" onClick={continueAfterMistake} autoFocus>
                       הבנתי, ממשיכים ←
                     </button>

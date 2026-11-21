@@ -5,7 +5,7 @@ import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
 import { GRADES, getGrade } from "../data/grades";
 import { LEVELS, LEVEL_ORDER, TREND, levelOf, timeAgo, topicInfo } from "../data/progress";
-import { staffCancelAssignment, staffGivePractice, staffMe, staffMoveChild, staffPractice, staffReport, staffSetChallenge, staffSetGrade, staffSetPassword } from "../services/learnApi";
+import { staffCancelAssignment, staffGivePractice, staffMe, staffMoveChild, staffPractice, staffReport, staffSetChallenge, staffSetCalm, staffSetGrade, staffSetPassword } from "../services/learnApi";
 import { TOPICS, isTopicAllowedForGrade } from "../data/topics";
 import "../styles/pages/staff.css";
 import { ask } from "../components/dialog";
@@ -67,7 +67,39 @@ export default function ChildReportPage() {
           onSaved={(changes) => setReport({ ...report, child: { ...report.child, ...changes } })}
         />
       )}
+      {report && (
+        <CalmCard
+          key={`calm${report.child.id}-${report.child.calm}`}
+          child={report.child}
+          onSaved={(calm) => setReport({ ...report, child: { ...report.child, calm } })}
+        />
+      )}
     </div>
+  );
+}
+
+/** 2026-11-21 (calm mode): the teacher/admin turns it on for a child who struggles. */
+function CalmCard({ child, onSaved }) {
+  const [err, setErr] = useState("");
+  async function toggle() {
+    try {
+      const p = await staffSetCalm(child.id, !child.calm);
+      onSaved(Boolean(p.calm));
+      setErr("");
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+  return (
+    <section className="staff-card">
+      <h2>🌿 מצב רגוע</h2>
+      <p className="staff-card__hint">לילד/ה שמתקשה: 2 תשובות לבחירה כל עוד הנושא קשה (4 כשהולך טוב), סבבים של 5 שאלות, בלי הקלדה, עזרה בכל שאלה, ופתרון צעד אחרי צעד אחרי טעות.</p>
+      <button className={`switch ${child.calm ? "is-on" : ""}`} onClick={toggle} aria-pressed={Boolean(child.calm)}>
+        <span className="switch__knob" aria-hidden="true" />
+        <span>{child.calm ? "מצב רגוע פועל" : "מצב רגיל"}</span>
+      </button>
+      {err && <p className="form-error">{err}</p>}
+    </section>
   );
 }
 
@@ -427,6 +459,15 @@ function Report({ report, openTopic, setOpenTopic }) {
         </div>
       </section>
 
+      {/* 2026-11-21 (finding the gap): the base under a topic that goes badly */}
+      {report.foundation && (
+        <section className="attention" aria-label="יסוד חסר">
+          <span className="attention__chip">
+            🧱 {topicInfo(report.foundation.forTopic)?.name ?? ""} קשה ({report.foundation.topicPct}%) - כדאי לבדוק {report.foundation.name}
+            {report.foundation.pct != null ? ` (${report.foundation.pct}% נכון)` : " (עוד לא נבדק - הילד/ה יקבל/תקבל בדיקה קצרה)"}
+          </span>
+        </section>
+      )}
       {report.attention.length > 0 && (
         <section className="attention" aria-label="צריך תשומת לב">
           {report.attention.map((a) => (

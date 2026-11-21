@@ -40,6 +40,18 @@ export default function SettingsPage() {
     sfx.tap();
   }
 
+  // 2026-11-21 (calm mode): two options while a topic is hard, short rounds, no typing, help always open
+  async function toggleCalm() {
+    sfx.tap();
+    try {
+      await patchProfile({ calm: !profile.calm });
+      setMessage(profile.calm ? "מצב רגוע כבוי" : "🌿 מצב רגוע פועל");
+      setError("");
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   async function pickCharacter(key) {
     if (key === profile.avatar) return;
     sfx.tap();
@@ -110,6 +122,15 @@ export default function SettingsPage() {
         <button className={`switch ${readAloud ? "is-on" : ""}`} onClick={toggleReadAloud} aria-pressed={readAloud}>
           <span className="switch__knob" aria-hidden="true" />
           <span>{readAloud ? "כל שאלה מוקראת לבד" : "מקריאים רק כשלוחצים על 🔊"}</span>
+        </button>
+      </section>
+
+      <section className="staff-card">
+        <h2>🌿 מצב רגוע</h2>
+        <p className="staff-card__hint">פחות לחץ: 2 תשובות לבחירה כשהנושא עוד קשה, סבבים של 5 שאלות, עזרה בכל שאלה, ופתרון יחד צעד אחרי צעד אחרי טעות.</p>
+        <button className={`switch ${profile.calm ? "is-on" : ""}`} onClick={toggleCalm} aria-pressed={Boolean(profile.calm)}>
+          <span className="switch__knob" aria-hidden="true" />
+          <span>{profile.calm ? "מצב רגוע פועל" : "מצב רגיל"}</span>
         </button>
       </section>
 

@@ -7,6 +7,7 @@ import { getStats } from "../services/learnApi";
 import "../styles/pages/challenges.css";
 import OptionCard from "../components/OptionCard";
 import WeeklyTasks from "../components/WeeklyTasks";
+import FoundationCard from "../components/FoundationCard";
 import "../styles/pages/room.css";
 import ClassBuilding from "../components/ClassBuilding";
 import { TOPICS, TOPIC_GROUPS, isTopicAllowedForGrade } from "../data/topics";
@@ -76,6 +77,9 @@ export default function TopicsPage() {
             <span className="challenge-card__sub">{stats?.openMistakes ? `${stats.openMistakes} לתרגל` : "על מה שהיה קשה"}</span>
           </button>
         </div>
+
+        {/* 2026-11-21 (finding the gap): a base skill under a topic that goes badly */}
+        <FoundationCard profileId={profile.id} />
 
         {/* 2026-11-12 (Shir: the room code inside the game's home page, not at the entrance) */}
         <button className="room-entry" onClick={() => navigate("/room")}>🎮 יש לי קוד חדר מהמורה</button>

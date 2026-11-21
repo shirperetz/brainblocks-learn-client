@@ -75,8 +75,9 @@ export function getStageMap(profileId, topic) {
   return apiRequest(`/api/learn/profiles/${profileId}/map?topic=${topic}`);
 }
 
-export function getQuestions({ profileId, topic, stage, count = 10, secure = false, tier = 0 }) {
-  const params = new URLSearchParams({ profileId, topic, stage, count, ...(secure ? { secure: "true" } : {}), ...(tier ? { tier } : {}) });
+export function getQuestions({ profileId, topic, stage, count = 10, secure = false, tier = 0, foundation = null }) {
+  const params = new URLSearchParams({ profileId, topic, stage, count, ...(secure ? { secure: "true" } : {}), ...(tier ? { tier } : {}),
+    ...(foundation ? { foundation } : {}) });
   return apiRequest(`/api/learn/questions?${params.toString()}`);
 }
 
@@ -482,4 +483,13 @@ export function staffTomorrow(classId) {
 }
 export function staffMeitzav(classId) {
   return apiRequest(`/api/learn/staff/classes/${classId}/meitzav`);
+}
+
+// 2026-11-21 (finding the gap): the base skill to build now ({} = none) + calm mode set by staff
+export function getFoundation(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/foundation`);
+}
+
+export function staffSetCalm(childId, calm) {
+  return apiRequest(`/api/learn/staff/children/${childId}/calm`, { method: "POST", body: JSON.stringify({ calm }) });
 }

@@ -4,6 +4,8 @@ import { cheer } from "../game/companion";
 import BigButton from "../components/BigButton";
 import StarRating from "../components/StarRating";
 import Mascot from "../components/Mascot";
+import { updateProfile } from "../services/learnApi";
+import { useProfile } from "../context/profileStore";
 import "../styles/pages/summary.css";
 
 // Screen 9 — celebrate the result and route onward.
@@ -14,6 +16,19 @@ export default function SummaryPage() {
   const summary = location.state?.summary;
   // 2026-11-13: a round on a generated island goes back to that island
   const back = location.state?.back ?? null;
+  // 2026-11-21: a foundations round goes back to the topics; a hard round offers calm mode once
+  const foundation = location.state?.foundation ?? null;
+  const calm = Boolean(location.state?.calm);
+  const { profile, refreshProfile } = useProfile();
+  async function goCalm() {
+    try {
+      await updateProfile(profile.id, { calm: true });
+      await refreshProfile();
+    } catch {
+      /* stays as it was */
+    }
+    navigate(`/play/${topic}/${stage}`);
+  }
   // 2026-11-11: the companion celebrates (or encourages) once, when the summary appears.
   useEffect(() => {
     if (summary) cheer(summary.stars >= 3 ? "levelStars3" : summary.passed ? "levelPassed" : "levelFailed");
@@ -29,7 +44,11 @@ export default function SummaryPage() {
       <div className="summary">
         <Mascot dolphin size="md" play={summary.stars >= 3 ? "success" : summary.passed ? "smile" : "sad"} />
 
-        <h1 className="screen-title">{summary.encouragement}</h1>
+        <h1 className="screen-title">
+          {foundation
+            ? summary.scorePct >= 80 ? "🧱 היסוד חזק! כל הכבוד" : "🧱 כל סבב בונה עוד לבנה"
+            : calm && !summary.passed ? "כל ניסיון מקרב אותך 💙" : summary.encouragement}
+        </h1>
 
         <StarRating value={summary.stars} size="lg" animate />
 
@@ -45,7 +64,20 @@ export default function SummaryPage() {
           </p>
         </div>
 
+        {foundation ? (
+          <div className="summary__actions">
+            <BigButton variant="green" onClick={() => navigate("/topics")}>חזרה לנושאים ←</BigButton>
+            {summary.scorePct < 80 && (
+              <BigButton variant="blue" onClick={() => navigate(`/play/${topic}/${stage}?foundation=${foundation}`)}>עוד סבב קצר</BigButton>
+            )}
+          </div>
+        ) : (
         <div className="summary__actions">
+          {!calm && !summary.passed && summary.scorePct < 50 && profile && !profile.calm && (
+            <BigButton variant="green" onClick={goCalm}>
+              🌿 לנסות במצב רגוע? (2 תשובות לבחירה, 5 שאלות)
+            </BigButton>
+          )}
           {summary.passed && (
             <BigButton variant="ghost" onClick={() => navigate("/my-island")}>
               🎁 קיבלת חלק חדש לאי שלך!
@@ -73,6 +105,7 @@ export default function SummaryPage() {
             {back ? "חזרה לאי" : "חזרה למפה"}
           </BigButton>
         </div>
+        )}
       </div>
     </div>
   );

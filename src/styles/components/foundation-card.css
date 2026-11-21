@@ -1,0 +1,13 @@
+/* 2026-11-21: "building foundations" - one calm row near the top of the topics page (apple-design:
+   hierarchy by weight, one clear action, press feedback). */
+.foundation { display: flex; align-items: center; gap: 0.75rem; margin: 0.7rem 0; padding: 0.8rem 0.9rem; border-radius: var(--radius-md); background: linear-gradient(180deg, #fff8ec, #fff1da); border: 2px solid #f3cf8d; box-shadow: var(--shadow-card); text-align: right; }
+.foundation__icon { flex: none; display: grid; place-items: center; width: 2.8rem; height: 2.8rem; border-radius: 14px; background: #fff; font-size: 1.6rem; box-shadow: 0 2px 6px rgba(160, 110, 30, 0.15); }
+.foundation__body { flex: 1; min-width: 0; display: grid; gap: 0.2rem; }
+.foundation__title { font-size: 1.08rem; color: var(--ink); line-height: 1.25; }
+.foundation__sub { font-size: 0.92rem; color: #6b5527; line-height: 1.4; }
+.foundation__bar { display: block; height: 8px; margin-top: 0.2rem; border-radius: 99px; background: rgba(160, 110, 30, 0.15); overflow: hidden; }
+.foundation__bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #ffb547, #ff9f43); }
+.foundation__go { flex: none; min-height: 48px; min-width: 76px; padding: 0.5rem 1rem; border: 0; border-radius: 14px; background: linear-gradient(180deg, #ffb547, #f08c1c); box-shadow: 0 4px 0 #c86f0c; color: #fff; font: 800 1.05rem var(--font); cursor: pointer; transition: transform 100ms ease-out, box-shadow 100ms ease-out; }
+.foundation__go:active { transform: translateY(3px) scale(0.98); box-shadow: 0 1px 0 #c86f0c; }
+.foundation__go:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .foundation__go { transition: none; } }

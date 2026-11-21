@@ -1,0 +1,30 @@
+/* 2026-11-21: "step by step" inside the mistake card (apple-design: one step at a time, instant press
+   feedback, done steps as a quiet list, gentle motion only when allowed). */
+.sbs { margin: 0.4rem 0 0.8rem; text-align: right; }
+.sbs__done { list-style: none; margin: 0 0 0.6rem; padding: 0; display: grid; gap: 0.3rem; }
+.sbs__done li { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.6rem; border-radius: 12px; background: rgba(37, 198, 133, 0.1); color: #1f5c3e; font-weight: 600; font-size: 0.98rem; }
+.sbs__check { flex: none; display: grid; place-items: center; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--green); color: #fff; font-size: 0.8rem; font-weight: 800; }
+.sbs__now { padding: 0.8rem; border-radius: 18px; background: #fff; border: 2px solid #f0d38b; box-shadow: 0 6px 16px rgba(160, 120, 30, 0.12); animation: steps-in 260ms cubic-bezier(0.2, 0.9, 0.3, 1); }
+.sbs__count { margin: 0 0 0.25rem; font-size: 0.85rem; font-weight: 700; color: var(--ink-soft); letter-spacing: 0.01em; }
+.sbs__say { margin: 0 0 0.45rem; line-height: 1.5; color: #3a2f1a; }
+.sbs__ask { margin: 0 0 0.7rem; text-align: center; font-size: 1.6rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); }
+.sbs__choices { display: flex; justify-content: center; gap: 0.6rem; flex-wrap: wrap; }
+.sbs__choice { min-width: 76px; min-height: 56px; padding: 0.4rem 1rem; border: 2px solid var(--line); border-radius: 16px; background: var(--card-2); color: var(--ink); font: 800 1.35rem var(--font); cursor: pointer; transition: transform 100ms ease-out, background-color 150ms, border-color 150ms; }
+.sbs__choice:active { transform: scale(0.95); }
+.sbs__choice:focus-visible { outline: 3px solid var(--purple); outline-offset: 2px; }
+.sbs__choice.is-right { background: var(--green); border-color: var(--green-dark); color: #fff; }
+.sbs__choice.is-wrong { border-color: var(--red-soft); background: #fff0f2; animation: steps-shake 320ms; }
+.sbs__try { margin: 0.5rem 0 0; text-align: center; font-weight: 700; color: #b5485a; }
+.sbs__end { margin: 0.2rem 0 0.4rem; text-align: center; font-size: 1.15rem; color: #1f7a3a; }
+.sbs__open { display: block; margin: 0 auto 0.6rem; min-height: 48px; padding: 0.55rem 1.2rem; border: 2px solid var(--purple); border-radius: 16px; background: #fff; color: var(--purple-dark); font: 800 1.05rem var(--font); cursor: pointer; transition: transform 100ms ease-out; }
+.sbs__open:active { transform: scale(0.97); }
+.sbs__open:focus-visible { outline: 3px solid var(--purple); outline-offset: 2px; }
+
+@keyframes steps-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes steps-shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sbs__now { animation: none; }
+  .sbs__choice.is-wrong { animation: none; }
+  .sbs__choice, .sbs__open { transition: none; }
+}
