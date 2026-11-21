@@ -5,7 +5,8 @@ import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
 import { GRADES, getGrade } from "../data/grades";
 import { LEVELS, LEVEL_ORDER, TREND, levelOf, timeAgo, topicInfo } from "../data/progress";
-import { staffCancelAssignment, staffGivePractice, staffMe, staffMoveChild, staffPractice, staffReport, staffSetGrade, staffSetPassword } from "../services/learnApi";
+import { staffCancelAssignment, staffGivePractice, staffMe, staffMoveChild, staffPractice, staffReport, staffSetChallenge, staffSetGrade, staffSetPassword } from "../services/learnApi";
+import { TOPICS, isTopicAllowedForGrade } from "../data/topics";
 import "../styles/pages/staff.css";
 import { ask } from "../components/dialog";
 
@@ -43,6 +44,13 @@ export default function ChildReportPage() {
       {error && <p className="form-error">{error}</p>}
       {!report && !error && <p className="staff__loading">טוען...</p>}
       {report && <Report report={report} openTopic={openTopic} setOpenTopic={setOpenTopic} />}
+      {report && (
+        <ChallengeBox
+          key={`ch${report.child.id}`}
+          report={report}
+          onSaved={(advanced) => setReport({ ...report, advanced })}
+        />
+      )}
       {report && <NewPassword key={`p${report.child.id}`} child={report.child} />}
       {report && (
         <MoveClass
@@ -68,6 +76,115 @@ export default function ChildReportPage() {
  * the child is in. A teacher sees only her own classes; the admin all of them + "בלי כיתה". A class
  * that practices one grade gives it to the child, locked (the server does it).
  */
+/**
+ * 2026-11-21 (Shir: "when the child is really good the exercises get harder - but not a higher grade's
+ * level without the teacher's approval"): per topic, the child's teacher or the admin opens a higher
+ * grade's material for this child only. "⭐ ready" = 90%+ in the last 20 answers of the topic.
+ */
+function ChallengeBox({ report, onSaved }) {
+  const c = report.child;
+  const own = c.grade;
+  const ownIdx = GRADES.findIndex((g) => g.key === own);
+  const higher = GRADES.filter((g, i) => i > ownIdx);
+  const advanced = report.advanced ?? {};
+  const ready = (report.challengeReady ?? []).filter((r) => !advanced[r.topic]);
+  const candidates = TOPICS.filter((t) => t.key !== "MIXED" && higher.some((g) => isTopicAllowedForGrade(t.key, g.key)));
+  const [topic, setTopic] = useState("");
+  const [grade, setGrade] = useState("");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  if (!own || ownIdx < 0) return null;
+  const gradesFor = (key) => higher.filter((g) => isTopicAllowedForGrade(key, g.key));
+
+  async function save(t, g) {
+    setBusy(true);
+    try {
+      const r = await staffSetChallenge(c.id, t, g);
+      onSaved(r.advanced ?? {});
+      setMsg(g ? `נפתח ל${c.name}: ${topicInfo(t).name} ברמת ${getGrade(g)?.label}` : `${topicInfo(t).name} חזר לרמת ${getGrade(own)?.label}`);
+      setTopic("");
+      setGrade("");
+    } catch (e) {
+      setMsg(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (higher.length === 0) {
+    return (
+      <section className="staff-card challenge-box">
+        <h2>⭐ אתגר מעל הכיתה</h2>
+        <p className="staff-card__hint">{c.name} בכיתה ו׳ - הכיתה הגבוהה ביותר. כשמצליחים מאוד, התרגילים פשוט נעשים קשים יותר בתוך החומר של ו׳.</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="staff-card challenge-box">
+      <h2>⭐ אתגר מעל הכיתה</h2>
+      <p className="staff-card__hint">
+        כש{c.name} מצליח/ה מאוד, התרגילים נעשים קשים יותר - אבל רק בחומר של {getGrade(own)?.label}.
+        חומר של כיתה גבוהה נפתח רק כאן, באישור שלך, לכל נושא בנפרד. אפשר לבטל בכל רגע.
+      </p>
+
+      {ready.length > 0 && (
+        <ul className="challenge-box__list" aria-label="מוכן/ה לאתגר">
+          {ready.map((r) => (
+            <li key={r.topic} className="challenge-box__ready">
+              <span>
+                <b>⭐ מוכן/ה לאתגר:</b> {topicInfo(r.topic).emoji} {topicInfo(r.topic).name} · {r.pct}% ב-{r.answers} התשובות האחרונות
+              </span>
+              {isTopicAllowedForGrade(r.topic, r.nextGrade) && (
+                <button className="admin__btn" disabled={busy} onClick={() => save(r.topic, r.nextGrade)}>
+                  לאשר רמת {getGrade(r.nextGrade)?.label}
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {Object.keys(advanced).length > 0 && (
+        <ul className="challenge-box__list" aria-label="פתוח כרגע">
+          {Object.entries(advanced).map(([t, g]) => (
+            <li key={t}>
+              <span>✅ {topicInfo(t).emoji} {topicInfo(t).name} - ברמת {getGrade(g)?.label}</span>
+              <button className="admin__btn admin__btn--ghost" disabled={busy} onClick={() => save(t, null)}>
+                ביטול (חזרה ל{getGrade(own)?.letter})
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="challenge-box__manual">
+        <label>
+          <span>נושא</span>
+          <select value={topic} onChange={(e) => { setTopic(e.target.value); setGrade(gradesFor(e.target.value)[0]?.key ?? ""); }}>
+            <option value="">בחרו נושא...</option>
+            {candidates.map((t) => (
+              <option key={t.key} value={t.key}>{t.emoji} {t.name}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          <span>רמה</span>
+          <select value={grade} onChange={(e) => setGrade(e.target.value)} disabled={!topic}>
+            {(topic ? gradesFor(topic) : []).map((g) => (
+              <option key={g.key} value={g.key}>{g.label}</option>
+            ))}
+          </select>
+        </label>
+        <button className="admin__btn" disabled={busy || !topic || !grade} onClick={() => save(topic, grade)}>
+          לאשר
+        </button>
+      </div>
+      {msg && <p className="admin__message" role="status">{msg}</p>}
+    </section>
+  );
+}
+
 /**
  * 2026-11-12 (Shir: a teacher gets "a new password for a child" - only for her own children; the server
  * checks it's hers): a child who forgot the password gets a new one from its teacher.

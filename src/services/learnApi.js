@@ -322,6 +322,14 @@ export function staffGivePractice(childId, topic) {
   return apiRequest(`/api/learn/staff/children/${childId}/practice`, { method: "POST", body: JSON.stringify({ topic }) });
 }
 
+/** 2026-11-21: open a topic at a higher grade for one child (grade null = back to her own grade). */
+export function staffSetChallenge(childId, topic, grade) {
+  return apiRequest(`/api/learn/staff/children/${childId}/challenge`, {
+    method: "POST",
+    body: JSON.stringify({ topic, grade: grade ?? "" }),
+  });
+}
+
 export function staffCancelAssignment(id) {
   return apiRequest(`/api/learn/staff/assignments/${id}/cancel`, { method: "POST" });
 }

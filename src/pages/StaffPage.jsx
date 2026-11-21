@@ -87,6 +87,8 @@ export default function StaffPage() {
   const inactive = attention.filter((r) => has(r, "לא נכנס")).length;
   const repeating = attention.filter((r) => has(r, "טעות חוזרת")).length;
   const struggling = attention.filter((r) => has(r, "מתקשה")).length;
+  // 2026-11-21: children who are really good in a topic - the teacher may open a higher grade for them
+  const readyKids = approvedRows.filter((r) => (r.challengeReady ?? 0) > 0);
   const jump = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   // "approve everyone" - one by one, stops at the first refusal (a full class says so)
@@ -131,7 +133,7 @@ export default function StaffPage() {
       {overview && (
         <section className="staff-card staff-today" aria-label="מה מחכה לך היום">
           <h2>📋 מה מחכה לך היום</h2>
-          {waiting.length + attention.length + requests.length === 0 ? (
+          {waiting.length + attention.length + requests.length + readyKids.length === 0 ? (
             <p className="staff-today__ok">✅ הכל בסדר. אין מי שמחכה לך עכשיו.</p>
           ) : (
             <div className="staff-today__chips">
@@ -153,6 +155,12 @@ export default function StaffPage() {
               {repeating > 0 && (
                 <button className="staff-today__chip" onClick={() => jump("staff-attention")}>
                   🔁 <b>{repeating}</b> עם טעות חוזרת
+                </button>
+              )}
+              {readyKids.length > 0 && (
+                <button className="staff-today__chip" onClick={() => navigate(`/staff/child/${readyKids[0].child.id}`)}
+                  title={readyKids.map((r) => r.child.name).join(", ")}>
+                  ⭐ <b>{readyKids.length}</b> מוכנים לאתגר
                 </button>
               )}
               {struggling > 0 && (
@@ -347,6 +355,7 @@ export default function StaffPage() {
                     <tr key={r.child.id} onClick={() => navigate(`/staff/child/${r.child.id}`)}>
                       <th scope="row">
                         <span aria-hidden="true">{getCharacter(r.child.avatar).emoji}</span> {r.child.name}
+                        {(r.challengeReady ?? 0) > 0 && <span className="staff__star" title="מוכן/ה לאתגר מעל הכיתה"> ⭐</span>}
                         <small>{timeAgo(r.child.lastActiveAt)}</small>
                       </th>
                       {cols.map((k) => {

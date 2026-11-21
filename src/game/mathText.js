@@ -5,7 +5,14 @@
 // 2026-11-11: ":" (division - "7 : 8" came out as "8 : 7" inside Hebrew) and degrees ("140°" showed "°140").
 // 2026-11-12 (Shir's screenshot "8 = 40 × ?"): an equation may also START with "?" ("? × 8 = 40",
 // "? + 617 = 1032") - it was split, "? ×" read as Hebrew and the whole thing came out mirrored.
-const MATH = /(\d+(?:\s*,\s*\d+){2,}(?:\s*,\s*\?)?|(?:\d+(?:\/\d+)?|\?)(?:\s*[+\-−×÷=:]\s*(?:\d+(?:\/\d+)?|\?))+|\d+\/\d+|\d+°)/g;
+// 2026-11-21 (the new topics): numbers may be decimals ("0.3 + 0.4"), "x" ("4 × x + 3 = 47"), in
+// brackets ("(4 + 7) × 2"), percents ("20%"). The night's screenshot: "x + 10 = 13" came out "3 = 10 + x".
+const NUM = String.raw`(?:\d+(?:\.\d+)?(?:\/\d+)?%?|\?|x)`;
+const TOKEN = String.raw`(?:\(\s*)*` + NUM + String.raw`(?:\s*\))*`;
+const MATH = new RegExp(
+  String.raw`(\d+(?:\s*,\s*\d+){2,}(?:\s*,\s*\?)?|` + TOKEN + String.raw`(?:\s*[+\-−×÷=:]\s*` + TOKEN + String.raw`)+|\d+\/\d+|\d+°|\d+(?:\.\d+)?%)`,
+  "g",
+);
 
 export function mathParts(text) {
   const s = String(text ?? "");

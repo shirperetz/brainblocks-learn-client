@@ -9,12 +9,13 @@ import "../styles/components/question-picture.css";
 export default function QuestionPicture({ visual }) {
   if (!visual?.type) return null;
   const { type, a, b, result } = visual;
+  const wide = type === "BAR_CHART";
   const shape = SHAPES[type];
   if (!shape) return null;
   return (
-    <figure className="q-picture" aria-label={LABELS[type]?.(a, b, result) ?? "ציור"}>
-      <svg viewBox="0 0 220 180" role="img" aria-hidden="true">
-        {shape(a, b, result)}
+    <figure className={`q-picture${wide ? " q-picture--wide" : ""}`} aria-label={LABELS[type]?.(a, b, result, visual) ?? "ציור"}>
+      <svg viewBox={wide ? "0 0 300 200" : "0 0 220 180"} role="img" aria-hidden="true">
+        {shape(a, b, result, visual)}
       </svg>
     </figure>
   );
@@ -30,7 +31,91 @@ const LABELS = {
   POLYGON: () => "צורה",
   TRIANGLE_SIDES: (a, b, c) => `משולש עם צלעות ${a}, ${b}, ${c}`,
   LINE_ANGLE: (a) => `זווית של ${a} מעלות על קו ישר`,
+  // 2026-11-21: the new topics
+  BAR_CHART: (a, b, r, v) => `גרף עמודות: ${barData(v).map((d) => `${d.label} ${d.value}`).join(", ")}`,
+  CIRCLE: () => "עיגול עם המרכז, רדיוס וקוטר",
+  BOX: (a, b, c) => `תיבה ${a} על ${b}${c ? ` על ${c}` : ""}`,
 };
+
+/** "תפוח:5|בננה:8" -> [{label, value}] (the server sends the chart's data in the emoji field). */
+function barData(v) {
+  return String(v?.emoji ?? "")
+    .split("|")
+    .filter(Boolean)
+    .map((p) => {
+      const [label, value] = p.split(":");
+      return { label, value: Number(value) || 0 };
+    });
+}
+
+/**
+ * 2026-11-21 (data / graphs): a bar chart with a numbered scale and grid lines, no numbers on the bars
+ * (reading them IS the question). The first category is on the right, as Hebrew is read.
+ */
+function barChart(max, n, r, v) {
+  const data = barData(v);
+  const top = Math.max(max || 10, ...data.map((d) => d.value));
+  const step = top <= 10 ? 1 : top <= 20 ? 2 : 5;
+  const x0 = 34, x1 = 290, y0 = 165, y1 = 14;
+  const h = (val) => ((y0 - y1) * val) / top;
+  const slot = (x1 - x0) / Math.max(1, data.length);
+  const colors = ["var(--blue)", "var(--orange)", "var(--green)", "var(--purple)", "var(--pink)"];
+  const ticks = [];
+  for (let t = 0; t <= top; t += step) ticks.push(t);
+  return (
+    <>
+      {ticks.map((t) => (
+        <g key={t}>
+          <line x1={x0} y1={y0 - h(t)} x2={x1} y2={y0 - h(t)} stroke="var(--line, #d9dce8)" strokeWidth={t === 0 ? 2.5 : 1} />
+          <text x={x0 - 6} y={y0 - h(t) + 4} className="q-picture__tick" textAnchor="end">{t}</text>
+        </g>
+      ))}
+      {data.map((d, i) => {
+        const cx = x1 - slot * (i + 0.5); // first category on the right
+        const w = Math.min(38, slot * 0.6);
+        return (
+          <g key={d.label}>
+            <rect x={cx - w / 2} y={y0 - h(d.value)} width={w} height={h(d.value)} rx="4" fill={colors[i % colors.length]} />
+            <text x={cx} y={y0 + 22} className="q-picture__label q-picture__label--small">{d.label}</text>
+          </g>
+        );
+      })}
+    </>
+  );
+}
+
+function circleShape() {
+  const cx = 110, cy = 90, r = 72;
+  return (
+    <>
+      <circle cx={cx} cy={cy} r={r} fill="var(--card-2)" stroke={LINE} strokeWidth="3" />
+      <line x1={cx - r} y1={cy} x2={cx + r} y2={cy} stroke="var(--blue)" strokeWidth="3" strokeDasharray="6 5" />
+      <line x1={cx} y1={cy} x2={cx + r * Math.cos(-1.1)} y2={cy + r * Math.sin(-1.1)} stroke="var(--orange)" strokeWidth="3.5" />
+      <circle cx={cx} cy={cy} r="4.5" fill={LINE} />
+      <text x={cx - 24} y={cy - 30} className="q-picture__label q-picture__label--small">רדיוס</text>
+      <text x={cx - 38} y={cy + 20} className="q-picture__label q-picture__label--small">קוטר</text>
+    </>
+  );
+}
+
+/** A box drawn in oblique view, its three edges labelled ("?" for the one that is asked). */
+function box(a, b, c) {
+  const L = 110, H = 70, D = 40;
+  const x = 40, y = 70;
+  const front = `${x},${y} ${x + L},${y} ${x + L},${y + H} ${x},${y + H}`;
+  const topF = `${x},${y} ${x + D},${y - D * 0.7} ${x + L + D},${y - D * 0.7} ${x + L},${y}`;
+  const side = `${x + L},${y} ${x + L + D},${y - D * 0.7} ${x + L + D},${y + H - D * 0.7} ${x + L},${y + H}`;
+  return (
+    <>
+      <polygon points={front} fill="var(--card-2)" stroke={LINE} strokeWidth="2.5" strokeLinejoin="round" />
+      <polygon points={topF} fill="#fff" stroke={LINE} strokeWidth="2.5" strokeLinejoin="round" />
+      <polygon points={side} fill="var(--line, #d9dce8)" stroke={LINE} strokeWidth="2.5" strokeLinejoin="round" />
+      <text x={x + L / 2} y={y + H + 20} className="q-picture__label">{a}</text>
+      <text x={x + L + D / 2 + 14} y={y + H - D * 0.35 + 14} className="q-picture__label">{b}</text>
+      <text x={x - 8} y={y + H / 2 + 5} className={`q-picture__label${c ? "" : " q-picture__label--ask"}`} textAnchor="end">{c || "?"}</text>
+    </>
+  );
+}
 
 const FILL = "var(--orange)";
 const EMPTY = "#fff";
@@ -141,4 +226,7 @@ const SHAPES = {
   TRIANGLE: triangle,
   RIGHT_TRIANGLE: rightTriangle,
   POLYGON: (a) => polygon(a),
+  BAR_CHART: barChart,
+  CIRCLE: circleShape,
+  BOX: box,
 };

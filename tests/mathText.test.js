@@ -40,3 +40,13 @@ test("an equation that starts with ? is one math part", () => {
   const t = "מה המספר החסר? ? × 8 = 40";
   assert.equal(mathParts(t).map((p) => p.text).join(""), t);
 });
+
+test("x, brackets, decimals and percents stay left-to-right (2026-11-21, the new topics)", () => {
+  assert.deepEqual(math("מה x? x + 10 = 13"), ["x + 10 = 13"]);
+  assert.deepEqual(math("מה x? 4 × x + 3 = 47"), ["4 × x + 3 = 47"]);
+  assert.deepEqual(math("כמה זה (4 + 7) × 2?"), ["(4 + 7) × 2"]);
+  assert.deepEqual(math("כמה זה 2 × (9 - 3) + 4?"), ["2 × (9 - 3) + 4"]);
+  assert.deepEqual(math("0.3 + 0.4 = ?"), ["0.3 + 0.4 = ?"]);
+  assert.deepEqual(math("כמה זה 20% מ-150?"), ["20%"]);
+  assert.deepEqual(math("צמצמו את היחס 6 : 9"), ["6 : 9"]);
+});

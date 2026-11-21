@@ -10,6 +10,7 @@ import WeeklyTasks from "../components/WeeklyTasks";
 import "../styles/pages/room.css";
 import ClassBuilding from "../components/ClassBuilding";
 import { TOPICS, isTopicAllowedForGrade } from "../data/topics";
+import { getGrade } from "../data/grades";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/onboarding.css";
 
@@ -98,15 +99,17 @@ export default function TopicsPage() {
         <div className="option-grid option-grid--wide" role="group" aria-label="נושאים">
           {/* 2026-11-14 (Shir: "everything open on top, everything locked at the bottom" - every grade) */}
           {[...TOPICS]
-            .sort((a, b) => Number(!isTopicAllowedForGrade(a.key, profile.grade)) - Number(!isTopicAllowedForGrade(b.key, profile.grade)))
+            .sort((a, b) => Number(!isTopicAllowedForGrade(a.key, profile.grade, profile.advanced)) - Number(!isTopicAllowedForGrade(b.key, profile.grade, profile.advanced)))
             .map((t) => {
-            const allowed = isTopicAllowedForGrade(t.key, profile.grade);
+            const allowed = isTopicAllowedForGrade(t.key, profile.grade, profile.advanced);
+            // 2026-11-21: a topic the teacher opened at a higher grade for this child
+            const up = profile.advanced?.[t.key];
             return (
               <OptionCard
                 key={t.key}
                 icon={t.emoji}
                 title={t.name}
-                subtitle={allowed ? t.blurb : "נפתח בכיתה גבוהה יותר"}
+                subtitle={!allowed ? "נפתח בכיתה גבוהה יותר" : up ? `⭐ אתגר: רמת ${getGrade(up)?.label ?? "כיתה גבוהה"}` : t.blurb}
                 color={t.color}
                 locked={!allowed}
                 onClick={() => navigate(`/map/${t.key}`)}
