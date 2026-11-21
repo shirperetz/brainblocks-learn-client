@@ -104,9 +104,16 @@ export default function PlayPage() {
         q = { ...q, correctIndex: r.correctIndex, explanation: r.explanation };
         const at = index;
         setQuestions((qs) => qs.map((x, i) => (i === at ? q : x)));
-      } catch {
+      } catch (e) {
         setChecking(false);
-        setError("לא הצלחנו לבדוק את התשובה - בדקו את החיבור ונסו שוב");
+        // 2026-11-21 (night bot got stuck): the server doesn't know this question any more -> don't
+        // leave the child stuck on it forever; move on (the question is simply not counted).
+        if (e?.status === 404) {
+          setError("");
+          advance();
+          return;
+        }
+        setError(e?.status === 429 ? "רגע, לאט לאט 🙂 נסו שוב בעוד כמה שניות" : "לא הצלחנו לבדוק את התשובה - בדקו את החיבור ונסו שוב");
         return;
       }
       setChecking(false);
