@@ -6,6 +6,8 @@ import * as api from "../services/learnApi";
 import "../styles/pages/staff.css";
 import "../styles/pages/room.css";
 import { ask } from "../components/dialog";
+import RoomQr from "../components/RoomQr";
+import RoomCountdown from "../components/RoomCountdown";
 
 // 2026-11-12: the teacher's room - lobby (code, who's in, approvals) -> live table -> results.
 // Refreshes every 2 seconds.
@@ -15,6 +17,7 @@ export default function StaffRoomPage() {
   const { profile, loading } = useProfile();
   const [room, setRoom] = useState(null);
   const [error, setError] = useState("");
+  const [given, setGiven] = useState({});
   const isStaff = Boolean(profile && (profile.admin || profile.teacher));
 
   useEffect(() => {
@@ -32,6 +35,17 @@ export default function StaffRoomPage() {
   if (loading) return null;
   if (!profile) return <Navigate to="/login" replace state={{ next: `/staff/room/${id}` }} />;
   if (!isStaff) return <Navigate to="/" replace />;
+
+  // 2026-11-22 (#6): practice from the summary - for the class, or for one child
+  const practiceTopic = room?.summary?.hardTopic ?? room?.topics?.find((t) => t !== "MY");
+  const giveClass = () =>
+    api.staffCreateAssignment(room.classId, { topic: practiceTopic, rounds: 2, days: 3 })
+      .then(() => setGiven((g) => ({ ...g, class: true })))
+      .catch((e) => setError(e.message));
+  const giveKid = (pid) =>
+    api.staffGivePractice(pid, practiceTopic)
+      .then(() => setGiven((g) => ({ ...g, [pid]: true })))
+      .catch((e) => setError(e.message));
 
   const act = (action) => api.roomAction(id, action).then(setRoom).catch((e) => setError(e.message));
   const decide = (pid, ok) => api.roomDecide(id, pid, ok).then(() => api.roomLive(id).then(setRoom)).catch((e) => setError(e.message));
@@ -68,6 +82,7 @@ export default function StaffRoomPage() {
 
           {room.state === "LOBBY" && (
             <section className="staff-card room-code-card">
+              <RoomQr code={room.code} size={170} />
               <span>קוד החדר</span>
               <strong className="room-code">{room.code.slice(0, 3)} {room.code.slice(3)}</strong>
               <span>הילדים לוחצים "🎮 יש לי קוד חדר מהמורה" במסך הנושאים (או באי) ומקלידים אותו</span>
@@ -120,17 +135,27 @@ export default function StaffRoomPage() {
                     <span>מקום</span><span>ילד/ה</span><span>נקודות</span><span>נכון</span><span>מצב</span>
                   </div>
                   {room.players.map((p) => (
-                    <div key={p.id} className={`room-row${p.place <= 3 ? " is-top" : ""}`} role="row">
+                    <div key={p.id} className={`room-row${p.place <= 3 ? " is-top" : ""}${p.stuck && room.state === "RUNNING" ? " is-stuck" : ""}`} role="row">
                       <span className="room-place">{p.place}</span>
                       <span className="room-name"><span aria-hidden="true">{avatarOf(p)}</span> {p.name}{p.guest ? " (אורח/ת)" : ""}</span>
                       <span className="room-points">{p.points}</span>
                       <span>{p.right}/{p.answered}</span>
-                      <span className={p.stuck ? "room-stuck" : "room-ok"}>{room.state === "ENDED" ? "סיים/ה" : p.stuck ? "תקוע/ה" : "פותר/ת"}</span>
+                      <span className={p.stuck ? "room-stuck" : "room-ok"} title={p.stuckWhy ?? ""}>
+                        {room.state === "ENDED" ? "סיים/ה" : p.stuck ? `✋ ${p.stuckWhy}` : "פותר/ת"}
+                      </span>
                     </div>
                   ))}
                 </div>
               </section>
               <div className="room-side">
+                {room.teamScores?.length === 2 && (
+                  <section className="staff-card">
+                    <h2>הקבוצות</h2>
+                    {room.teamScores.map((t) => (
+                      <div key={t.name} className="room-hard"><span>{t.name} ({t.players})</span><strong>{t.points}</strong></div>
+                    ))}
+                  </section>
+                )}
                 <section className="staff-card">
                   <h2>הכי קשה לכיתה</h2>
                   {room.hardest.length === 0 && <p className="staff-card__hint">עוד אין מספיק תשובות</p>}
@@ -143,12 +168,60 @@ export default function StaffRoomPage() {
                   <p className="staff-card__hint">{room.answered} תשובות · {room.pct}% נכון</p>
                   <p className="staff-card__hint">{room.players.length} בחדר{room.guests ? ` · ${room.guests} אורחים` : ""}</p>
                   {room.players.filter((p) => p.stuck).length > 0 && (
-                    <p className="staff-card__hint">תקועים (30 שנ׳ בלי תשובה): {room.players.filter((p) => p.stuck).map((p) => p.name).join(", ")}</p>
+                    <p className="staff-card__hint room-stuck-list">✋ כדאי לגשת: {room.players.filter((p) => p.stuck).map((p) => `${p.name} (${p.stuckWhy})`).join(", ")}</p>
                   )}
                 </section>
               </div>
             </div>
           )}
+          {room.state === "ENDED" && room.summary && (
+            <section className="staff-card room-summary">
+              <h2>📊 מה הלאה</h2>
+              {room.summary.hardTopic && (
+                <div className="room-summary__row">
+                  <div>
+                    <strong>הכי קשה בחדר: {topicLabel(room.summary.hardTopic)}</strong>
+                    <small>{room.summary.hardTopicPct}% נכון</small>
+                  </div>
+                  {room.classId && (
+                    <button className="admin__btn" disabled={given.class} onClick={giveClass}>
+                      {given.class ? "✓ ניתן לכיתה" : "🎯 תרגול לכל הכיתה"}
+                    </button>
+                  )}
+                </div>
+              )}
+              {room.summary.missed.length > 0 && (
+                <p className="staff-card__hint">
+                  התרגילים שהכי הרבה טעו בהם: {room.summary.missed.map((m) => `${m.text} (${m.kids} ילדים)`).join(" · ")}
+                </p>
+              )}
+              {room.summary.needHelp.length > 0 && (
+                <div className="room-summary__help">
+                  <strong>צריכים עזרה</strong>
+                  {room.summary.needHelp.map((k) => (
+                    <div key={k.name} className="room-summary__row">
+                      <span>{k.name} · {k.pct}% נכון</span>
+                      {k.profileId && practiceTopic && (
+                        <button className="admin__btn admin__btn--ghost" disabled={given[k.profileId]} onClick={() => giveKid(k.profileId)}>
+                          {given[k.profileId] ? "✓ ניתן" : "🎯 תרגול אישי"}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {room.summary.improved.length > 0 && (
+                <p className="staff-card__hint">⭐ השתפרו מהחדר הקודם: {room.summary.improved.map((k) => `${k.name} (+${k.plus})`).join(", ")}</p>
+              )}
+              {room.summary.coinsGiven && <p className="staff-card__hint">🪙 הילדים קיבלו מטבעות לאי (5 לכל מי ששיחק, 15 למקומות 1–3)</p>}
+              {room.classId && (
+                <button className="admin__btn admin__btn--ghost" onClick={() => navigate(`/staff?class=${room.classId}`)}>
+                  📋 מה ללמד מחר בכיתה הזאת ←
+                </button>
+              )}
+            </section>
+          )}
+          {room.state === "RUNNING" && <RoomCountdown ms={room.countdownMs} />}
         </>
       )}
     </div>

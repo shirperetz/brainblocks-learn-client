@@ -125,3 +125,44 @@
 @keyframes room-pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .room-streak { animation: none; } }
 .room-paused, .room-end { text-align: center; }
+
+/* ---- 2026-11-22: QR, 3-2-1, groups, stuck, the summary, saved rooms ---- */
+.room-qr { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+.room-qr__img { width: 100%; aspect-ratio: 1; background: #fff; border-radius: 16px; padding: 6px; box-sizing: border-box; }
+.room-qr__img svg { width: 100%; height: 100%; display: block; }
+.room-qr figcaption { font-size: 0.85rem; color: var(--ink-soft); }
+
+.room-countdown { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
+  background: rgba(246, 243, 255, 0.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); pointer-events: none; }
+.room-countdown--dark { background: rgba(43, 35, 80, 0.78); }
+.room-countdown__n { font-size: clamp(5rem, 22vw, 14rem); font-weight: 900; color: var(--purple-dark); letter-spacing: -0.02em;
+  animation: room-count-pop 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both; text-align: center; line-height: 1; }
+.room-countdown--dark .room-countdown__n { color: #ffce3a; }
+@keyframes room-count-pop { from { transform: scale(1.6); opacity: 0; } 30% { transform: scale(1); opacity: 1; } to { transform: scale(0.92); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .room-countdown__n { animation: none; } }
+
+.room-row.is-stuck { background: #fff4dc; }
+.room-row .room-stuck { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.room-row { grid-template-columns: 2.5rem minmax(0, 1fr) 4rem 3.5rem minmax(4.5rem, 9rem); }
+.room-stuck-list { color: #9a5b00; font-weight: 600; }
+
+.room-summary { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.8rem; }
+.room-summary__row { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.room-summary__row > div { display: flex; flex-direction: column; }
+.room-summary__row small { color: var(--ink-soft); }
+.room-summary__help { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.6rem 0.8rem; border-radius: 14px; background: var(--card-2); }
+
+.room-improved { margin: 0; padding: 0.6rem; border-radius: 14px; background: #fff6d8; font-weight: 700; color: #7a5a00; }
+.room-coins { margin: 0; padding: 0.6rem; border-radius: 14px; background: #eefbf4; font-weight: 700; color: var(--green-dark); }
+.room-options__title { margin-top: 1rem; }
+.room-saved__actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+
+.board__join { display: flex; align-items: center; justify-content: center; gap: 3rem; flex-wrap: wrap; margin-top: 1rem; }
+.board__join-text { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; font-size: clamp(1.2rem, 2.2vw, 1.8rem); color: #d9d2ff; }
+.board__code { font-size: clamp(4rem, 10vw, 8rem); letter-spacing: 0.3rem; color: #fff; font-variant-numeric: tabular-nums; line-height: 1; }
+.board__teams { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.board__team { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1.6rem; border-radius: 20px;
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem); font-weight: 800; }
+.board__team--0 { background: #2f7fe0; }
+.board__team--1 { background: #6a4fd6; }
+.board__team strong { font-variant-numeric: tabular-nums; }

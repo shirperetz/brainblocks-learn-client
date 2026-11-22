@@ -357,9 +357,15 @@ export function staffClassBuilding(classId) {
 
 // ---- the live game room (2026-11-12) ----
 
-export function roomCreate({ classId, topics, minutes, grade }) {
-  return apiRequest("/api/learn/rooms", { method: "POST", body: JSON.stringify({ classId, topics, minutes, grade }) });
+export function roomCreate({ classId, topics, minutes, grade, coins = false, teams = false }) {
+  return apiRequest("/api/learn/rooms", { method: "POST", body: JSON.stringify({ classId, topics, minutes, grade, coins, teams }) });
 }
+// 2026-11-22: saved rooms (#10) + waking the server's question code up before a lesson
+export const roomTemplates = () => apiRequest("/api/learn/rooms/templates");
+export const saveRoomTemplate = (t) => apiRequest("/api/learn/rooms/templates", { method: "POST", body: JSON.stringify(t) });
+export const deleteRoomTemplate = (id) => apiRequest(`/api/learn/rooms/templates/${id}/delete`, { method: "POST" });
+export const openRoomTemplate = (id) => apiRequest(`/api/learn/rooms/templates/${id}/open`, { method: "POST" });
+export const roomWarmup = (grade) => apiRequest("/api/learn/rooms/warmup", { method: "POST", body: JSON.stringify({ grade }) });
 export function roomLive(id) {
   return apiRequest(`/api/learn/rooms/${id}/live`);
 }
@@ -480,6 +486,10 @@ export const logoutRequest = () => apiRequest("/api/learn/auth/logout", { method
 // 2026-11-21 (Shir chose): the teacher's "what to teach tomorrow" + Meitzav readiness for a class
 export function staffTomorrow(classId) {
   return apiRequest(`/api/learn/staff/classes/${classId}/tomorrow`);
+}
+/** 2026-11-22: the class's week (who practised, who improved, what is hard). */
+export function staffWeekly(classId) {
+  return apiRequest(`/api/learn/staff/classes/${classId}/weekly`);
 }
 export function staffMeitzav(classId) {
   return apiRequest(`/api/learn/staff/classes/${classId}/meitzav`);

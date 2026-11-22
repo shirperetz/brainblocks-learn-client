@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { useProfile } from "../context/profileStore";
 import { GRADES } from "../data/grades";
 import { TOPICS, isTopicAllowedForGrade } from "../data/topics";
+import { topicLabel } from "../data/room";
 import * as api from "../services/learnApi";
 import "../styles/pages/staff.css";
 import "../styles/pages/room.css";
@@ -23,17 +24,23 @@ export default function StaffRoomNewPage() {
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
   const [reload, setReload] = useState(0);
+  // 2026-11-22: coins for the island (#5), two groups (#9), save this room (#10), saved rooms
+  const [coins, setCoins] = useState(true);
+  const [teams, setTeams] = useState(false);
+  const [save, setSave] = useState(false);
+  const [saved, setSaved] = useState([]);
   const refresh = useCallback(() => setReload((n) => n + 1), []);
   const isStaff = Boolean(profile && (profile.admin || profile.teacher));
 
   useEffect(() => {
     if (!isStaff) return undefined;
     let alive = true;
-    Promise.all([api.staffMe(), api.myQuestions()])
-      .then(([me, qs]) => {
+    Promise.all([api.staffMe(), api.myQuestions(), api.roomTemplates().catch(() => [])])
+      .then(([me, qs, ts]) => {
         if (!alive) return;
         setClasses(me.classes ?? []);
         setBank(qs);
+        setSaved(ts);
         setClassId((c) => c || String(me.classes?.[0]?.id ?? ""));
       })
       .catch((e) => alive && setError(e.message));
@@ -41,6 +48,12 @@ export default function StaffRoomNewPage() {
       alive = false;
     };
   }, [isStaff, reload]);
+
+  // 2026-11-22 (Shir: "warm it up when the teacher enters"): the first questions after an update were slow -
+  // the server makes one question of each topic in the background while she is choosing.
+  useEffect(() => {
+    if (isStaff) api.roomWarmup(profile?.grade).catch(() => {});
+  }, [isStaff, profile?.grade]);
 
   if (loading) return null;
   if (!profile) return <Navigate to="/login" replace state={{ next: "/staff" }} />;
@@ -54,7 +67,11 @@ export default function StaffRoomNewPage() {
 
   async function open() {
     try {
-      const r = await api.roomCreate({ classId: classId || 0, topics, minutes, grade: cls?.grade ? undefined : grade });
+      if (save) {
+        const name = `${topics.map((t) => (t === "MY" ? "התרגילים שלי" : topicLabel(t))).join(" + ")} · ${minutes} דק׳`;
+        await api.saveRoomTemplate({ name: name.slice(0, 40), classId: classId || 0, grade: cls?.grade ? undefined : grade, topics, minutes, coins, teams });
+      }
+      const r = await api.roomCreate({ classId: classId || 0, topics, minutes, grade: cls?.grade ? undefined : grade, coins, teams });
       navigate(`/staff/room/${r.id}`);
     } catch (e) {
       setError(e.message);
@@ -82,6 +99,31 @@ export default function StaffRoomNewPage() {
       <h1 className="screen-title">🎮 פתיחת חדר משחק</h1>
       <p className="screen-subtitle">הילדים נכנסים עם קוד, ואת רואה בזמן אמת מי מוביל</p>
       {error && <p className="form-error">{error}</p>}
+
+      {saved.length > 0 && (
+        <section className="staff-card">
+          <h2>📋 החדרים השמורים שלי</h2>
+          <ul className="room-bank">
+            {saved.map((t) => (
+              <li key={t.id}>
+                <div>
+                  <strong>{t.name}</strong>
+                  <small>
+                    {classes.find((c) => c.id === t.classId)?.name ?? "בלי כיתה"}
+                    {t.coins ? " · 🪙 מטבעות" : ""}{t.teams ? " · 👥 קבוצות" : ""}
+                  </small>
+                </div>
+                <div className="room-saved__actions">
+                  <button className="admin__btn" onClick={() => api.openRoomTemplate(t.id).then((r) => navigate(`/staff/room/${r.id}`)).catch((e) => setError(e.message))}>
+                    לפתוח שוב
+                  </button>
+                  <button className="admin__btn admin__btn--ghost" aria-label={`למחוק את ${t.name}`} onClick={() => api.deleteRoomTemplate(t.id).then(refresh)}>✕</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="staff-card">
         <h2>1 · לאיזו כיתה</h2>
@@ -127,6 +169,18 @@ export default function StaffRoomNewPage() {
               <input type="radio" name="minutes" checked={minutes === m} onChange={() => setMinutes(m)} /> {m} דקות
             </label>
           ))}
+        </div>
+        <h2 className="room-options__title">4 · איך משחקים</h2>
+        <div className="room-topics">
+          <label className={`room-topic${coins ? " is-on" : ""}`}>
+            <input type="checkbox" checked={coins} onChange={() => setCoins(!coins)} /> 🪙 מטבעות לאי (5 לכל אחד, 15 למקומות 1–3)
+          </label>
+          <label className={`room-topic${teams ? " is-on" : ""}`}>
+            <input type="checkbox" checked={teams} onChange={() => setTeams(!teams)} /> 👥 שתי קבוצות מאוזנות
+          </label>
+          <label className={`room-topic${save ? " is-on" : ""}`}>
+            <input type="checkbox" checked={save} onChange={() => setSave(!save)} /> 📋 לשמור את החדר לפעם הבאה
+          </label>
         </div>
         <button className="admin__btn room-open" disabled={topics.length === 0} onClick={open}>
           🎮 פתיחת החדר

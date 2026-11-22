@@ -11,6 +11,7 @@
     "test": "node --test tests/tiers.test.js tests/levels.test.js tests/review.test.js tests/mathText.test.js tests/islandGames2.test.js tests/islandClock.test.js tests/islands3.test.js tests/dolphinHint.test.js tests/openAnswer.test.js tests/steps.test.js"
   },
   "dependencies": {
+    "qrcode-generator": "^1.4.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.18.0",

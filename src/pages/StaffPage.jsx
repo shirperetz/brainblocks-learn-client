@@ -9,7 +9,7 @@ import * as api from "../services/learnApi";
 import { Legend } from "./ChildReportPage";
 import StaffWeeklyTasks from "../components/StaffWeeklyTasks";
 import ClassBuilding from "../components/ClassBuilding";
-import { MeitzavCard, TomorrowCard } from "../components/TeacherInsights";
+import { MeitzavCard, TomorrowCard, WeeklyCard } from "../components/TeacherInsights";
 import "../styles/pages/staff.css";
 import { ask, askText } from "../components/dialog";
 import "../styles/pages/legal.css";
@@ -21,7 +21,11 @@ export default function StaffPage() {
   const navigate = useNavigate();
   const { profile, loading, logout } = useProfile();
   const [me, setMe] = useState(null);
-  const [tab, setTab] = useState("all"); // "all" | classId | 0 (no class, admin)
+  // 2026-11-22: "/staff?class=5" (from the room's summary) opens that class's tab
+  const [tab, setTab] = useState(() => {
+    const c = Number(new URLSearchParams(window.location.search).get("class"));
+    return c > 0 ? c : "all";
+  }); // "all" | classId | 0 (no class, admin)
   const [overview, setOverview] = useState(null);
   const [waiting, setWaiting] = useState([]);
   const [requests, setRequests] = useState([]);
@@ -261,6 +265,7 @@ export default function StaffPage() {
       {/* ---- the weekly task of the class on the tab (idea #5) ---- */}
       {typeof tab === "number" && tab !== 0 && classes.find((c) => c.id === tab) && (
         <>
+          <WeeklyCard key={`w${tab}`} classId={tab} />
           <TomorrowCard key={`t${tab}`} classId={tab} />
           {["G5", "G6", undefined, null].includes(classes.find((c) => c.id === tab)?.grade) && <MeitzavCard key={`m${tab}`} classId={tab} />}
           <ClassBuilding key={`b${tab}`} classId={tab} />

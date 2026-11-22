@@ -5,6 +5,7 @@ import QuestionPicture from "../components/QuestionPicture";
 import DolphinPerch from "../components/DolphinPerch";
 import ReadAloud from "../components/ReadAloud";
 import Mascot from "../components/Mascot";
+import RoomCountdown from "../components/RoomCountdown";
 import { readAloudDefault } from "../game/readAloud";
 import { useProfile } from "../context/profileStore";
 import { cheer } from "../game/companion";
@@ -60,10 +61,14 @@ export default function RoomPlayPage() {
   const { profile } = useProfile();
   // 2026-11-15 (room upgrade #8): the teacher paused - every screen waits.
   const paused = Boolean(me?.paused);
+  const counting = (me?.countdownMs ?? 0) > 0;
   const running = me?.state === "RUNNING" && me?.status === "IN" && !paused;
   useEffect(() => {
-    if (running && !q && !result) loadQuestion();
-  }, [running, q, result, loadQuestion]);
+    if (!running || q || result) return undefined;
+    // 2026-11-22: during "3, 2, 1" the question waits for the count to end
+    const t = setTimeout(loadQuestion, counting ? me.countdownMs + 50 : 0);
+    return () => clearTimeout(t);
+  }, [running, q, result, loadQuestion, counting, me?.countdownMs]);
 
   async function answer(option) {
     if (busy.current || chosen !== null) return;
@@ -102,7 +107,7 @@ export default function RoomPlayPage() {
       {me.state !== "RUNNING" && <button className="back-button" onClick={() => navigate("/")}>← בית</button>}
       <div className="room-bar">
         <span className="room-pill">{clock(me.secondsLeft)}</span>
-        <span className="room-bar__title">{me.title}</span>
+        <span className="room-bar__title">{me.team ?? me.title}</span>
         <span className="room-pill">{me.points} נק׳</span>
       </div>
 
@@ -121,6 +126,7 @@ export default function RoomPlayPage() {
           <p className="room-note">{me.topics.map(topicLabel).join(" · ")} · {me.minutes} דקות</p>
           <p className="room-wait">⏳ מחכים שהמורה תתחיל...</p>
           <p className="room-note">{me.inRoom} ילדים בחדר</p>
+          {me.teams && <p className="room-note">היום משחקים בקבוצות - הקבוצה תיבחר כשמתחילים</p>}
         </section>
       )}
 
@@ -170,9 +176,14 @@ export default function RoomPlayPage() {
           <h1>{me.place === 1 ? "🥇 מקום ראשון!" : me.place === 2 ? "🥈 מקום שני!" : me.place === 3 ? "🥉 מקום שלישי!" : me.place > 0 ? `מקום ${me.place}` : "🎉 המשחק נגמר!"}</h1>
           <p className="room-big">{me.points} נקודות</p>
           <p className="room-note">ענית נכון על <b>{me.right}</b> מתוך <b>{me.answered}</b>.</p>
+          {me.improved && (
+            <p className="room-improved">⭐ השתפרת! בפעם הקודמת {me.prevRight} נכון, היום {me.right}</p>
+          )}
+          {me.coins > 0 && <p className="room-coins">🪙 קיבלת {me.coins} מטבעות לאי שלך</p>}
           <p className="room-note">{me.place > 0 && me.place <= 5 ? "כל הכבוד! אתם בין המובילים 🎉" : me.answered > 0 && me.right / me.answered >= 0.7 ? "עבודה מצוינת! 💪" : "כל תרגיל מקדם אתכם. בפעם הבאה עוד יותר! 💪"}</p>
         </section>
       )}
+      {me.state === "RUNNING" && me.status === "IN" && <RoomCountdown ms={me.countdownMs} />}
       {error && <p className="form-error">{error}</p>}
     </div>
   );

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { isMuted, setMuted } from "../game/audio";
 import "../styles/components/sound-toggle.css";
 
@@ -8,6 +9,9 @@ import "../styles/components/sound-toggle.css";
  */
 export default function SoundToggle() {
   const [muted, setMutedState] = useState(isMuted());
+  // 2026-11-22: the classroom board (projector) has no voice - the button sat on top of its clock.
+  const { pathname } = useLocation();
+  if (/\/board$/.test(pathname)) return null;
 
   function toggle() {
     setMuted(!muted);

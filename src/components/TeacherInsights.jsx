@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { staffGivePractice, staffMeitzav, staffTomorrow } from "../services/learnApi";
+import { staffGivePractice, staffMeitzav, staffTomorrow, staffWeekly } from "../services/learnApi";
 import { getTopic } from "../data/topics";
 import MathText from "./MathText";
 import "../styles/components/teacher-insights.css";
@@ -10,6 +10,47 @@ import "../styles/components/teacher-insights.css";
  * material) and 3 groups. "מוכנות למיצ״ב" - the 4 areas by the test's weights, every child, a 2-week plan.
  */
 const topicName = (k) => getTopic(k)?.name ?? k;
+
+/**
+ * 2026-11-22 (Shir: "a weekly report for the teacher"): the last 7 days against the 7 before - who
+ * practised and how much, who didn't, who improved or dropped (10+ answers each week), what is still hard.
+ */
+export function WeeklyCard({ classId }) {
+  const [d, setD] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    staffWeekly(classId).then((x) => alive && setD(x)).catch(() => alive && setD({ error: true }));
+    return () => {
+      alive = false;
+    };
+  }, [classId]);
+  if (!d) return null;
+  if (d.error) return <section className="staff-card ti"><h2>📅 השבוע בכיתה</h2><p className="ti__empty">לא הצלחנו לטעון כרגע.</p></section>;
+  return (
+    <section className="staff-card ti" aria-label="השבוע בכיתה">
+      <h2>📅 השבוע בכיתה</h2>
+      <p className="staff-card__hint">7 הימים האחרונים · {d.answers} תשובות · {d.pct}% נכון</p>
+      <div className="ti__week">
+        <div>
+          <b>התאמנו ({d.practiced.length} מתוך {d.children})</b>
+          <ul className="ti__list">
+            {d.practiced.map((k) => (
+              <li key={k.id}><span>{k.name}</span><span className="ti__muted">{k.answers} תרגילים{k.pct != null ? ` · ${k.pct}%` : ""}</span></li>
+            ))}
+          </ul>
+          {d.practiced.length === 0 && <p className="ti__empty">אף אחד עוד לא התאמן השבוע.</p>}
+        </div>
+        <div>
+          {d.notPracticed.length > 0 && <p><b>לא התאמנו:</b> {d.notPracticed.map((k) => k.name).join(", ")}</p>}
+          {d.improved.length > 0 && <p><b>⭐ השתפרו:</b> {d.improved.map((k) => `${k.name} (${k.from}%→${k.to}%)`).join(", ")}</p>}
+          {d.dropped.length > 0 && <p><b>⬇️ ירדו:</b> {d.dropped.map((k) => `${k.name} (${k.from}%→${k.to}%)`).join(", ")}</p>}
+          {d.hard.length > 0 && <p><b>עדיין קשה:</b> {d.hard.map((h) => `${h.name} (${h.pct}%)`).join(" · ")}</p>}
+          {d.improved.length === 0 && d.dropped.length === 0 && <p className="ti__muted">השוואה לשבוע שעבר מופיעה לילדים עם 10+ תשובות בכל שבוע.</p>}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export function TomorrowCard({ classId }) {
   const [d, setD] = useState(null);
