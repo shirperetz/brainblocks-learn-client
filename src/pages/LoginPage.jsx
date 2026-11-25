@@ -126,7 +126,7 @@ export default function LoginPage() {
 
         <div className="onboarding__actions">
           <BigButton variant="green" onClick={handleLogin} disabled={!canLogin}>
-            {submitting ? "רגע..." : "כניסה"}
+            {submitting ? "נכנסים... 🐬" : "כניסה"}
           </BigButton>
         </div>
         <button className="text-link login-switch" onClick={() => navigate("/grade")}>

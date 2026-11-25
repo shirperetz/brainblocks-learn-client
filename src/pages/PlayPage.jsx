@@ -52,6 +52,12 @@ export default function PlayPage() {
   const [feedback, setFeedback] = useState(null); // "correct" | "wrong" | null
   const [submitting, setSubmitting] = useState(false);
   const [checking, setChecking] = useState(false); // waiting for the server to check an answer
+  // 2026-11-25 (speed check: 1 in 180 checks took 3s): the pressed option shows at once, and after
+  // a second "רגע, בודקים..." - so a child doesn't think it froze and press again.
+  const [pressed, setPressed] = useState(null);
+  const [slowCheck, setSlowCheck] = useState(false);
+  const slowTimer = useRef(null);
+  useEffect(() => () => clearTimeout(slowTimer.current), []);
   // 2026-11-13 (Shir: "the explanation after he got it wrong; help is for before - limited, unless the
   // child is struggling"): after a mistake the game waits on an explanation card; help in a round is
   // limited to HELP_LIMIT questions, unlimited once the child has made STRUGGLING mistakes in it.
@@ -114,8 +120,17 @@ export default function PlayPage() {
     // 2026-11-12 (stage 2): the server checks (a retry already knows the answer - it doesn't count).
     if (!q.retry && q.bankId) {
       setChecking(true);
+      setPressed(optionIndex >= 0 ? optionIndex : null);
+      clearTimeout(slowTimer.current);
+      slowTimer.current = setTimeout(() => setSlowCheck(true), 1000);
+      const stopWaiting = () => {
+        clearTimeout(slowTimer.current);
+        setSlowCheck(false);
+        setPressed(null);
+      };
       try {
         const r = await answerQuestion(q.bankId, chosenText);
+        stopWaiting();
         q = { ...q, correctIndex: r.correctIndex, explanation: r.explanation };
         // 2026-11-21 (open answers): a typed number - right = the right option; else the option it equals, or none
         if (typed != null) {
@@ -126,6 +141,7 @@ export default function PlayPage() {
         const at = index;
         setQuestions((qs) => qs.map((x, i) => (i === at ? q : x)));
       } catch (e) {
+        stopWaiting();
         setChecking(false);
         // 2026-11-21 (night bot got stuck): the server doesn't know this question any more -> don't
         // leave the child stuck on it forever; move on (the question is simply not counted).
@@ -261,7 +277,7 @@ export default function PlayPage() {
   const helpOpen = calm || struggling || helpCount < HELP_LIMIT;
 
   function optionState(j) {
-    if (selected === null) return "idle";
+    if (selected === null) return checking && j === pressed ? "pending" : "idle";
     if (j === selected) return feedback === "correct" ? "correct" : "wrong";
     if (j === current.correctIndex) return "reveal";
     return "muted";
@@ -347,6 +363,8 @@ export default function PlayPage() {
               ))}
             </div>
             )}
+
+            {slowCheck && <p className="play__slow" role="status">רגע, בודקים... 🐬</p>}
 
             {wrongHelp && (
               <div className="mistake-card" role="status">

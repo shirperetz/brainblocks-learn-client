@@ -2,9 +2,6 @@ import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
-import AdminPage from "./pages/AdminPage";
-import CharacterPage from "./pages/CharacterPage";
-import GradePage from "./pages/GradePage";
 import TopicsPage from "./pages/TopicsPage";
 import StageMapPage from "./pages/StageMapPage";
 import SeaPage from "./pages/SeaPage";
@@ -14,33 +11,39 @@ import IslandPage from "./pages/IslandPage";
 import GameLevelsPage from "./pages/GameLevelsPage";
 import GamePlayPage from "./pages/GamePlayPage";
 import GenIslePage from "./pages/GenIslePage";
-import DailyPage from "./pages/DailyPage";
-import TimedPage from "./pages/TimedPage";
-import ReviewPage from "./pages/ReviewPage";
-import StaffPage from "./pages/StaffPage";
-import SettingsPage from "./pages/SettingsPage";
-import MyIslandPage from "./pages/MyIslandPage";
+// 2026-11-25 (speed check): screens a child doesn't need on the way in (staff, admin, room, info pages)
+// load only when opened - the first file a phone downloads is smaller.
+const AdminPage = lazy(() => import("./pages/AdminPage"));
+const CharacterPage = lazy(() => import("./pages/CharacterPage"));
+const GradePage = lazy(() => import("./pages/GradePage"));
+const DailyPage = lazy(() => import("./pages/DailyPage"));
+const TimedPage = lazy(() => import("./pages/TimedPage"));
+const ReviewPage = lazy(() => import("./pages/ReviewPage"));
+const StaffPage = lazy(() => import("./pages/StaffPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const MyIslandPage = lazy(() => import("./pages/MyIslandPage"));
+const ChildReportPage = lazy(() => import("./pages/ChildReportPage"));
+const ParentsPage = lazy(() => import("./pages/ParentsPage"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const AccessibilityPage = lazy(() => import("./pages/AccessibilityPage"));
+const StaffRoomNewPage = lazy(() => import("./pages/StaffRoomNewPage"));
+const StaffRoomPage = lazy(() => import("./pages/StaffRoomPage"));
+const RoomBoardPage = lazy(() => import("./pages/RoomBoardPage"));
+const RoomJoinPage = lazy(() => import("./pages/RoomJoinPage"));
+const JoinClassPage = lazy(() => import("./pages/JoinClassPage"));
+const RoomPlayPage = lazy(() => import("./pages/RoomPlayPage"));
+const TeacherSignupPage = lazy(() => import("./pages/TeacherSignupPage"));
 // 2026-11-13: the 3D island loads three.js only on its own page
 const Island3DPage = lazy(() => import("./pages/Island3DPage"));
 const ClassIslandPage = lazy(() => import("./pages/ClassIslandPage"));
-import ChildReportPage from "./pages/ChildReportPage";
-import ParentsPage from "./pages/ParentsPage";
-import PrivacyPage from "./pages/PrivacyPage";
-import ContactPage from "./pages/ContactPage";
-import NotFoundPage from "./pages/NotFoundPage";
-import AccessibilityPage from "./pages/AccessibilityPage";
-import StaffRoomNewPage from "./pages/StaffRoomNewPage";
-import StaffRoomPage from "./pages/StaffRoomPage";
-import RoomBoardPage from "./pages/RoomBoardPage";
-import RoomJoinPage from "./pages/RoomJoinPage";
-import JoinClassPage from "./pages/JoinClassPage";
-import RoomPlayPage from "./pages/RoomPlayPage";
 import WhoPage from "./pages/WhoPage";
-import TeacherSignupPage from "./pages/TeacherSignupPage";
 
 // All routes for עולם החשבון. Real pages replace the Placeholders milestone by milestone.
 export default function AppRouter() {
   return (
+    <Suspense fallback={<div className="page-loading" role="status" aria-live="polite">רגע...</div>}>
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -85,5 +88,6 @@ export default function AppRouter() {
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </Suspense>
   );
 }

@@ -188,7 +188,7 @@ export default function CharacterPage() {
 
         <div className="onboarding__actions">
           <BigButton variant="green" onClick={handleConfirm} disabled={!canConfirm}>
-            {submitting ? "רגע..." : "אישור"}
+            {submitting ? "נרשמים... 🐬" : "אישור"}
           </BigButton>
         </div>
       </div>

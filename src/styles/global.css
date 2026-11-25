@@ -258,3 +258,15 @@ p {
    every control shows where the keyboard is. */
 button, a, [role="button"], input, select, label { touch-action: manipulation; }
 :where(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible { outline: 3px solid #1f2a44; outline-offset: 2px; }
+
+/* 2026-11-25: while a screen's file loads - appears only if it takes a moment (no flash) */
+.page-loading {
+  min-height: 40vh;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  color: var(--muted, #667);
+  opacity: 0;
+  animation: page-loading-in 200ms ease-out 400ms forwards;
+}
+@keyframes page-loading-in { to { opacity: 1; } }

@@ -65,3 +65,10 @@
   font-size: 1.4rem;
   animation: pop-in 0.4s ease;
 }
+
+/* 2026-11-25: pressed, the server is checking - the choice shows at once */
+.answer-button--pending:disabled {
+  opacity: 1;
+  transform: scale(0.97);
+  box-shadow: 0 0 0 3px var(--purple, #7051f5);
+}

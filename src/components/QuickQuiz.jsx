@@ -26,6 +26,11 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
   // 2026-11-12 (stage 2): a bank question comes without its answer - the server checks it.
   const [checked, setChecked] = useState(null); // { index, correctIndex, explanation }
   const [busy, setBusy] = useState(false);
+  // 2026-11-25: the pressed option shows at once; after a second "רגע, בודקים..." (like PlayPage)
+  const [pressed, setPressed] = useState(null);
+  const [slowCheck, setSlowCheck] = useState(false);
+  const slowTimer = useRef(null);
+  useEffect(() => () => clearTimeout(slowTimer.current), []);
   const [checkError, setCheckError] = useState("");
   const helpUsed = useRef(false);
   const timer = useRef(null);
@@ -49,13 +54,23 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
     let explanation = q.explanation;
     if (q.bankId && correctIndex < 0) {
       setBusy(true);
+      setPressed(j);
+      clearTimeout(slowTimer.current);
+      slowTimer.current = setTimeout(() => setSlowCheck(true), 1000);
+      const stopWaiting = () => {
+        clearTimeout(slowTimer.current);
+        setSlowCheck(false);
+        setPressed(null);
+      };
       try {
         const r = await answerQuestion(q.bankId, q.options[j]);
+        stopWaiting();
         correctIndex = r.correctIndex;
         explanation = r.explanation || explanation;
         setChecked({ index, correctIndex, explanation });
         setCheckError("");
       } catch {
+        stopWaiting();
         setBusy(false);
         setCheckError("לא הצלחנו לבדוק את התשובה - בדקו את החיבור ונסו שוב");
         return;
@@ -101,7 +116,7 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
   }
 
   function state(j) {
-    if (selected === null) return "idle";
+    if (selected === null) return busy && j === pressed ? "pending" : "idle";
     if (j === selected) return j === q.correctIndex ? "correct" : "wrong";
     if (j === q.correctIndex) return "reveal";
     return "muted";
@@ -131,6 +146,7 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
           <AnswerButton key={j} label={opt} state={state(j)} disabled={selected !== null || busy} onClick={() => pick(j)} />
         ))}
       </div>
+      {slowCheck && <p className="play__slow" role="status">רגע, בודקים... 🐬</p>}
       {checkError && <p className="form-error">{checkError}</p>}
       {wrongHelp && (
         <div className="mistake-card" role="status">
