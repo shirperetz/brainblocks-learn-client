@@ -1,3 +1,4 @@
+import { withRetry } from "../services/apiClient";
 import { useEffect, useRef, useState } from "react";
 import DolphinPerch from "../components/DolphinPerch";
 import { useNavigate } from "react-router-dom";
@@ -108,14 +109,14 @@ export default function TimedPage() {
     const got = answers.current.filter((a) => a.correct).length;
     if (best !== null && got > best) setNewBest(true);
     if (answers.current.length === 0) return;
-    submitSession({
+    withRetry(() => submitSession({
       profileId: profile.id,
       topic: "MIXED",
       stage: 1,
       mode: "TIMED",
       durationMs: SECONDS * 1000,
       answers: answers.current,
-    })
+    }))
       .then(() => {
         refreshProfile();
         return getStats(profile.id).then((s) => setBest(s.bestTimed));

@@ -68,7 +68,7 @@ export function getIsles(profileId) {
 
 /** A finished round on a generated island ("gen-3"): kept on the server with every answer. */
 export function submitIsleSession(profileId, isleKey, payload) {
-  return apiRequest(`/api/learn/profiles/${profileId}/isles/${isleKey}/sessions`, { method: "POST", body: JSON.stringify(payload) });
+  return apiRequest(`/api/learn/profiles/${profileId}/isles/${isleKey}/sessions`, { method: "POST", body: JSON.stringify(withRoundKey(payload)) });
 }
 
 export function getStageMap(profileId, topic) {
@@ -81,10 +81,23 @@ export function getQuestions({ profileId, topic, stage, count = 10, secure = fal
   return apiRequest(`/api/learn/questions?${params.toString()}`);
 }
 
+// 2026-11-26 (stuck "בודקים את התשובות"): a slow save is sent again - one key per round (the same
+// answers list on every try) lets the server save it once (RoundOnce).
+const roundKeys = new WeakMap();
+function withRoundKey(payload) {
+  if (payload.roundKey || !Array.isArray(payload.answers)) return payload;
+  let key = roundKeys.get(payload.answers);
+  if (!key) {
+    key = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    roundKeys.set(payload.answers, key);
+  }
+  return { ...payload, roundKey: key };
+}
+
 export function submitSession(payload) {
   return apiRequest("/api/learn/sessions", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify(withRoundKey(payload)),
   });
 }
 

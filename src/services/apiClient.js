@@ -6,9 +6,14 @@ const API_BASE_URL = "";
 
 export async function apiRequest(path, options = {}) {
   let response;
+  // 2026-11-26 (Shir: an iPad stuck on "בודקים את התשובות"): a request that hangs gives up after
+  // 20 seconds and counts as "no connection" - withRetry sends it again, the screen never freezes.
+  const timeout = options.signal ? null : new AbortController();
+  const timer = timeout ? setTimeout(() => timeout.abort(), options.timeoutMs || 20000) : null;
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
       ...options,
+      ...(timeout ? { signal: timeout.signal } : {}),
       // 2026-11-11: the logged-in child's device token (children's accounts).
       headers: { "Content-Type": "application/json", ...tokenHeader(), ...options.headers },
     });
@@ -16,6 +21,8 @@ export async function apiRequest(path, options = {}) {
     const err = new Error("אופס! אין חיבור לאינטרנט כרגע. בדקו את האינטרנט ונסו שוב.");
     err.network = true; // no answer at all (offline / a page switch) - NOT "this login is invalid"
     throw err;
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 
   const data = await readResponseBody(response);

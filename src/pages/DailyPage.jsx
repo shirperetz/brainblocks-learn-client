@@ -1,3 +1,4 @@
+import { withRetry } from "../services/apiClient";
 import { useEffect, useRef, useState } from "react";
 import DolphinPerch from "../components/DolphinPerch";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -45,14 +46,14 @@ export default function DailyPage() {
   }
 
   function finish() {
-    submitSession({
+    withRetry(() => submitSession({
       profileId: profile.id,
       topic: "MIXED",
       stage: 1,
       mode: "DAILY",
       durationMs: Date.now() - started.current,
       answers: answers.current,
-    })
+    }))
       .then((summary) => {
         refreshProfile();
         setQuestions(null);
