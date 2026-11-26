@@ -7,7 +7,7 @@ import { CHARACTERS } from "../data/characters";
 import { DOLPHIN_NAME, DOLPHIN_STILL } from "../data/dolphin";
 import { readAloudDefault, setReadAloud } from "../game/readAloud";
 import { getGrade } from "../data/grades";
-import { isMuted, setMuted, sfx } from "../game/audio";
+import { isMuted, isSfxOff, setMuted, setSfxOff, sfx } from "../game/audio";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/staff.css";
 import "../styles/pages/settings.css";
@@ -20,6 +20,7 @@ export default function SettingsPage() {
   const { profile, ready } = useRequireProfile();
   const { patchProfile, changePassword, logout } = useProfile();
   const [muted, setMutedState] = useState(isMuted());
+  const [sfxOff, setSfxOffState] = useState(isSfxOff());
   const [readAloud, setReadAloudState] = useState(() => readAloudDefault(profile?.grade));
   const [pw, setPw] = useState({ current: "", next: "", again: "" });
   const [message, setMessage] = useState("");
@@ -113,6 +114,22 @@ export default function SettingsPage() {
         <button className={`switch ${muted ? "" : "is-on"}`} onClick={toggleSound} aria-pressed={!muted}>
           <span className="switch__knob" aria-hidden="true" />
           <span>{muted ? "הקול כבוי" : "הקול פועל - הדמות מדברת"}</span>
+        </button>
+      </section>
+
+      <section className="staff-card">
+        <h2>🎵 צלילים</h2>
+        <button
+          className={`switch ${sfxOff ? "" : "is-on"}`}
+          onClick={() => {
+            setSfxOff(!sfxOff);
+            setSfxOffState(!sfxOff);
+            if (sfxOff) sfx.correct();
+          }}
+          aria-pressed={!sfxOff}
+        >
+          <span className="switch__knob" aria-hidden="true" />
+          <span>{sfxOff ? "הצלילים כבויים" : "צלילים בתשובה נכונה, בטעות ובסוף שלב"}</span>
         </button>
       </section>
 

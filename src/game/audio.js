@@ -5,16 +5,32 @@
 
 let current = null; // the clip sequence playing now; a new say() cancels it
 let muted = false;
+// 2026-11-26 (Shir: sounds): the small effects can be turned off on their own, voice stays on
+let sfxOff = false;
 const cache = new Map();
 
 try {
   muted = localStorage.getItem("lc_muted") === "1";
+  sfxOff = localStorage.getItem("lc_sfx_off") === "1";
 } catch {
   /* private mode - sound stays on */
 }
 
 export function isMuted() {
   return muted;
+}
+
+export function isSfxOff() {
+  return sfxOff;
+}
+
+export function setSfxOff(value) {
+  sfxOff = value;
+  try {
+    localStorage.setItem("lc_sfx_off", value ? "1" : "0");
+  } catch {
+    /* ignore */
+  }
 }
 
 export function setMuted(value) {
@@ -141,7 +157,7 @@ function ac() {
 
 function tone(freq, start, dur, type = "sine", gain = 0.18) {
   const c = ac();
-  if (!c || muted) return;
+  if (!c || muted || sfxOff) return;
   const o = c.createOscillator();
   const g = c.createGain();
   o.type = type;
@@ -170,6 +186,16 @@ export const sfx = {
   star: () => {
     [784, 988, 1175, 1568].forEach((f, i) => tone(f, i * 0.09, 0.25, "sine", 0.14));
   },
+  // 2026-11-26: a coin (two bright pings), a stage passed (short fanfare), a gentle "almost"
+  coin: () => {
+    tone(1319, 0, 0.09, "square", 0.06);
+    tone(1760, 0.07, 0.22, "square", 0.06);
+  },
+  stage: () => {
+    [523, 659, 784].forEach((f, i) => tone(f, i * 0.12, 0.18, "triangle", 0.14));
+    tone(1047, 0.36, 0.45, "triangle", 0.16);
+  },
+  soft: () => tone(440, 0, 0.3, "sine", 0.08),
 };
 
 const PRAISE = ["good1", "good2", "good3"];

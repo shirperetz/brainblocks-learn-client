@@ -1,3 +1,4 @@
+import { sfx } from "../game/audio";
 import { useEffect, useRef, useState } from "react";
 import AnswerButton from "./AnswerButton";
 import HelpButton from "./HelpButton";
@@ -80,6 +81,8 @@ export default function QuickQuiz({ questions, grade, onAnswer, onDone, help = t
     setSelected(j);
     const correct = j === correctIndex;
     if (help) cheer(correct ? "correct" : "wrong");
+    if (correct) sfx.correct();
+    else sfx.wrong();
     onAnswer?.(
       {
         bankId: q.bankId,

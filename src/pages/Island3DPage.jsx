@@ -120,7 +120,8 @@ export default function Island3DPage() {
     setMsg("");
     try {
       const s = await islandAction(profile.id, what, { isle, ...body });
-      sfx.star();
+      sfx.coin(); // 2026-11-26: coins spent - then the build sparkle
+      setTimeout(() => sfx.star(), 180);
       show(s);
       setMsg(done(s));
       // 2026-11-15 (the dolphin's moods): building / upgrading = a celebration, opening a chest = a smile.

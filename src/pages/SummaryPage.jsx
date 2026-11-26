@@ -1,3 +1,4 @@
+import { sfx } from "../game/audio";
 import { useEffect } from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { cheer } from "../game/companion";
@@ -32,6 +33,8 @@ export default function SummaryPage() {
   // 2026-11-11: the companion celebrates (or encourages) once, when the summary appears.
   useEffect(() => {
     if (summary) cheer(summary.stars >= 3 ? "levelStars3" : summary.passed ? "levelPassed" : "levelFailed");
+    if (summary?.stars >= 3) sfx.star();
+    else if (summary?.passed) sfx.stage();
   }, [summary]);
 
   // Reached directly (e.g. refresh) without a result — send back to the map.

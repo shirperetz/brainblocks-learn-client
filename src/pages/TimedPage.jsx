@@ -1,3 +1,4 @@
+import { sfx } from "../game/audio";
 import { withRetry } from "../services/apiClient";
 import { useEffect, useRef, useState } from "react";
 import DolphinPerch from "../components/DolphinPerch";
@@ -92,6 +93,8 @@ export default function TimedPage() {
     });
     if (correct) setScore((s) => s + 1);
     setFlash(correct ? "correct" : "wrong");
+    if (correct) sfx.pop();
+    else sfx.wrong();
     setPicked(j);
     // 2026-11-11 (the "sneaky child" check): a wrong answer cost 0.35 s, so tapping at random beat
     // calculating (~20 vs ~12 a minute). Now a mistake shows the right answer for 2.5 s - guessing

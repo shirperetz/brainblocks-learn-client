@@ -23,6 +23,7 @@ import { useProfile } from "../context/profileStore";
 import { useRequireProfile } from "../hooks/useRequireProfile";
 import "../styles/pages/play.css";
 import { cheer } from "../game/companion";
+import { sfx } from "../game/audio";
 import { ask } from "../components/dialog";
 
 const FEEDBACK_MS = 1300;
@@ -161,6 +162,9 @@ export default function PlayPage() {
     setSelected(optionIndex);
     setFeedback(isCorrect ? "correct" : "wrong");
     cheer(isCorrect ? "correct" : "wrong");
+    if (isCorrect) sfx.correct();
+    else if (calm) sfx.soft();
+    else sfx.wrong();
 
     // 2026-11-12 (Shir: "always different exercises, unless the child got it wrong - then the same one
     // again, to check it was understood"): a wrong answer brings the same exercise back 3 questions
