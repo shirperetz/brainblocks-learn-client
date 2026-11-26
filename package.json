@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --test tests/tiers.test.js tests/levels.test.js tests/review.test.js tests/mathText.test.js tests/islandGames2.test.js tests/islandClock.test.js tests/islands3.test.js tests/dolphinHint.test.js tests/openAnswer.test.js tests/steps.test.js"
+    "test": "node --test tests/tiers.test.js tests/levels.test.js tests/review.test.js tests/mathText.test.js tests/islandGames2.test.js tests/islandClock.test.js tests/islands3.test.js tests/dolphinHint.test.js tests/openAnswer.test.js tests/steps.test.js tests/cspHashes.test.js"
   },
   "dependencies": {
     "qrcode-generator": "^1.4.4",
@@ -21,11 +21,13 @@
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-legacy": "8.2.4",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "terser": "5.46.0",
     "vite": "^8.0.12"
   }
 }
