@@ -22,6 +22,10 @@ export default function QuestionPicture({ visual }) {
 }
 
 const LABELS = {
+  FRAC_EXPAND: (a, b, r, v) => {
+    const [n, d, bn, bd, k] = String(v?.emoji || "").split(",");
+    return `השבר ${n} חלקי ${d} שווה ל-${bn} חלקי ${bd}, כפול ${k} למעלה ולמטה`;
+  },
   FRACTION_PIE: (a, b) => `עיגול מחולק ל-${b} חלקים, ${a} צבועים`,
   FRACTION_BAR: (a, b) => `מלבן מחולק ל-${b} חלקים, ${a} צבועים`,
   RECT: (a, b) => `מלבן ${a} על ${b}`,
@@ -216,7 +220,40 @@ function lineAngle(a) {
   );
 }
 
+/**
+ * 2026-11-26 (expanding fractions, like the workbook): n/d = N/D with a curved arrow "×k" above
+ * (top numbers) and below (bottom numbers). Any of them can be "?". Drawn left to right, like math.
+ */
+function fracExpand(a, b, r, v) {
+  const [n, d, bn, bd, k] = String(v?.emoji || "").split(",");
+  const frac = (x, top, bottom) => (
+    <g>
+      <text x={x} y={78} textAnchor="middle" className={`q-picture__frac${top === "?" ? " q-picture__label--ask" : ""}`}>{top}</text>
+      <line x1={x - 22} y1={92} x2={x + 22} y2={92} stroke={LINE} strokeWidth="3" />
+      <text x={x} y={124} textAnchor="middle" className={`q-picture__frac${bottom === "?" ? " q-picture__label--ask" : ""}`}>{bottom}</text>
+    </g>
+  );
+  const ask = k === "?" ? " q-picture__label--ask" : " q-picture__times";
+  return (
+    <g direction="ltr">
+      <defs>
+        <marker id="fx-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--orange)" />
+        </marker>
+      </defs>
+      {frac(60, n, d)}
+      <text x={110} y={102} textAnchor="middle" className="q-picture__frac">=</text>
+      {frac(160, bn, bd)}
+      <path d="M70 50 Q110 14 150 50" fill="none" stroke="var(--orange)" strokeWidth="3" markerEnd="url(#fx-arrow)" />
+      <text x={110} y={18} textAnchor="middle" className={`q-picture__label${ask}`}>× {k}</text>
+      <path d="M70 140 Q110 160 150 140" fill="none" stroke="var(--orange)" strokeWidth="3" markerEnd="url(#fx-arrow)" />
+      <text x={110} y={177} textAnchor="middle" className={`q-picture__label${ask}`}>× {k}</text>
+    </g>
+  );
+}
+
 const SHAPES = {
+  FRAC_EXPAND: fracExpand,
   TRIANGLE_SIDES: triangleSides,
   LINE_ANGLE: (a) => lineAngle(a),
   FRACTION_PIE: pie,

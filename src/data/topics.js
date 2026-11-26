@@ -26,6 +26,8 @@ export const TOPICS = [
   { key: "DIVISIBILITY", emoji: "🧩", name: "התחלקות וראשוניים", blurb: "מחלקים, כפולות ומספרים ראשוניים", color: "var(--blue)" },
   { key: "MEASURE", emoji: "⏳", name: "מדידות", blurb: "מטר, ק״ג, ליטר, שעות ודקות", color: "var(--pink)" },
   { key: "DECIMALS", emoji: "🔟", name: "מספרים עשרוניים", blurb: "עשיריות, מאיות והנקודה", color: "var(--teal)" },
+  // 2026-11-26 (Shir, like the workbook): expanding fractions - the missing number, "by how much", ×N
+  { key: "FRAC_EXPAND", emoji: "✖️", name: "הרחבת שברים", blurb: "כופלים למעלה ולמטה באותו מספר", color: "var(--orange)" },
   { key: "PERCENT", emoji: "💯", name: "אחוזים", blurb: "חצי, רבע, 10% והנחות", color: "var(--red-soft)" },
   { key: "RATIO", emoji: "🍳", name: "יחס", blurb: "על כל 2... יש 3, מתכונים ומפות", color: "var(--orange)" },
   { key: "DATA", emoji: "📊", name: "נתונים וגרפים", blurb: "קוראים גרף, ממוצע וסיכוי", color: "var(--blue)" },
@@ -39,7 +41,7 @@ export const TOPICS = [
 export const TOPIC_GROUPS = [
   { key: "test", emoji: "🎯", name: "תרגול כללי", keys: ["MEITZAV", "MIXED"] },
   { key: "numbers", emoji: "🔢", name: "מספרים ופעולות", keys: ["ADDITION", "SUBTRACTION", "MULTIPLICATION", "DIVISION", "COMPARISON", "SEQUENCES", "MAKE_TEN", "EVEN_ODD", "ORDER_OPS", "ROUNDING", "DIVISIBILITY", "EQUATIONS", "WORD_PROBLEMS"] },
-  { key: "fractions", emoji: "🍕", name: "שברים, עשרוניים ואחוזים", keys: ["FRACTIONS", "DECIMALS", "PERCENT", "RATIO"] },
+  { key: "fractions", emoji: "🍕", name: "שברים, עשרוניים ואחוזים", keys: ["FRACTIONS", "FRAC_EXPAND", "DECIMALS", "PERCENT", "RATIO"] },
   { key: "geometry", emoji: "📐", name: "גיאומטריה ומדידות", keys: ["ANGLES", "ANGLE_CALC", "PERIMETER", "AREA", "CIRCLE", "VOLUME", "MEASURE"] },
   { key: "data", emoji: "📊", name: "נתונים", keys: ["DATA"] },
 ];
@@ -55,9 +57,9 @@ const NEW_BY_GRADE = {
   G1: ["EVEN_ODD", "MAKE_TEN"],
   G2: ["EVEN_ODD", "MAKE_TEN", "MEASURE", "DATA"],
   G3: ["EVEN_ODD", "MAKE_TEN", "ORDER_OPS", "ROUNDING", "DIVISIBILITY", "MEASURE", "DATA", "EQUATIONS"],
-  G4: ["EVEN_ODD", "MAKE_TEN", "ORDER_OPS", "ROUNDING", "DIVISIBILITY", "MEASURE", "DECIMALS", "DATA", "EQUATIONS"],
-  G5: ["EVEN_ODD", "MAKE_TEN", "ORDER_OPS", "ROUNDING", "DIVISIBILITY", "MEASURE", "DECIMALS", "DATA", "VOLUME", "EQUATIONS"],
-  G6: ["EVEN_ODD", "MAKE_TEN", "ORDER_OPS", "ROUNDING", "DIVISIBILITY", "MEASURE", "DECIMALS", "PERCENT", "RATIO", "DATA", "CIRCLE", "VOLUME", "EQUATIONS"],
+  G4: ["EVEN_ODD", "MAKE_TEN", "ORDER_OPS", "ROUNDING", "DIVISIBILITY", "MEASURE", "FRAC_EXPAND", "DECIMALS", "DATA", "EQUATIONS"],
+  G5: ["EVEN_ODD", "MAKE_TEN", "ORDER_OPS", "ROUNDING", "DIVISIBILITY", "MEASURE", "FRAC_EXPAND", "DECIMALS", "DATA", "VOLUME", "EQUATIONS"],
+  G6: ["EVEN_ODD", "MAKE_TEN", "ORDER_OPS", "ROUNDING", "DIVISIBILITY", "MEASURE", "FRAC_EXPAND", "DECIMALS", "PERCENT", "RATIO", "DATA", "CIRCLE", "VOLUME", "EQUATIONS"],
 };
 const ALL_NEW = NEW_BY_GRADE.G6;
 const OLD = TOPICS.map((t) => t.key).filter((k) => !ALL_NEW.includes(k));
