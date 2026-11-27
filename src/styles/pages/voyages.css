@@ -1,0 +1,11 @@
+/* 2026-11-27 (idea #7): ship voyages */
+.voyages__list { display: grid; gap: 12px; }
+.voyages__dest { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: none; cursor: pointer;
+  text-align: start; transition: transform .12s; }
+.voyages__dest:active { transform: scale(.98); }
+.voyages__dest.is-done { opacity: .6; cursor: default; }
+.voyages__emoji { font-size: 2.2rem; }
+.voyages__name { font-weight: 800; font-size: 1.1rem; flex: 1; }
+.voyages__coins { font-weight: 700; color: var(--purple, #7051f5); }
+.voyages__result { text-align: center; }
+.voyages__treasure { font-size: 2.6rem; margin: 0; }

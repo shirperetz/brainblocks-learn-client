@@ -28,6 +28,7 @@ const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const ParentReportPage = lazy(() => import("./pages/ParentReportPage"));
 const CollectionPage = lazy(() => import("./pages/CollectionPage"));
 const MistakesIslandPage = lazy(() => import("./pages/MistakesIslandPage"));
+const VoyagesPage = lazy(() => import("./pages/VoyagesPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const AccessibilityPage = lazy(() => import("./pages/AccessibilityPage"));
@@ -78,6 +79,7 @@ export default function AppRouter() {
       <Route path="/parent/:code" element={<ParentReportPage />} />
       <Route path="/collection" element={<CollectionPage />} />
       <Route path="/mistakes-island" element={<MistakesIslandPage />} />
+      <Route path="/voyages" element={<VoyagesPage />} />
       <Route path="/accessibility" element={<AccessibilityPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/staff" element={<StaffPage />} />

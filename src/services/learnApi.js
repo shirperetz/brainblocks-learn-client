@@ -215,6 +215,14 @@ export function staffChildren(classId) {
   return apiRequest(`/api/learn/staff/children${classId != null ? `?classId=${classId}` : ""}`);
 }
 
+// 2026-11-27 (idea #7): ship voyages
+export function getVoyages(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/voyages`);
+}
+export function voyageReward(profileId, key) {
+  return apiRequest(`/api/learn/profiles/${profileId}/voyages/${key}/reward`, { method: "POST", body: "{}" });
+}
+
 // 2026-11-27 (idea #6): badges + collection
 export function getBadges(profileId) {
   return apiRequest(`/api/learn/profiles/${profileId}/badges`);
