@@ -57,6 +57,9 @@ export default function LandingPage() {
                   <BigButton variant="ghost" onClick={() => navigate("/collection")}>
                     🏅 האוסף שלי
                   </BigButton>
+                  <BigButton variant="ghost" onClick={() => navigate("/mistakes-island")}>
+                    🧹 אי הטעויות
+                  </BigButton>
                   <BigButton variant="blue" onClick={() => navigate("/my-island")}>
                     🏝️ האי שלי
                   </BigButton>

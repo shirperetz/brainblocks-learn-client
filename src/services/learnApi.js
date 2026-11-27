@@ -148,6 +148,14 @@ export function getMistakes(profileId) {
   return apiRequest(`/api/learn/profiles/${profileId}/mistakes`);
 }
 
+// 2026-11-27 (idea #5 - mistakes island): all open mistakes + cleaning one
+export function getAllMistakes(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/mistakes/all`);
+}
+export function cleanMistake(mistakeId, profileId) {
+  return apiRequest(`/api/learn/mistakes/${mistakeId}/clean?profileId=${profileId}`, { method: "POST" });
+}
+
 export function resolveMistake(mistakeId, profileId) {
   return apiRequest(`/api/learn/mistakes/${mistakeId}/resolve?profileId=${profileId}`, { method: "POST" });
 }
