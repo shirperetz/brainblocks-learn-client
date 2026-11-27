@@ -59,7 +59,7 @@ export default function ParentReportPage() {
         ) : (
           <p>השבוע {r.name} עוד לא תרגל/ה. עשר דקות ביום עושות הבדל גדול 🙂</p>
         )}
-        <p>{trend.emoji} {trend.label}{r.dailyStreak > 1 ? ` · 🔥 ${r.dailyStreak} ימים ברצף` : ""} · ⭐ {r.stars ?? 0} כוכבים</p>
+        <p>{trend.emoji} {trend.label}{r.dailyStreak > 1 ? ` · 🔥 ${r.dailyStreak} ימים ברצף` : ""} · ⭐ {r.stars === 1 ? "כוכב אחד" : `${r.stars ?? 0} כוכבים`}</p>
       </section>
 
       {r.strong?.length > 0 && (
@@ -83,10 +83,10 @@ export default function ParentReportPage() {
         </section>
       )}
 
-      {r.recommendation && (
+      {r.recommendation?.text && (
         <section className="staff-card">
           <h2>✨ ההמלצה שלנו</h2>
-          <p>{r.recommendation}</p>
+          <p>{r.recommendation.text}</p>
         </section>
       )}
 
