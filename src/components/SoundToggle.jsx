@@ -12,6 +12,7 @@ export default function SoundToggle() {
   // 2026-11-22: the classroom board (projector) has no voice - the button sat on top of its clock.
   const { pathname } = useLocation();
   if (/\/board$/.test(pathname)) return null;
+  if (pathname.startsWith("/parent/")) return null; // 2026-11-27 (Shir): not on the parents' report
 
   function toggle() {
     setMuted(!muted);
