@@ -1,3 +1,4 @@
+import AwardForm from "../components/AwardForm";
 import { useCallback, useEffect, useState } from "react";
 import DolphinPerch from "../components/DolphinPerch";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -270,6 +271,7 @@ export default function StaffPage() {
           {["G5", "G6", undefined, null].includes(classes.find((c) => c.id === tab)?.grade) && <MeitzavCard key={`m${tab}`} classId={tab} />}
           <ClassBuilding key={`b${tab}`} classId={tab} />
           <StaffWeeklyTasks key={tab} cls={classes.find((c) => c.id === tab)} />
+          <AwardForm key={`award${tab}`} classId={tab} />
         </>
       )}
       {typeof tab !== "number" && classes.length > 0 && (

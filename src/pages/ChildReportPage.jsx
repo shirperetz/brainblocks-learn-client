@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import MathText from "../components/MathText";
+import AwardForm from "../components/AwardForm";
 import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
 import { GRADES, getGrade } from "../data/grades";
@@ -52,6 +53,7 @@ export default function ChildReportPage() {
           onSaved={(advanced) => setReport({ ...report, advanced })}
         />
       )}
+      {report && <AwardForm key={`aw${report.child.id}`} childId={report.child.id} who={report.child.name} />}
       {report && <ParentLinkCard key={`pl${report.child.id}`} child={report.child} />}
       {report && <NewPassword key={`p${report.child.id}`} child={report.child} />}
       {report && (

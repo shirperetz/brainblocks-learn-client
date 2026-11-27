@@ -878,3 +878,20 @@
 .parent-report__list { margin: 0; padding-inline-start: 1.2em; line-height: 1.8; }
 .parent-report__foot { text-align: center; margin: 16px 0 32px; }
 .parent-link__url { width: 100%; margin-bottom: 8px; }
+
+/* 2026-11-27: the teacher's prize (idea #10) */
+.award-form__row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.award-form__pick { min-width: 44px; min-height: 44px; border-radius: 12px; border: 2px solid var(--line, #ddd); background: var(--card, #fff); font-size: 1.2rem; cursor: pointer; transition: transform .12s; }
+.award-form__pick:active { transform: scale(.94); }
+.award-form__pick.is-on { border-color: var(--purple); background: var(--card-2, #f1edff); }
+.award-form__msg { width: 100%; margin-bottom: 8px; }
+.award-pop { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgb(20 16 50 / .45); }
+.award-pop__card { width: min(420px, 100%); background: var(--card, #fff); border-radius: 24px; padding: 24px 20px; text-align: center; box-shadow: 0 18px 50px rgb(0 0 0 / .25); animation: award-in .35s cubic-bezier(.2, .9, .3, 1.2); }
+.award-pop__emoji { font-size: 3.4rem; }
+.award-pop__card h2 { margin: 6px 0 10px; }
+.award-pop__line { font-size: 1.1rem; line-height: 1.5; }
+.award-pop__from { color: var(--muted, #666); font-size: .95rem; }
+.award-pop__coins { font-weight: 800; font-size: 1.15rem; }
+.award-pop__ok { margin-top: 10px; min-width: 140px; }
+@keyframes award-in { from { transform: scale(.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .award-pop__card { animation: none; } }

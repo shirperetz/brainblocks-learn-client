@@ -207,6 +207,17 @@ export function staffChildren(classId) {
   return apiRequest(`/api/learn/staff/children${classId != null ? `?classId=${classId}` : ""}`);
 }
 
+// 2026-11-27 (idea #10): a prize from the teacher
+export function staffGiveAward(body) {
+  return apiRequest("/api/learn/staff/awards", { method: "POST", body: JSON.stringify(body) });
+}
+export function myNewAwards(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/awards`);
+}
+export function markAwardsSeen(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/awards/seen`, { method: "POST", body: "{}" });
+}
+
 // 2026-11-26 (idea #9): the read-only link for parents
 export function staffParentLink(childId) {
   return apiRequest(`/api/learn/staff/children/${childId}/parent-link`);
