@@ -54,6 +54,9 @@ export default function LandingPage() {
                   <BigButton variant="blue" onClick={() => navigate("/room")}>
                     🎮 יש לי קוד מהמורה - להיכנס למשחק
                   </BigButton>
+                  <BigButton variant="ghost" onClick={() => navigate("/collection")}>
+                    🏅 האוסף שלי
+                  </BigButton>
                   <BigButton variant="blue" onClick={() => navigate("/my-island")}>
                     🏝️ האי שלי
                   </BigButton>

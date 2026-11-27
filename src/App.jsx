@@ -3,6 +3,7 @@ import SoundToggle from "./components/SoundToggle";
 import Companion from "./components/Companion";
 import Guide from "./components/Guide";
 import AwardPopup from "./components/AwardPopup";
+import BadgePopup from "./components/BadgePopup";
 import "./styles/pages/staff.css";
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
       <Companion />
       <Guide />
       <AwardPopup />
+      <BadgePopup />
     </>
   );
 }

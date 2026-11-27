@@ -1,0 +1,16 @@
+/* 2026-11-27 (idea #6): the collection / badges page */
+.collection { max-width: 640px; margin-inline: auto; padding-inline: 16px; }
+.collection__top { display: flex; align-items: center; gap: 10px; }
+.collection__top h1 { font-size: 1.5rem; margin: 0; }
+.collection__count { text-align: center; font-size: 1.05rem; }
+.collection__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+.badge { background: var(--card, #fff); border-radius: 16px; padding: 12px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgb(0 0 0 / .06); }
+.badge.is-locked { opacity: .55; filter: grayscale(.5); }
+.badge__emoji { font-size: 2.2rem; }
+.badge__name { font-size: .8rem; font-weight: 700; line-height: 1.2; }
+.badge__bar { position: relative; width: 100%; height: 14px; background: var(--card-2, #eee); border-radius: 8px; overflow: hidden; }
+.badge__fill { position: absolute; inset: 0 auto 0 0; background: var(--purple, #7051f5); border-radius: 8px; }
+.badge__nums { position: relative; font-size: .65rem; font-weight: 700; color: #333; line-height: 14px; }
+.collection__album { background: var(--card, #fff); border-radius: 16px; padding: 16px; margin: 16px 0 32px; text-align: center; }
+.collection__album h2 { margin: 0 0 6px; }
+.award-pop__row { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }

@@ -207,6 +207,17 @@ export function staffChildren(classId) {
   return apiRequest(`/api/learn/staff/children${classId != null ? `?classId=${classId}` : ""}`);
 }
 
+// 2026-11-27 (idea #6): badges + collection
+export function getBadges(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/badges`);
+}
+export function newBadges(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/badges/new`);
+}
+export function markBadgesSeen(profileId) {
+  return apiRequest(`/api/learn/profiles/${profileId}/badges/seen`, { method: "POST", body: "{}" });
+}
+
 // 2026-11-27 (idea #10): a prize from the teacher
 export function staffGiveAward(body) {
   return apiRequest("/api/learn/staff/awards", { method: "POST", body: JSON.stringify(body) });
