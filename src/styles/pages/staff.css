@@ -866,3 +866,15 @@
   font: inherit;
   background: #fff;
 }
+
+/* 2026-11-26: the parents' report (/parent/:code) and its staff card */
+.parent-report { max-width: 640px; margin-inline: auto; padding-inline: 16px; }
+.parent-report__head { display: flex; gap: 14px; align-items: center; }
+.parent-report__head h1 { margin: 0; font-size: 1.5rem; }
+.parent-report__avatar { font-size: 2.6rem; }
+.parent-report__stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0 0 8px; }
+.parent-report__stats li { background: var(--card-2, #f4f2ff); border-radius: 12px; padding: 10px; text-align: center; }
+.parent-report__stats b { display: block; font-size: 1.5rem; }
+.parent-report__list { margin: 0; padding-inline-start: 1.2em; line-height: 1.8; }
+.parent-report__foot { text-align: center; margin: 16px 0 32px; }
+.parent-link__url { width: 100%; margin-bottom: 8px; }

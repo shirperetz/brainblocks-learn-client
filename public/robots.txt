@@ -4,6 +4,7 @@ User-agent: *
 Allow: /$
 Allow: /privacy
 Allow: /accessibility
-Allow: /parent
+Allow: /parent$
+Disallow: /parent/
 Allow: /contact
 Disallow: /

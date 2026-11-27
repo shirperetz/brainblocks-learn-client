@@ -207,6 +207,20 @@ export function staffChildren(classId) {
   return apiRequest(`/api/learn/staff/children${classId != null ? `?classId=${classId}` : ""}`);
 }
 
+// 2026-11-26 (idea #9): the read-only link for parents
+export function staffParentLink(childId) {
+  return apiRequest(`/api/learn/staff/children/${childId}/parent-link`);
+}
+export function staffMakeParentLink(childId) {
+  return apiRequest(`/api/learn/staff/children/${childId}/parent-link`, { method: "POST" });
+}
+export function staffCancelParentLink(childId) {
+  return apiRequest(`/api/learn/staff/children/${childId}/parent-link`, { method: "DELETE" });
+}
+export function parentView(code) {
+  return apiRequest(`/api/learn/parent-view/${encodeURIComponent(code)}`);
+}
+
 export function staffReport(childId) {
   return apiRequest(`/api/learn/staff/children/${childId}/report`);
 }

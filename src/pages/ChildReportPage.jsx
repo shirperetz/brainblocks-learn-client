@@ -5,6 +5,7 @@ import { useProfile } from "../context/profileStore";
 import { getCharacter } from "../data/characters";
 import { GRADES, getGrade } from "../data/grades";
 import { LEVELS, LEVEL_ORDER, TREND, levelOf, timeAgo, topicInfo } from "../data/progress";
+import { staffCancelParentLink, staffMakeParentLink, staffParentLink } from "../services/learnApi";
 import { staffCancelAssignment, staffGivePractice, staffMe, staffMoveChild, staffPractice, staffReport, staffSetChallenge, staffSetCalm, staffSetGrade, staffSetPassword } from "../services/learnApi";
 import { TOPICS, isTopicAllowedForGrade } from "../data/topics";
 import "../styles/pages/staff.css";
@@ -51,6 +52,7 @@ export default function ChildReportPage() {
           onSaved={(advanced) => setReport({ ...report, advanced })}
         />
       )}
+      {report && <ParentLinkCard key={`pl${report.child.id}`} child={report.child} />}
       {report && <NewPassword key={`p${report.child.id}`} child={report.child} />}
       {report && (
         <MoveClass
@@ -247,6 +249,75 @@ function NewPassword({ child }) {
         <button className="admin__btn" disabled={password.length < 6} onClick={save}>שמירה</button>
       </div>
       {msg && <p className="admin__message" role="status">{msg}</p>}
+      {err && <p className="form-error">{err}</p>}
+    </section>
+  );
+}
+
+/**
+ * 2026-11-26 (Shir: idea #9): a link for the parents - what was practised this week, what is strong,
+ * where to help at home. Read-only, 30 days, the full link shows once (only its hash is kept).
+ */
+function ParentLinkCard({ child }) {
+  const [state, setState] = useState(null);
+  const [link, setLink] = useState("");
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    let alive = true;
+    staffParentLink(child.id).then((s) => alive && setState(s)).catch((e) => alive && setErr(e.message));
+    return () => {
+      alive = false;
+    };
+  }, [child.id]);
+
+  async function make() {
+    if (state?.active && !await ask("יש כבר קישור פעיל. ליצור חדש? הקודם יפסיק לעבוד.")) return;
+    try {
+      const r = await staffMakeParentLink(child.id);
+      setLink(`${window.location.origin}${r.path}`);
+      setState({ active: true, expiresAt: r.expiresAt });
+      setErr("");
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+
+  async function cancel() {
+    if (!await ask("לבטל את הקישור? ההורים לא יוכלו לפתוח אותו יותר.")) return;
+    try {
+      setState(await staffCancelParentLink(child.id));
+      setLink("");
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+
+  const text = `שלום! זה הדוח של ${child.name} בעולם החשבון - מה תרגלנו השבוע ואיך אפשר לעזור בבית: ${link}`;
+  return (
+    <section className="staff-card">
+      <h2>👪 דוח להורים</h2>
+      <p className="staff-card__hint">קישור לקריאה בלבד: מה {child.name} תרגל/ה השבוע, במה חזק/ה ובמה כדאי לעזור בבית. בלי סיסמה, פעיל 30 יום.</p>
+      {state?.active && !link && (
+        <p className="staff-card__hint">
+          יש קישור פעיל עד {new Date(state.expiresAt).toLocaleDateString("he-IL")}
+          {state.lastViewedAt ? ` · נפתח לאחרונה ${new Date(state.lastViewedAt).toLocaleDateString("he-IL")}` : " · עוד לא נפתח"}
+        </p>
+      )}
+      {link && (
+        <>
+          <input className="admin__input parent-link__url" value={link} readOnly dir="ltr" aria-label="הקישור להורים" onFocus={(e) => e.target.select()} />
+          <div className="admin__row">
+            <button className="admin__btn" onClick={() => navigator.clipboard?.writeText(link)}>📋 העתקה</button>
+            <a className="admin__btn" href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">💬 שליחה בוואטסאפ</a>
+          </div>
+          <p className="staff-card__hint">הקישור המלא מוצג רק עכשיו - שמרו או שלחו אותו.</p>
+        </>
+      )}
+      <div className="admin__row">
+        <button className="admin__btn" onClick={make}>{state?.active ? "🔄 קישור חדש" : "🔗 יצירת קישור"}</button>
+        {state?.active && <button className="admin__btn admin__btn--ghost" onClick={cancel}>ביטול הקישור</button>}
+      </div>
       {err && <p className="form-error">{err}</p>}
     </section>
   );
