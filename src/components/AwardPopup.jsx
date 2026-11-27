@@ -17,6 +17,14 @@ export default function AwardPopup() {
   const kid = Boolean(profile && !profile.teacher && !profile.admin);
   const here = WHERE.includes(pathname);
   const id = profile?.id;
+  // the dolphin's tour / "show you the site?" question goes first - the prize waits until it closes
+  const [guideOpen, setGuideOpen] = useState(() => Boolean(document.querySelector(".guide")));
+  useEffect(() => {
+    const check = () => setGuideOpen(Boolean(document.querySelector(".guide")));
+    const mo = new MutationObserver(check);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!kid || !here || !id) return undefined;
@@ -25,7 +33,6 @@ export default function AwardPopup() {
       .then((a) => {
         if (!alive || !a?.length) return;
         setAwards(a);
-        sfx.star();
       })
       .catch(() => {});
     return () => {
@@ -33,7 +40,11 @@ export default function AwardPopup() {
     };
   }, [kid, here, id]);
 
-  if (!kid || !here || awards.length === 0) return null;
+  useEffect(() => {
+    if (kid && here && awards.length > 0 && !guideOpen) sfx.star();
+  }, [kid, here, awards.length, guideOpen]);
+
+  if (!kid || !here || awards.length === 0 || guideOpen) return null;
   const coins = awards.reduce((s, a) => s + (a.coins || 0), 0);
 
   async function thanks() {

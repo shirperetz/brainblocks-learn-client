@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { staffGivePractice, staffMeitzav, staffTomorrow, staffWeekly } from "../services/learnApi";
 import { getTopic } from "../data/topics";
 import MathText from "./MathText";
+import Worksheet from "./Worksheet";
 import "../styles/components/teacher-insights.css";
 
 /**
@@ -52,9 +53,10 @@ export function WeeklyCard({ classId }) {
   );
 }
 
-export function TomorrowCard({ classId }) {
+export function TomorrowCard({ classId, className }) {
   const [d, setD] = useState(null);
   const [note, setNote] = useState("");
+  const [printing, setPrinting] = useState(false);
   useEffect(() => {
     let alive = true;
     staffTomorrow(classId).then((x) => alive && setD(x)).catch(() => alive && setD({ focus: [], quiet: [], error: true }));
@@ -81,6 +83,10 @@ export function TomorrowCard({ classId }) {
     <section className="staff-card ti" aria-label="מה ללמד מחר">
       <h2>📋 מה ללמד מחר</h2>
       <p className="staff-card__hint">לפי התשובות של הכיתה ב-{d.days ?? 14} הימים האחרונים</p>
+      {d.focus.some((f) => f.examples?.length) && (
+        <button className="admin__btn ti__print" onClick={() => setPrinting(true)}>🖨️ דף עבודה להדפסה</button>
+      )}
+      {printing && <Worksheet focus={d.focus} className={className} onDone={() => setPrinting(false)} />}
       {d.focus.length === 0 && (
         <p className="ti__empty">{d.error ? "לא הצלחנו לטעון כרגע." : "אין כרגע משהו שרוב הכיתה מתקשה בו 🎉 (או שעוד אין מספיק תשובות)."}</p>
       )}

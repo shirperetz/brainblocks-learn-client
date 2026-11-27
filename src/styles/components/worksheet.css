@@ -1,0 +1,22 @@
+/* 2026-11-27 (idea #11): the printable worksheet. On screen it is hidden; when printing only it shows. */
+.ws { display: none; }
+
+@media print {
+  body > *:not(.ws) { display: none !important; }
+  body { background: #fff !important; }
+  .ws { display: block; color: #000; font-family: var(--font, Rubik, Arial, sans-serif); font-size: 13pt; }
+  .ws__head { border-bottom: 2px solid #000; margin-bottom: 14pt; padding-bottom: 6pt; }
+  .ws__head h1 { margin: 0; font-size: 20pt; }
+  .ws__head p { margin: 2pt 0; }
+  .ws__name { margin-top: 8pt !important; font-size: 14pt; }
+  .ws__part { break-inside: avoid; margin-bottom: 14pt; }
+  .ws__part h2 { font-size: 15pt; margin: 0 0 4pt; }
+  .ws__tip { margin: 0 0 6pt; font-style: italic; }
+  .ws__list { margin: 0; padding-inline-start: 22pt; }
+  .ws__list li { margin-bottom: 14pt; }
+  .ws__q { display: inline-block; min-width: 45%; }
+  .ws__line { display: inline-block; width: 40%; border-bottom: 1px solid #000; height: 1.2em; vertical-align: bottom; }
+  .ws__answers { break-before: page; }
+  .ws__answers h2 { font-size: 15pt; }
+  @page { margin: 16mm; }
+}

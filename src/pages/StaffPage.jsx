@@ -267,7 +267,7 @@ export default function StaffPage() {
       {typeof tab === "number" && tab !== 0 && classes.find((c) => c.id === tab) && (
         <>
           <WeeklyCard key={`w${tab}`} classId={tab} />
-          <TomorrowCard key={`t${tab}`} classId={tab} />
+          <TomorrowCard key={`t${tab}`} classId={tab} className={classes.find((c) => c.id === tab)?.name} />
           {["G5", "G6", undefined, null].includes(classes.find((c) => c.id === tab)?.grade) && <MeitzavCard key={`m${tab}`} classId={tab} />}
           <ClassBuilding key={`b${tab}`} classId={tab} />
           <StaffWeeklyTasks key={tab} cls={classes.find((c) => c.id === tab)} />
